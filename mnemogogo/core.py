@@ -373,7 +373,7 @@ def do_export(interface, num_days, sync_path, extra = 1.00):
 	    'grade_0_items_at_once'
 		: mnemosyne.core.get_config('grade_0_items_at_once'),
 	    'logging'
-		: mnemosyne.core.get_config('upload_logs'),
+		: "%d" % mnemosyne.core.get_config('upload_logs'),
 	}
 
     cards = list(cards_for_ndays(num_days, extra))
@@ -441,7 +441,7 @@ def do_import(interface, sync_path):
 	log = open(logpath)
 
 	line = self.statfile.readline()
-	while line != ''
+	while line != '':
 	    mnemosyne.core.logger.info(line)
 	    line = self.statfile.readline()
 

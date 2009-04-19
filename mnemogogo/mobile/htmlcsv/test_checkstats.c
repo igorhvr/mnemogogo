@@ -83,9 +83,11 @@ int main(int argc, char** argv)
 	fprintf(stderr, "error: %s\n", errorstr(r));
 	return r;
     }
+    fprintf(stderr, "assert after load.\n");
     assertinvariants();
 
     while (getcard(&curr)) {
+	fprintf(stderr, "assert after getcard.\n");
 	assertinvariants();
 
 	if (grades[curr] == -1) {
@@ -98,7 +100,6 @@ int main(int argc, char** argv)
 	}
     }
 
-    assertinvariants();
     savecarddb(dstpath);
     freecarddb();
     return 0;

@@ -3,15 +3,18 @@
 #include <stdlib.h>
 #include "htmlcsv.h"
 
-void quit(void)
-{
-    savecarddb(NULL);
-    freecarddb();
-}
+/*
+    Potential mobile clients:
+    * Symbian S60 OS on (mostly) Nokia mobile phones
+	- use P.I.P.S to compile htmlcsv library
+	- rewrite the main function in Sybmian C++
+	- use the web browser control to display cards
+ */
 
 int main(int argc, char** argv)
 {
     int grade, numsched, r;
+    int done = 0;
     card_t curr;
 
     // TODO: change directory to the import path
@@ -22,7 +25,7 @@ int main(int argc, char** argv)
 	errorstr(r);
     }
 
-    while (getcard(&curr)) {
+    while (!done && getcard(&curr)) {
 	numsched = numscheduled();
 	// TODO: display the number of scheduled cards
 
@@ -40,7 +43,8 @@ int main(int argc, char** argv)
 	processanswer(curr, grade);
     }
 
-    quit();
+    savecarddb(NULL);
+    freecarddb();
 
     return 0;
 }

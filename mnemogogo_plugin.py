@@ -158,8 +158,8 @@ class MnemoGoGoPlugin(Plugin):
 	if not self.is_locked: return text
 
 	text = "<b><font color=\"red\">%s</font></b>" % self.lock_msg_main
-	text += "<br><img src=\"plugins/mnemogogo/locked.png\">"
-	text += "<br><i>%s</i>" % self.lock_msg_info
+	text += "<br><br><img src=\"plugins/mnemogogo/locked.png\">"
+	text += "<br><br><i>%s</i>" % self.lock_msg_info
 	text += "<card style=\"answerbox: overlay\"/>"
 
 	return mnemosyne.core.preprocess(text)

@@ -225,7 +225,6 @@ int loadcarddb(char* path)
     fclose(fin);
     adjusted_now = time(NULL) - (day_starts_at * 3600);
     days_since_start = (stat_t)((adjusted_now - start_time) / 86400);
-    printf("days_since_start=%d\n", days_since_start); // XXX debugging XXX
 
     // read configuration 
     read_config(join(fpath, path, "config"));
@@ -747,7 +746,7 @@ void assertinvariants(void)
     assert(revqueue.num_scheduled <= revqueue.idx_new);
     assert(revqueue.idx_new <= revqueue.limit_new);
     assert(revqueue.limit_new <= revqueue.size);
-    assert((revqueue.curr < revqueue.num_scheduled)
+    assert((revqueue.curr <= revqueue.num_scheduled)
 	   || ((revqueue.curr > revqueue.idx_new)
 	       && (revqueue.curr <= revqueue.limit_new)));
 }
