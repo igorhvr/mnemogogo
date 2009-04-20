@@ -225,7 +225,7 @@ int loadcarddb(char* path)
     }
     start_time = getdecimal(fin);
     fclose(fin);
-    adjusted_now = time(NULL) - (day_starts_at * 3600);
+    adjusted_now = (time_t)time(NULL) - (day_starts_at * 3600);
     days_since_start = (adjusted_now - start_time) / 86400;
 
     // read configuration 
@@ -592,7 +592,7 @@ float easiness(stat_t val, stat_t easiness)
 }
 
 // Adapted directly from Peter Bienstman's Mnemosyne 1.x
-int calculate_interval_noise(stat_t interval)
+int calculate_interval_noise(int interval)
 {
     int a;
 
@@ -600,17 +600,17 @@ int calculate_interval_noise(stat_t interval)
         return 0;
 
     } else if (interval == 1) {
-        return (stat_t)randint(0, 1);
+        return randint(0, 1);
 
     } else if (interval <= 10) {
-        return (stat_t)randint(-1, 1);
+        return randint(-1, 1);
 
     } else if (interval <= 60) {
-        return (stat_t)randint(-3, 3);
+        return randint(-3, 3);
 
     } else {
         a = interval / 20;
-        return (stat_t)(randint(-a, a));
+        return randint(-a, a);
     }
 }
 
@@ -719,12 +719,12 @@ void processanswer(card_t i, int new_grade)
     }
 
     // Add some randomness to interval.
-    noise = calculate_interval_noise(new_interval);
+    noise = calculate_interval_noise((int)new_interval);
 
     // Update grade and interval.
     item->grade    = new_grade;
     item->last_rep = days_since_start;
-    item->next_rep = days_since_start + (int)new_interval + noise;
+    item->next_rep = days_since_start + (time_t)new_interval + noise;
     item->unseen   = 0;
     
     if (logfile != NULL) {
@@ -758,12 +758,12 @@ char* htmlfilename(card_t i, int answer)
 
 void assertinvariants(void)
 {
-    assert(sizeof(card_t) >= 2);   // bytes
-    assert(sizeof(grade_t) >= 1);  // byte
-    assert(sizeof(cat_t) >= 1);    // byte
-    assert(sizeof(bool_t) >= 1);   // byte
-    assert(sizeof(stat_t) >= 2);   // bytes
-    assert(sizeof(time_t) >= 4);   // bytes
+    assert(sizeof(card_t) >= 2);    // bytes
+    assert(sizeof(grade_t) >= 1);   // byte
+    assert(sizeof(cat_t) >= 1);	    // byte
+    assert(sizeof(bool_t) >= 1);    // byte
+    assert(sizeof(stat_t) >= 2);    // bytes
+    assert(sizeof(time_t) >= 4);    // bytes
 
     assert(revqueue.num_scheduled <= (revqueue.idx_new + 1));
     assert(revqueue.idx_new <= revqueue.limit_new);

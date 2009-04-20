@@ -140,6 +140,7 @@ class Import(mnemogogo.Import):
 	self.num_stats = len(self.learning_data)
 	self.line = 0
 	self.serial_num = 0
+	self.serial_to_id = {}
 
     def close(self):
 	self.statfile.close()

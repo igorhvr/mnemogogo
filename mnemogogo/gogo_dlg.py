@@ -82,6 +82,9 @@ class GoGoDlg(GoGoFrm):
 
     def __init__(self, parent=None, name=None, modal=0, fl=0):
 	GoGoFrm.__init__(self, parent, name, modal, fl)
+
+	self.main_dlg = parent
+
 	self.setLocal()
 
 	self.connect(self.exportButton, SIGNAL("clicked()"), self.doExport)
@@ -116,6 +119,10 @@ class GoGoDlg(GoGoFrm):
 		self.name_to_object[self.settings['interface']],
 		self.settings['sync_path'])
 	    self.setLocal()
+	    rebuild_revision_queue(False)
+	    self.main_dlg.newQuestion()
+	    self.main_dlg.updateDialog()
+
 	except InterfaceError, e:
 	    self.showError(unicode(e))
 	except MnemoGoGo, e:
