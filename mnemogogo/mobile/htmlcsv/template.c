@@ -25,18 +25,19 @@ int main(int argc, char** argv)
 	errorstr(r);
     }
 
+    buildrevisionqueue();
+
     while (!done && getcard(&curr)) {
 	numsched = numscheduled();
 	// TODO: display the number of scheduled cards
 
 	// TODO: display html file:
-	htmlfilename(curr); // prefix with 'cards/'
+	htmlfilename(curr, 0); // prefix with 'cards/'
 
 	// TODO: wait for 'show answer' key
-	if (hasoverlay(curr)) {
-	    // TODO: set htmldoc.body.q.style = 'display: none'
-	}
-	// TODO: set htmldoc.body.a.style = 'display: block'
+	//
+	// TODO: display html file:
+	htmlfilename(curr, 1); // prefix with 'cards/'
 	
 	// TODO: wait for 'grade' key
 	grade = 4;

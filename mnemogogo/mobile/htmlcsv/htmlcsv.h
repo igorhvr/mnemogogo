@@ -44,12 +44,12 @@ int savecarddb(char* path);
 char* printstats(card_t);
 const char* errorstr(int);
 
-void build_revision_queue(void);
+void buildrevisionqueue(void);
 int numscheduled(void);
 int getcard(card_t* next);
-int hasoverlay(card_t);
 void processanswer(card_t item, int new_grade);
-char* htmlfilename(card_t);
+char* htmlfilename(card_t, int answer);
 void assertinvariants(void);
+void debughtmlcsv(FILE*, int showqueue);
 
 #endif

@@ -24,14 +24,14 @@
 
 #define PATH_SEP '/'
 
-#define LEN_STAT_LINE 57
-#define NUM_STATS 13
-#define STATLINE_FORMAT "%1hhx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%1hhx,%04hx,%04hx,%1hhx\n"
+#define LEN_STAT_LINE 55
+#define NUM_STATS 12
+#define STATLINE_FORMAT "%1hhx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%1hhx,%04hx,%04hx\n"
 
 #define STAT_FORMAT "gr=%1d e=%2.03f r=%4d l=%4d ds=%5d"
 char statstring[] = "gr=0 e=00.000 r=0000 l=0000 ds=00000";
 
-#define LEN_HTMLFILENAME 9
+#define LEN_HTMLFILENAME 10
 char htmlfilenamestr[LEN_HTMLFILENAME];
 
 const char *errorstrs[] = {
@@ -65,7 +65,6 @@ typedef struct cardstats {
     bool_t unseen;
     card_t inverse;
     cat_t category;
-    bool_t overlay;
     bool_t skip;
 } cardstats_t;
 
@@ -259,8 +258,7 @@ int loadcarddb(char* path)
 					  &stats[i].next_rep,
 					  &stats[i].unseen,
 					  &stats[i].inverse,
-					  &stats[i].category,
-					  &stats[i].overlay);
+					  &stats[i].category);
 	stats[i].skip = 0;
 	++i;
 
@@ -307,8 +305,7 @@ int writecard(FILE* f, card_t i)
 					    stats[i].next_rep,
 					    stats[i].unseen,
 					    stats[i].inverse,
-					    stats[i].category,
-					    stats[i].overlay));
+					    stats[i].category));
 }
     
 int writecarddb(FILE* f)
@@ -391,18 +388,20 @@ int swap_revqueue(int i, int j)
 }
 
 // insertion sort: linear when already ordered, won't blow the stack
+// if too slow: implement shell sort
 void sort_scheduled()
 {
     int i, j;
+    card_t c;
     int key;
 
     for (i=1; i < revqueue.num_scheduled; ++i) {
-	key = sort_key_interval(i);
+	c = revqueue.q[i];
+	key = sort_key_interval(c);
 
-	for (j=i-1; sort_key_interval(j) > key; --j)
-	    ;
-	if (j + 1 < i)
-	    swap_revqueue(i, j + 1);
+	for (j=i-1; j >= 0 && sort_key_interval(revqueue.q[j]) > key; --j)
+	    revqueue.q[j + 1] = revqueue.q[j];
+	revqueue.q[j + 1] = c;
     }
 }
 
@@ -453,7 +452,7 @@ int cluster_revqueue(int first, int max, int (*p)(int))
     int hd = first;
 
     for (i=first; i < max; ++i) {
-	if (p(i))
+	if (p(revqueue.q[i]))
 	    swap_revqueue(i, hd++);
     }
 
@@ -461,7 +460,7 @@ int cluster_revqueue(int first, int max, int (*p)(int))
 }
 
 // Adapted directly from Peter Bienstman's Mnemosyne 1.x
-void build_revision_queue(void)
+void buildrevisionqueue(void)
 {
     int i;
 
@@ -564,12 +563,16 @@ int getcard(card_t* next)
 	++revqueue.limit_new;
 	if (revqueue.limit_new > nstats)
 	    revqueue.limit_new = nstats;
+	++revqueue.curr;
+
+    } else {
+	++revqueue.curr;
     }
 
     while (revqueue.curr < revqueue.size && stats[revqueue.curr].skip)
 	++revqueue.curr;
 
-    if (revqueue.curr >= nstats)
+    if (revqueue.curr >= revqueue.limit_new)
 	return 0;
     
     *next = revqueue.curr;
@@ -735,9 +738,13 @@ void processanswer(card_t i, int new_grade)
     }
 }
 
-char* htmlfilename(card_t i)
+char* htmlfilename(card_t i, int answer)
 {
-    sprintf(htmlfilenamestr, "%04hx.htm", i);
+    if (answer == 1) {
+	sprintf(htmlfilenamestr, "A%04hx.htm", i);
+    } else {
+	sprintf(htmlfilenamestr, "Q%04hx.htm", i);
+    }
     return htmlfilenamestr;
 }
 
@@ -751,8 +758,36 @@ void assertinvariants(void)
 	       && (revqueue.curr <= revqueue.limit_new)));
 }
 
-int hasoverlay(card_t i)
+void debughtmlcsv(FILE *f, int showqueue)
 {
-    return (int)stats[i].overlay;
+    int i;
+
+    if (showqueue) {
+	fprintf(f, "scheduled----------------------\n");
+	for (i = 0; i < revqueue.num_scheduled; ++i) {
+	    fprintf(f,"%3d serial=%3d key=%d\n", i, revqueue.q[i], 
+			sort_key_interval(revqueue.q[i]));
+	}
+	fprintf(f, "new----------------------------\n");
+	for (i = revqueue.idx_new + 1; i < revqueue.size; ++i) {
+	    if (i == revqueue.limit_new)
+		fprintf(f, "--new limit--\n");
+	    fprintf(f, "%3d serial=%3d re0=%d re1=%d sn0=%d sn1=%d\n",
+		    i, revqueue.q[i], 
+		    p_rememorise0(revqueue.q[i]),
+		    p_rememorise1(revqueue.q[i]),
+		    p_seenbutnotmemorised0(revqueue.q[i]),
+		    p_seenbutnotmemorised1(revqueue.q[i]));
+	}
+    }
+    fprintf(f, "-------------------------------\n");
+    fprintf(f, "nstats=%hd\n", nstats);
+    fprintf(f, "days_since_start=%hd\n", days_since_start);
+    fprintf(f, "revqueue.num_scheduled=%d\n", revqueue.num_scheduled);
+    fprintf(f, "revqueue.idx_new=%d\n", revqueue.idx_new);
+    fprintf(f, "revqueue.limit_new=%d\n", revqueue.limit_new);
+    fprintf(f, "revqueue.size=%d\n", revqueue.size);
+    fprintf(f, "revqueue.curr=%d\n", revqueue.curr);
+    fprintf(f, "revqueue.first=%d\n", revqueue.first);
 }
 

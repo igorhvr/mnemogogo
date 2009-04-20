@@ -89,10 +89,8 @@ class Export(mnemogogo.Export):
 	except KeyError:
 	    self.statfile.write("ffff,")
 
-	if self.is_overlay(q) or self.is_overlay(a):
-	    self.statfile.write("1\n")
-	else:
-	    self.statfile.write("0\n")
+	#self.statfile.write("%d", (self.is_overlay(q) or self.is_overlay(a)))
+	self.statfile.write("\n");
 
 	self.idfile.write(id + '\n')
 
@@ -103,15 +101,31 @@ class Export(mnemogogo.Export):
 	a = self.map_image_paths(a)
 
 	# Write card data
-	cfile = codecs.open(join(self.card_path, '%04x.htm' % self.serial_num),
+	cfile = codecs.open(join(self.card_path, 'Q%04x.htm' % self.serial_num),
 			    'w', encoding='utf-8')
 	cfile.write('<html>\n')
 	cfile.write('<head>')
 	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
 	cfile.write('</head>\n')
-	cfile.write('<body class="%s">\n' % cat)
+	cfile.write('<body id="%s" class="single">\n' % cat)
 	cfile.write('<div id="cat">%s</div>\n' % cat)
 	cfile.write('<div id="q" style="display: block;">%s</div>\n' % q)
+	cfile.write('</body></html>\n')
+	cfile.close()
+
+	cfile = codecs.open(join(self.card_path, 'A%04x.htm' % self.serial_num),
+			    'w', encoding='utf-8')
+	cfile.write('<html>\n')
+	cfile.write('<head>')
+	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
+	cfile.write('</head>\n')
+	if self.is_overlay(q) or self.is_overlay(a):
+	    cfile.write('<body id="%s" class="single">\n' % cat)
+	    cfile.write('<div id="cat">%s</div>\n' % cat)
+	else:
+	    cfile.write('<body id="%s" class="double">\n' % cat)
+	    cfile.write('<div id="cat">%s</div>\n' % cat)
+	    cfile.write('<div id="q" style="display: block;">%s</div>\n' % q)
 	cfile.write('<div id="a" style="display: none;">%s</div>\n' % a)
 	cfile.write('</body></html>\n')
 	cfile.close()
