@@ -24,11 +24,12 @@
 
 #define PATH_SEP '/'
 
-#define LEN_STAT_LINE 55
+#define LEN_STAT_LINE 63
 #define NUM_STATS 12
-#define STATLINE_FORMAT "%1hhx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%1hhx,%04hx,%04hx\n"
+// NB: these specifiers must match the stat datatypes
+#define STATLINE_FORMAT "%1hhx,%04hx,%04hx,%04hx,%04hx,%04hx,%04hx,%08x,%08x,%1hhx,%04hx,%04hx\n"
 
-#define STAT_FORMAT "gr=%1d e=%2.03f r=%4d l=%4d ds=%5d"
+#define STAT_FORMAT "gr=%1d e=%2.03f r=%4d l=%4d ds=%6d"
 char statstring[] = "gr=0 e=00.000 r=0000 l=0000 ds=00000";
 
 #define LEN_HTMLFILENAME 10
@@ -52,6 +53,8 @@ typedef unsigned short stat_t;
 typedef unsigned char cat_t;
 typedef unsigned char bool_t;
 
+#define NO_INVERSE 0xffff
+
 typedef struct cardstats {
     grade_t grade;
     stat_t easiness;
@@ -60,8 +63,8 @@ typedef struct cardstats {
     stat_t lapses;
     stat_t acq_reps_since_lapse;
     stat_t ret_reps_since_lapse;
-    stat_t last_rep;
-    stat_t next_rep;
+    time_t last_rep;
+    time_t next_rep;
     bool_t unseen;
     card_t inverse;
     cat_t category;
@@ -94,7 +97,7 @@ typedef struct {
 
 revqueue_t revqueue;
 
-stat_t days_since_start = 0;
+time_t days_since_start = 0;
 
 FILE* logfile = NULL;
 float thinking_time = 0.0;
@@ -223,7 +226,7 @@ int loadcarddb(char* path)
     start_time = getdecimal(fin);
     fclose(fin);
     adjusted_now = time(NULL) - (day_starts_at * 3600);
-    days_since_start = (stat_t)((adjusted_now - start_time) / 86400);
+    days_since_start = (adjusted_now - start_time) / 86400;
 
     // read configuration 
     read_config(join(fpath, path, "config"));
@@ -257,8 +260,8 @@ int loadcarddb(char* path)
 					  &stats[i].last_rep,
 					  &stats[i].next_rep,
 					  &stats[i].unseen,
-					  &stats[i].inverse,
-					  &stats[i].category);
+					  &stats[i].category,
+					  &stats[i].inverse);
 	stats[i].skip = 0;
 	++i;
 
@@ -304,8 +307,8 @@ int writecard(FILE* f, card_t i)
 					    stats[i].last_rep,
 					    stats[i].next_rep,
 					    stats[i].unseen,
-					    stats[i].inverse,
-					    stats[i].category));
+					    stats[i].category,
+					    stats[i].inverse));
 }
     
 int writecarddb(FILE* f)
@@ -348,10 +351,10 @@ int savecarddb(char* path)
 char* printstats(card_t i)
 {
     sprintf(statstring, STAT_FORMAT,
-		stats[i].grade,
+		(int)stats[i].grade,
 		(float)stats[i].easiness / 1000.0,
-		stats[i].acq_reps + stats[i].ret_reps,
-		stats[i].lapses,
+		(int)stats[i].acq_reps + stats[i].ret_reps,
+		(int)stats[i].lapses,
 		days_since_start - stats[i].last_rep);
 
     return statstring;
@@ -561,16 +564,20 @@ int getcard(card_t* next)
     } else if (stats[revqueue.curr].unseen == 1) {
 	// shift the limit forward
 	++revqueue.limit_new;
-	if (revqueue.limit_new > nstats)
-	    revqueue.limit_new = nstats;
 	++revqueue.curr;
 
     } else {
 	++revqueue.curr;
     }
 
-    while (revqueue.curr < revqueue.size && stats[revqueue.curr].skip)
+    while (revqueue.curr < revqueue.size
+	   && stats[revqueue.curr].skip && stats[revqueue.curr].unseen) {
 	++revqueue.curr;
+	++revqueue.limit_new;
+    }
+
+    if (revqueue.limit_new > nstats)
+	revqueue.limit_new = nstats;
 
     if (revqueue.curr >= revqueue.limit_new)
 	return 0;
@@ -617,12 +624,13 @@ void processanswer(card_t i, int new_grade)
     int noise;
 
     // Don't schedule inverse or identical questions on the same day.
-    stats[item->inverse].skip = 1;
+    if (item->inverse != NO_INVERSE)
+	stats[item->inverse].skip = 1;
 
     // Calculate scheduled and actual interval, taking care of corner
     // case when learning ahead on the same day.
     
-    scheduled_interval = item->next_rep    - item->last_rep;
+    scheduled_interval = item->next_rep   - item->last_rep;
     actual_interval    = days_since_start - item->last_rep;
 
     if (actual_interval == 0)
@@ -750,7 +758,14 @@ char* htmlfilename(card_t i, int answer)
 
 void assertinvariants(void)
 {
-    assert(revqueue.num_scheduled <= revqueue.idx_new);
+    assert(sizeof(card_t) >= 2);   // bytes
+    assert(sizeof(grade_t) >= 1);  // byte
+    assert(sizeof(cat_t) >= 1);    // byte
+    assert(sizeof(bool_t) >= 1);   // byte
+    assert(sizeof(stat_t) >= 2);   // bytes
+    assert(sizeof(time_t) >= 4);   // bytes
+
+    assert(revqueue.num_scheduled <= (revqueue.idx_new + 1));
     assert(revqueue.idx_new <= revqueue.limit_new);
     assert(revqueue.limit_new <= revqueue.size);
     assert((revqueue.curr <= revqueue.num_scheduled)

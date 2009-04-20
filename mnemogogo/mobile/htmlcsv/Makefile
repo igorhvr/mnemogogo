@@ -15,6 +15,6 @@ template: template.c htmlcsv.o
 	$(CC) -o template template.c htmlcsv.o
 
 clean:
-	-@rm htmlcsv.o
+	-@rm htmlcsv.o *.core
 	-@rm test_loadwrite test_checkstats template
 

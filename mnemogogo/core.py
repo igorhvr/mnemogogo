@@ -55,8 +55,8 @@ learning_data_len = {
     'lapses'		    : 4,
     'acq_reps_since_lapse'  : 4,
     'ret_reps_since_lapse'  : 4,
-    'last_rep'		    : 4,
-    'next_rep'		    : 4,
+    'last_rep'		    : 8,
+    'next_rep'		    : 8,
     'unseen'		    : 1,
     }
 
@@ -261,6 +261,7 @@ def list_interfaces():
 # These generators were adapted from the rebuild_revision_queue
 # function in the Mnemosyne 1.1.1 core module, which was written
 # by <Peter.Bienstman@UGent.be>.
+# NB: this function could try harder to avoid including inverses.
 def extra_cards(items):
 
     wrong_cards_0 = (i for i in items if i.is_due_for_acquisition_rep() \
@@ -440,10 +441,12 @@ def do_import(interface, sync_path):
     if os.path.exists(logpath):
 	log = open(logpath)
 
+	mnemosyne.core.logger.info('mnemogogo: starting log import')
 	line = self.statfile.readline()
 	while line != '':
 	    mnemosyne.core.logger.info(line)
 	    line = self.statfile.readline()
+	mnemosyne.core.logger.info('mnemogogo: finished log import')
 
 	close(log)
 	os.remove(logpath)

@@ -79,15 +79,15 @@ class Export(mnemogogo.Export):
 	for s in self.learning_data:
 	    fmt = "%%0%dx," % self.learning_data_len[s]
 	    self.statfile.write(fmt % stats[s])
-	self.statfile.write("%04x," % self.category_id(cat))
+	self.statfile.write("%04x" % self.category_id(cat))
 
 	try:
-	    self.statfile.write("%04x," %
+	    self.statfile.write(",%04x" %
 		self.id_to_serial[inverse_ids.next()])
 	except StopIteration:
-	    self.statfile.write("ffff,")
+	    self.statfile.write(",ffff")
 	except KeyError:
-	    self.statfile.write("ffff,")
+	    self.statfile.write(",ffff")
 
 	#self.statfile.write("%d", (self.is_overlay(q) or self.is_overlay(a)))
 	self.statfile.write("\n");

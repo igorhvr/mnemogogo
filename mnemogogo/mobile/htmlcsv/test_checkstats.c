@@ -80,7 +80,7 @@ void read_grades(char* path)
     while (fgets(line, BUFSIZ, f)) {
 	sscanf(line, "%s %d", &id, &grade);
 	serial = id_to_serial(id);
-	if (serial > 0)
+	if (serial >= 0)
 	    grades[serial] = grade;
     }
 
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
     }
 
     if (argc > 2)
-	dstpath = argv[1];
+	dstpath = argv[2];
 
     read_ids(srcpath);
     read_grades(srcpath);
