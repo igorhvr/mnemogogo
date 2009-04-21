@@ -7,7 +7,7 @@
     Potential mobile clients:
     * Symbian S60 OS on (mostly) Nokia mobile phones
 	- use P.I.P.S to compile htmlcsv library
-	- rewrite the main function in Sybmian C++
+	- rewrite the main function in Symbian C++
 	- use the web browser control to display cards
  */
 
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 	htmlfilename(curr, 0); // prefix with 'cards/'
 
 	// TODO: wait for 'show answer' key
-	//
+
 	// TODO: display html file:
 	htmlfilename(curr, 1); // prefix with 'cards/'
 	
