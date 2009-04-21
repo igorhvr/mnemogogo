@@ -748,11 +748,7 @@ void processanswer(card_t i, int new_grade)
 
 char* htmlfilename(card_t i, int answer)
 {
-    if (answer == 1) {
-	sprintf(htmlfilenamestr, "A%04hx.htm", i);
-    } else {
-	sprintf(htmlfilenamestr, "Q%04hx.htm", i);
-    }
+    sprintf(htmlfilenamestr, "%c%04hx.htm", (answer?'A':'Q'), i);
     return htmlfilenamestr;
 }
 
