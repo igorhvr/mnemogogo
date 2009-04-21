@@ -618,5 +618,17 @@
         </widget>
     </widget>
 </widget>
+<tabstops>
+    <tabstop>doneButton</tabstop>
+    <tabstop>tabWidget</tabstop>
+    <tabstop>exportButton</tabstop>
+    <tabstop>importButton</tabstop>
+    <tabstop>daysToExport</tabstop>
+    <tabstop>syncPath</tabstop>
+    <tabstop>browseButton</tabstop>
+    <tabstop>interfaceList</tabstop>
+    <tabstop>forceMobileButton</tabstop>
+    <tabstop>forceLocalButton</tabstop>
+</tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

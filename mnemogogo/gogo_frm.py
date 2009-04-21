@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gogo_frm.ui'
 #
-# Created: Mon Apr 20 08:20:32 2009
+# Created: Wed Apr 22 07:23:52 2009
 #      by: The PyQt User Interface Compiler (pyuic) 3.17.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -161,6 +161,16 @@ class GoGoFrm(QDialog):
 
         self.resize(QSize(572,365).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
+
+        self.setTabOrder(self.doneButton,self.tabWidget)
+        self.setTabOrder(self.tabWidget,self.exportButton)
+        self.setTabOrder(self.exportButton,self.importButton)
+        self.setTabOrder(self.importButton,self.daysToExport)
+        self.setTabOrder(self.daysToExport,self.syncPath)
+        self.setTabOrder(self.syncPath,self.browseButton)
+        self.setTabOrder(self.browseButton,self.interfaceList)
+        self.setTabOrder(self.interfaceList,self.forceMobileButton)
+        self.setTabOrder(self.forceMobileButton,self.forceLocalButton)
 
 
     def languageChange(self):
