@@ -506,6 +506,7 @@ void shiftforgottentonew(void)
     for (i=revqueue.num_scheduled - 1; i >= 0; --i) {
 	if (stats[revqueue.q[i]].grade < 2) {
 	    swap_revqueue(i, revqueue.idx_new--);
+	    --revqueue.num_scheduled;
 	}
     }
 }
