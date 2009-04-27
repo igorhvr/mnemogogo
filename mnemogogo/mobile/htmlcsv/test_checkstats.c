@@ -90,6 +90,7 @@ void read_grades(char* path)
 int main(int argc, char** argv)
 {
     int r;
+    carddb_t db;
     card_t curr;
 
     char* srcpath = argv[1];
@@ -107,36 +108,36 @@ int main(int argc, char** argv)
     read_grades(srcpath);
     show_ids_grades(stdout);
 
-    r = loadcarddb(srcpath);
+    db = loadcarddb(srcpath, &r);
     if (r < 0) {
 	fprintf(stderr, "error: %s\n", errorstr(r));
 	return r;
     }
     fprintf(stderr, "assert after load.\n");
-    debughtmlcsv(stderr, 0);
-    assertinvariants();
+    debughtmlcsv(db, stderr, 0);
+    assertinvariants(db);
 
-    buildrevisionqueue();
+    buildrevisionqueue(db);
     fprintf(stderr, "assert after buildrevisionqueue.\n");
-    debughtmlcsv(stderr, 1);
-    assertinvariants();
+    debughtmlcsv(db, stderr, 1);
+    assertinvariants(db);
 
-    while (getcard(&curr)) {
-	//debughtmlcsv(stderr, 0);
-	assertinvariants();
+    while (getcard(db, &curr)) {
+	//debughtmlcsv(db, stderr, 0);
+	assertinvariants(db);
 
 	if (grades[curr] == -1) {
 	    printf("no grade for card %s\n", ids[(int)curr]);
-	    processanswer(curr, 4);
+	    processanswer(db, curr, 4, 0);
 	} else {
-	    processanswer(curr, grades[curr]);
+	    processanswer(db, curr, grades[curr], 0);
 	    printf("%s: ", ids[(int)curr]);
-	    writecard(stdout, curr);
+	    writecard(db, stdout, curr);
 	}
     }
 
-    savecarddb(dstpath);
-    freecarddb();
+    savecarddb(db, dstpath);
+    freecarddb(db);
     return 0;
 }
 

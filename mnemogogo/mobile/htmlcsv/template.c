@@ -15,37 +15,43 @@ int main(int argc, char** argv)
 {
     int grade, numsched, r;
     int done = 0;
+    carddb_t db;
     card_t curr;
+    char filename[LEN_HTMLFILENAME];
+    time_t start_time;
+    time_t end_time;
 
     // TODO: change directory to the import path
 
-    r = loadcarddb(NULL);
+    db = loadcarddb(NULL, &r);
     if (r < 0) {
 	//TODO: abort with error message:
 	errorstr(r);
     }
 
-    buildrevisionqueue();
+    buildrevisionqueue(db);
 
-    while (!done && getcard(&curr)) {
-	numsched = numscheduled();
+    while (!done && getcard(db, &curr)) {
+	numsched = numscheduled(db);
 	// TODO: display the number of scheduled cards
 
 	// TODO: display html file:
-	htmlfilename(curr, 0); // prefix with 'cards/'
+	start_time = time(NULL);
+	htmlfilename(db, curr, 0, filename); // prefix with 'cards/'
 
 	// TODO: wait for 'show answer' key
 
 	// TODO: display html file:
-	htmlfilename(curr, 1); // prefix with 'cards/'
+	htmlfilename(db, curr, 1, filename); // prefix with 'cards/'
 	
 	// TODO: wait for 'grade' key
+	end_time = time(NULL);
 	grade = 4;
-	processanswer(curr, grade);
+	processanswer(db, curr, grade, end_time - start_time);
     }
 
-    savecarddb(NULL);
-    freecarddb();
+    savecarddb(db, NULL);
+    freecarddb(db);
 
     return 0;
 }

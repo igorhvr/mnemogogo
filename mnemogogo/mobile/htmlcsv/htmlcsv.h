@@ -17,11 +17,6 @@
 #ifndef __HTMLCSV_H__
 #define __HTMLCSV_H__
 
-/*
- *  Current limitations:
- *  - thinking_time is not yet implemented
- */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
