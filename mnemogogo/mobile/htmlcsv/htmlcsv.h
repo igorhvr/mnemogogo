@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 typedef struct _carddb_t *carddb_t;
 typedef unsigned short card_t;

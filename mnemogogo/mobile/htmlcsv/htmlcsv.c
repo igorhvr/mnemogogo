@@ -18,7 +18,6 @@
 #include "htmlcsv.h"
 
 #include <ctype.h>
-#include <time.h>
 #include <string.h>
 #include <assert.h>
 
@@ -79,20 +78,20 @@ typedef struct {
     int first;
 }  revqueue_t;
 
-typedef struct _carddb_t {
+struct _carddb_t {
     int nstats;
     cardstats_t *stats;
-    time_t days_since_start = 0;
-    FILE* logfile = NULL;
+    time_t days_since_start;
+    FILE* logfile;
 
     revqueue_t revqueue;
 
     // options
-    stat_t grade_0_items_at_once = 10;
-    bool_t sorting = 1;
-    bool_t logging = 1;
-    stat_t day_starts_at = 3;
-} *carddb_t;
+    stat_t grade_0_items_at_once;
+    bool_t sorting;
+    bool_t logging;
+    stat_t day_starts_at;
+};
 
 // functions
 
@@ -165,8 +164,8 @@ void read_config(carddb_t db, char* fpath)
 void initrevqueue(carddb_t db)
 {
     db->revqueue.num_scheduled = 0;
-    db->revqueue.idx_new = nstats - 1;
-    db->revqueue.limit_new = nstats;
+    db->revqueue.idx_new = db->nstats - 1;
+    db->revqueue.limit_new = db->nstats;
     db->revqueue.curr = 0;
     db->revqueue.first = 1;
 }
@@ -212,12 +211,17 @@ carddb_t loadcarddb(char* path, int* err)
 
     db->stats = NULL;
     db->revqueue.q = NULL;
+    db->logfile = NULL;
+    db->grade_0_items_at_once = 10;
+    db->sorting = 1;
+    db->logging = 1;
+    db->day_starts_at = 3;
 
     srand(time(NULL));
 
-    db = malloc(sizeof(_carddb_t));
+    db = malloc(sizeof(struct _carddb_t));
     if (db == NULL) {
-	*err = ERROR_MALLOC
+	*err = ERROR_MALLOC;
 	goto error;
     }
 
@@ -236,7 +240,7 @@ carddb_t loadcarddb(char* path, int* err)
     }
     start_time = getdecimal(fin);
     fclose(fin);
-    adjusted_now = (time_t)time(NULL) - (day_starts_at * 3600);
+    adjusted_now = (time_t)time(NULL) - (db->day_starts_at * 3600);
     db->days_since_start = (adjusted_now - start_time) / 86400;
 
     // read configuration 
@@ -285,7 +289,7 @@ carddb_t loadcarddb(char* path, int* err)
     fclose(fin);
     fin = NULL;
 
-    if (i < nstats) {
+    if (i < db->nstats) {
 	*err = ERROR_CORRUPT_DB;
 	goto error;
     }
@@ -329,7 +333,7 @@ int writecarddb(carddb_t db, FILE* f)
 {
     card_t i, r;
 
-    for (i=0; i < nstats; ++i) {
+    for (i=0; i < db->nstats; ++i) {
 	r = writecard(db, f, i);
 	if (r != LEN_STAT_LINE - 1)
 	    return ERROR_WRITING_DB;
@@ -414,9 +418,11 @@ void sort_scheduled(carddb_t db)
 
     for (i=1; i < db->revqueue.num_scheduled; ++i) {
 	c = db->revqueue.q[i];
-	key = sort_key_interval(c);
+	key = sort_key_interval(db, c);
 
-	for (j=i-1; j >= 0 && sort_key_interval(db->revqueue.q[j]) > key; --j)
+	for (j=i-1;
+	     j >= 0 && sort_key_interval(db, db->revqueue.q[j]) > key;
+	     --j)
 	    db->revqueue.q[j + 1] = db->revqueue.q[j];
 	db->revqueue.q[j + 1] = c;
     }
@@ -427,12 +433,12 @@ int randint(int lower, int upper)
     return (lower + rand() % (upper - lower + 1));
 }
 
-void shuffle_revqueue(int first, int max)
+void shuffle_revqueue(carddb_t db, int first, int max)
 {
     int i;
 
     for (i=first; i < max; ++i)
-	swap_revqueue(i, randint(first, max - 1));
+	swap_revqueue(db, i, randint(first, max - 1));
 }
 
 int p_rememorise0(carddb_t db, int i)
@@ -459,7 +465,7 @@ int p_seenbutnotmemorised1(carddb_t db, int i)
 	    && db->stats[i].grade == 1);
 }
 
-int cluster_revqueue(carddb_t db, int first, int max, int (*p)(int))
+int cluster_revqueue(carddb_t db, int first, int max, int (*p)(carddb_t, int))
 {
     int i;
     int hd = first;
@@ -483,7 +489,7 @@ void buildrevisionqueue(carddb_t db)
     //	    cards scheduled for today upward from 0
     //	    wrong and unmemorised cards downward from revqueue.size
     
-    for (i=0; i < nstats; ++i) {
+    for (i=0; i < db->nstats; ++i) {
 	if (is_due_for_retention_rep(db, i, 0)) {
 	    db->revqueue.q[db->revqueue.num_scheduled++] = i;
 
@@ -499,10 +505,11 @@ void buildrevisionqueue(carddb_t db)
     }
     shuffle_revqueue(db, db->revqueue.idx_new + 1, db->nstats);
 
-    i = cluster_revqueue(db, revqueue.idx_new + 1, nstats, p_rememorise0);
-    i = cluster_revqueue(db, i, nstats, p_rememorise1);
-    i = cluster_revqueue(db, i, nstats, p_seenbutnotmemorised0);
-    i = cluster_revqueue(db, i, nstats, p_seenbutnotmemorised1);
+    i = cluster_revqueue(db, db->revqueue.idx_new + 1,
+			 db->nstats, p_rememorise0);
+    i = cluster_revqueue(db, i, db->nstats, p_rememorise1);
+    i = cluster_revqueue(db, i, db->nstats, p_seenbutnotmemorised0);
+    i = cluster_revqueue(db, i, db->nstats, p_seenbutnotmemorised1);
 
     db->revqueue.limit_new = db->revqueue.idx_new
 			     + 1 + db->grade_0_items_at_once;
@@ -644,7 +651,7 @@ void processanswer(carddb_t db, card_t i, int new_grade, int thinking_time)
     // case when learning ahead on the same day.
     
     scheduled_interval = item->next_rep   - item->last_rep;
-    actual_interval    = days_since_start - item->last_rep;
+    actual_interval    = db->days_since_start - item->last_rep;
 
     if (actual_interval == 0)
         actual_interval = 1; // Otherwise new interval can become zero.
@@ -736,8 +743,8 @@ void processanswer(carddb_t db, card_t i, int new_grade, int thinking_time)
 
     // Update grade and interval.
     item->grade    = new_grade;
-    item->last_rep = days_since_start;
-    item->next_rep = days_since_start + (time_t)new_interval + noise;
+    item->last_rep = db->days_since_start;
+    item->next_rep = db->days_since_start + (time_t)new_interval + noise;
     item->unseen   = 0;
     
     if (db->logfile != NULL) {
@@ -760,10 +767,9 @@ void processanswer(carddb_t db, card_t i, int new_grade, int thinking_time)
     }
 }
 
-char* htmlfilename(carddb_t db, card_t i, int answer, char* name)
+void htmlfilename(carddb_t db, card_t i, int answer, char* name)
 {
     sprintf(name, "%c%04hx.htm", (answer?'A':'Q'), i);
-    return name;
 }
 
 void assertinvariants(carddb_t db)
@@ -791,7 +797,7 @@ void debughtmlcsv(carddb_t db, FILE *f, int showqueue)
 	fprintf(f, "scheduled----------------------\n");
 	for (i = 0; i < db->revqueue.num_scheduled; ++i) {
 	    fprintf(f,"%3d serial=%3d key=%d\n", i, db->revqueue.q[i], 
-			sort_key_interval(db->revqueue.q[i]));
+			sort_key_interval(db, db->revqueue.q[i]));
 	}
 	fprintf(f, "new----------------------------\n");
 	for (i = db->revqueue.idx_new + 1; i < db->revqueue.size; ++i) {
