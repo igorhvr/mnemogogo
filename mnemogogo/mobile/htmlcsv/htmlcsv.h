@@ -25,31 +25,36 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+typedef struct _carddb_t *carddb_t;
 typedef unsigned short card_t;
 
 #define ERROR_FILE_NOT_FOUND -1
 #define ERROR_MALLOC -2
 #define ERROR_CORRUPT_DB -3
 #define ERROR_WRITING_DB -4
+#define LEN_HTMLFILENAME 10
+#define STAT_FORMAT "gr=%1d e=%2.03f r=%4d l=%4d ds=%6d"
+// "gr=0 e=00.000 r=0000 l=0000 ds=00000";
 
-void write_config(FILE*);
+void write_config(carddb_t, FILE*);
 
-void freecarddb(void);
+void freecarddb(carddb_t);
 
-int loadcarddb(char* path);
-int writecard(FILE* f, card_t i);
-int writecarddb(FILE*);
-int savecarddb(char* path);
+carddb_t loadcarddb(char* path, int *err);
+int writecard(carddb_t, FILE*, card_t);
+int writecarddb(carddb_t, FILE*);
+int savecarddb(carddb_t, char* path);
 
-char* printstats(card_t);
+char* printstats(carddb_t, card_t, char *statstring);
 const char* errorstr(int);
 
-void buildrevisionqueue(void);
-int numscheduled(void);
-int getcard(card_t* next);
-void processanswer(card_t item, int new_grade);
-char* htmlfilename(card_t, int answer);
-void assertinvariants(void);
-void debughtmlcsv(FILE*, int showqueue);
+void buildrevisionqueue(carddb_t);
+int numscheduled(carddb_t);
+int getcard(carddb_t, card_t* next);
+void processanswer(carddb_t, card_t item, int new_grade,
+		   time_t thinking_time);
+void htmlfilename(carddb_t, card_t, int answer, char *name);
+void assertinvariants(carddb_t);
+void debughtmlcsv(carddb_t, FILE*, int showqueue);
 
 #endif
