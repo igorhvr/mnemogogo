@@ -25,6 +25,8 @@ from os import mkdir, listdir, remove
 import codecs
 
 class Export(mnemogogo.Export):
+    mode = 'html'
+
     def open(self, start_time, num_cards):
 	self.card_path = join(self.sync_path, 'cards')
 	self.img_path = join(self.card_path, 'img')
@@ -101,7 +103,17 @@ class Export(mnemogogo.Export):
 	a = self.map_image_paths(a)
 
 	# Write card data
-	cfile = codecs.open(join(self.card_path, 'Q%04x.htm' % self.serial_num),
+	if (mode == 'html'):
+	    write_htmldata(self.serial_num, q, a, cat,
+			    (self.is_overlay(q) or self.is_overlay(a)))
+	elif (mode == 'text'):
+	    write_textdata(self.serial_num, q, a, cat,
+			    (self.is_overlay(q) or self.is_overlay(a)))
+
+	self.serial_num += 1
+
+    def write_htmldata(serial_num, q, a, cat, is_overlay):
+	cfile = codecs.open(join(self.card_path, 'Q%04x.htm' % serial_num),
 			    'w', encoding='utf-8')
 	cfile.write('<html>\n')
 	cfile.write('<head>')
@@ -113,13 +125,13 @@ class Export(mnemogogo.Export):
 	cfile.write('</body></html>\n')
 	cfile.close()
 
-	cfile = codecs.open(join(self.card_path, 'A%04x.htm' % self.serial_num),
+	cfile = codecs.open(join(self.card_path, 'A%04x.htm' % serial_num),
 			    'w', encoding='utf-8')
 	cfile.write('<html>\n')
 	cfile.write('<head>')
 	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
 	cfile.write('</head>\n')
-	if self.is_overlay(q) or self.is_overlay(a):
+	if is_overlay:
 	    cfile.write('<body id="%s" class="single">\n' % cat)
 	    cfile.write('<div id="cat">%s</div>\n' % cat)
 	else:
@@ -130,7 +142,16 @@ class Export(mnemogogo.Export):
 	cfile.write('</body></html>\n')
 	cfile.close()
 
-	self.serial_num += 1
+    def write_textdata(serial_num, q, a, cat, is_overlay):
+	cfile = codecs.open(join(self.card_path, 'Q%04x.htm' % serial_num),
+			    'w', encoding='utf-8')
+	cfile.write(q)
+	cfile.close()
+
+	cfile = codecs.open(join(self.card_path, 'A%04x.htm' % serial_num),
+			    'w', encoding='utf-8')
+	cfile.write(a)
+	cfile.close()
 
 class Import(mnemogogo.Import):
     def open(self):
@@ -202,6 +223,19 @@ class HtmlCsv(mnemogogo.Interface):
 
     def start_export(self, sync_path):
 	return Export(self, sync_path)
+
+    def start_import(self, sync_path):
+	return Import(self, sync_path)
+
+class TextCsv(mnemogogo.Interface):
+
+    description = 'Text+CSV: Basic'
+    version = '0.5.0'
+
+    def start_export(self, sync_path):
+	e = Export(self, sync_path)
+	e.mode = 'text'
+	return e
 
     def start_import(self, sync_path):
 	return Import(self, sync_path)

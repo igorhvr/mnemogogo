@@ -32,6 +32,10 @@ typedef unsigned short card_t;
 #define STAT_FORMAT "gr=%1d e=%2.03f r=%4d l=%4d ds=%6d"
 // "gr=0 e=00.000 r=0000 l=0000 ds=00000";
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void write_config(carddb_t, FILE*);
 
 void freecarddb(carddb_t);
@@ -52,5 +56,9 @@ void processanswer(carddb_t, card_t item, int new_grade,
 void htmlfilename(carddb_t, card_t, int answer, char *name);
 void assertinvariants(carddb_t);
 void debughtmlcsv(carddb_t, FILE*, int showqueue);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
