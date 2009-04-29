@@ -40,6 +40,8 @@ void write_config(carddb_t, FILE*);
 
 void freecarddb(carddb_t);
 
+/* 10 bytes will be appended to path.
+ * The last character should be a path separator '\', or '/'. */
 carddb_t loadcarddb(char* path, int *err);
 int writecard(carddb_t, FILE*, card_t);
 int writecarddb(carddb_t, FILE*);
@@ -52,7 +54,7 @@ void buildrevisionqueue(carddb_t);
 int numscheduled(carddb_t);
 int getcard(carddb_t, card_t* next);
 void processanswer(carddb_t, card_t item, int new_grade,
-		   time_t thinking_time);
+		   long thinking_time_secs);
 void htmlfilename(carddb_t, card_t, int answer, char *name);
 void assertinvariants(carddb_t);
 void debughtmlcsv(carddb_t, FILE*, int showqueue);

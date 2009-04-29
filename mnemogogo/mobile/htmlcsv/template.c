@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 	// TODO: wait for 'grade' key
 	end_time = time(NULL);
 	grade = 4;
-	processanswer(db, curr, grade, end_time - start_time);
+	processanswer(db, curr, grade, (long)(end_time - start_time) * 1000);
     }
 
     savecarddb(db, NULL);

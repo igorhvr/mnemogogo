@@ -21,8 +21,6 @@
 #include <string.h>
 #include <assert.h>
 
-#define PATH_SEP '/'
-
 #define LEN_STAT_LINE 63
 #define NUM_STATS 12
 // NB: these specifiers must match the stat datatypes
@@ -194,7 +192,7 @@ char* join(char *dst, char* path, char* file)
     if (dst == NULL) {
 	return file;
     } else {
-	sprintf(dst, "%s%c%s", path, PATH_SEP, file);
+	sprintf(dst, "%s%s", path, file);
 	return dst;
     }
 }
@@ -634,7 +632,8 @@ int calculate_interval_noise(int interval)
 }
 
 // Adapted directly from Peter Bienstman's Mnemosyne 1.x
-void processanswer(carddb_t db, card_t i, int new_grade, int thinking_time)
+void processanswer(carddb_t db, card_t i, int new_grade,
+		   long thinking_time_msecs)
 {
     stat_t scheduled_interval;
     stat_t actual_interval;
@@ -762,7 +761,7 @@ void processanswer(carddb_t db, card_t i, int new_grade, int thinking_time)
 		actual_interval,
 		new_interval,
 		noise,
-		thinking_time);
+		(float)thinking_time_msecs / 100);
     }
 }
 
@@ -816,7 +815,6 @@ void debughtmlcsv(carddb_t db, FILE *f, int showqueue)
     fprintf(f, "revqueue.num_scheduled=%d\n", db->revqueue.num_scheduled);
     fprintf(f, "revqueue.idx_new=%d\n", db->revqueue.idx_new);
     fprintf(f, "revqueue.limit_new=%d\n", db->revqueue.limit_new);
-    fprintf(f, "revqueue.size=%d\n", db->revqueue.size);
     fprintf(f, "revqueue.curr=%d\n", db->revqueue.curr);
     fprintf(f, "revqueue.first=%d\n", db->revqueue.first);
 }

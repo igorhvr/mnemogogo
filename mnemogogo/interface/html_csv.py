@@ -143,12 +143,12 @@ class Export(mnemogogo.Export):
 	cfile.close()
 
     def write_textdata(serial_num, q, a, cat, is_overlay):
-	cfile = codecs.open(join(self.card_path, 'Q%04x.htm' % serial_num),
+	cfile = codecs.open(join(self.card_path, 'Q%04x.txt' % serial_num),
 			    'w', encoding='utf-8')
 	cfile.write(q)
 	cfile.close()
 
-	cfile = codecs.open(join(self.card_path, 'A%04x.htm' % serial_num),
+	cfile = codecs.open(join(self.card_path, 'A%04x.txt' % serial_num),
 			    'w', encoding='utf-8')
 	cfile.write(a)
 	cfile.close()
