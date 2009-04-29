@@ -703,7 +703,7 @@ void processanswer(carddb_t db, card_t i, int new_grade, int thinking_time)
                 item->easiness -= 140;
 	    } else if (new_grade == 5) {
                 item->easiness += 100;
-	    } else if (item->easiness < 1.3) {
+	    } else if (item->easiness < 1300) {
                 item->easiness = 1300;
 	    }
 	}
