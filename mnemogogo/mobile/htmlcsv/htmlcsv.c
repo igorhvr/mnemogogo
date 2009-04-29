@@ -233,6 +233,9 @@ carddb_t loadcarddb(char* path, int* err)
 	}
     }
 
+    // read configuration 
+    read_config(db, join(fpath, path, "config"));
+
     // calculate days_since_start
     if (!(fin = fopen(join(fpath, path, "start_time"), "r"))) {
 	*err = ERROR_FILE_NOT_FOUND;
@@ -242,9 +245,6 @@ carddb_t loadcarddb(char* path, int* err)
     fclose(fin);
     adjusted_now = (time_t)time(NULL) - (db->day_starts_at * 3600);
     db->days_since_start = (adjusted_now - start_time) / 86400;
-
-    // read configuration 
-    read_config(db, join(fpath, path, "config"));
 
     // read card stats
     if (!(fin = fopen(join(fpath, path, "stats.csv"), "r"))) {
@@ -465,12 +465,11 @@ int p_seenbutnotmemorised1(carddb_t db, int i)
 	    && db->stats[i].grade == 1);
 }
 
-int cluster_revqueue(carddb_t db, int first, int max, int (*p)(carddb_t, int))
+int cluster_revqueue(carddb_t db, int hd, int max, int (*p)(carddb_t, int))
 {
     int i;
-    int hd = first;
 
-    for (i=first; i < max; ++i) {
+    for (i=hd; i < max; ++i) {
 	if (p(db, db->revqueue.q[i]))
 	    swap_revqueue(db, i, hd++);
     }
