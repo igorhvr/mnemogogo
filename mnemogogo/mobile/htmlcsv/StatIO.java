@@ -20,6 +20,22 @@ import java.io.*;
 
 public class StatIO
 {
+    static String readLine(InputStreamReader in)
+	throws IOException
+    {
+	StringBuffer s = new StringBuffer(20);
+	
+	try {
+	    int b = in.read();
+	    while (b != '\n') {
+		s.append((char)b);
+		b = in.read();
+	    }
+	} catch (EOFException e) { }
+
+	return s.toString();
+    }
+
     static String read(InputStreamReader in)
 	throws IOException
     {

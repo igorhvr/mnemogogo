@@ -28,7 +28,10 @@ public class HtmlCsv
     private long days_since_start;
     private Config config;
 
+    public String categories[];
+
     private static String ascii = "ASCII";
+    private static String utf8 = "UTF-8";
 
     HtmlCsv(String path)
     {
@@ -46,6 +49,9 @@ public class HtmlCsv
 
 	p.delete(path_len, p.length());
 	readStats(p);
+
+	p.delete(path_len, p.length());
+	readCategories(p);
 
 	if (config.logging()) {
 	    // TODO: check that this really appends?
@@ -117,6 +123,22 @@ public class HtmlCsv
 	}
 
 	out.close();
+    }
+
+    private void readCategories(StringBuffer path) {
+	InputStreamReader in = InputStreamReader(
+	    Connector.openInputStream(path.append("categories").toString()),
+	    utf8);
+
+	int n = StatIO.readInt(in);
+	int bytesize = StatIO.readInt(in);
+
+	categories = new String[n];
+	for (int i=0; i < n; ++i) {
+	    categories[i] = StatIO.readLine(in);
+	}
+
+	in.close();
     }
 }
 
