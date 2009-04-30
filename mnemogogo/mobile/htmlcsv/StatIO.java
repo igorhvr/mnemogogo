@@ -16,7 +16,10 @@
  */
 
 import java.lang.*;
-import java.io.*;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.io.EOFException;
 
 public class StatIO
 {
@@ -93,7 +96,8 @@ public class StatIO
     static void writeBool(OutputStreamWriter out, boolean d, String sep)
 	throws IOException
     {
-	write(out, 1, (d?"1":"0") + sep);
+	write(out, 1, (d?"1":"0"));
+	write(out, 0, sep);
     }
 
     static void writeBool(OutputStreamWriter out, boolean d)
@@ -105,7 +109,8 @@ public class StatIO
     static void writeHexLong(OutputStreamWriter out, long d, String sep)
 	throws IOException
     {
-	write(out, 8, Long.toString(d, 16) + sep);
+	write(out, 8, Long.toString(d, 16));
+	write(out, 0, sep);
     }
 
     static void writeHexLong(OutputStreamWriter out, long d)
@@ -117,7 +122,8 @@ public class StatIO
     static void writeLong(OutputStreamWriter out, long d, String sep)
 	throws IOException
     {
-	write(out, 8, Long.toString(d) + sep);
+	write(out, 8, Long.toString(d));
+	write(out, 0, sep);
     }
 
     static void writeLong(OutputStreamWriter out, long d)
@@ -129,7 +135,8 @@ public class StatIO
     static void writeHexInt(OutputStreamWriter out, int d, String sep)
 	throws IOException
     {
-	write(out, 4, Integer.toHexString(d) + sep);
+	write(out, 4, Integer.toHexString(d));
+	write(out, 0, sep);
     }
 
     static void writeHexInt(OutputStreamWriter out, int d)
@@ -141,7 +148,8 @@ public class StatIO
     static void writeInt(OutputStreamWriter out, int d, String sep)
 	throws IOException
     {
-	write(out, 4, Integer.toString(d) + sep);
+	write(out, 4, Integer.toString(d));
+	write(out, 0, sep);
     }
 
     static void writeInt(OutputStreamWriter out, int d)
@@ -153,7 +161,8 @@ public class StatIO
     static void writeFloat(OutputStreamWriter out, float f, String sep)
 	throws IOException
     {
-	write(out, 0, Float.toString(f) + sep);
+	write(out, 0, Float.toString(f));
+	write(out, 0, sep);
     }
 
     static void writeFloat(OutputStreamWriter out, float f)

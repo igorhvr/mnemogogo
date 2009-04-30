@@ -15,11 +15,14 @@
  * Certain routines Copyright (c) Peter Bienstman <Peter.Bienstman@UGent.be>
  */
 
-import java.io.*;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.io.EOFException;
 import java.util.Hashtable;
 import java.util.Enumeration;
 
-public class Config extends Hashtable<String, String>
+public class Config extends Hashtable/*<String, String>*/
 {
     Config() {
 	put("grade_0_items_at_once", "10");
@@ -35,38 +38,36 @@ public class Config extends Hashtable<String, String>
     }
 
     public int grade0ItemsAtOnce() {
-	return Integer.parseInt(get("grade_0_items_at_once"));
+	return Integer.parseInt((String)get("grade_0_items_at_once"));
     }
 
     public int dayStartsAt() {
-	return Integer.parseInt(get("day_starts_at"));
+	return Integer.parseInt((String)get("day_starts_at"));
     }
 
     public boolean logging() {
-	return (get("logging") != "0");
+	return ((String)get("logging") != "0");
     }
 
     public boolean sorting() {
-	return (get("sorting") != "0");
+	return ((String)get("sorting") != "0");
     }
 
-    public void writeConfig(DataOutput out)
+    public void writeConfig(OutputStreamWriter out)
 	throws IOException
     {
-	for (Enumeration<String> e = elements(); e.hasMoreElements(); ) {
-	    String key = e.nextElement(); 
-	    StringBuffer line = new StringBuffer();
+	StringBuffer line = new StringBuffer(100);
+
+	for (Enumeration/*<String>*/ e = elements(); e.hasMoreElements(); ) {
+	    String key = (String)e.nextElement(); 
+	    line.delete(0, line.length());
 
 	    line.append(key);
 	    line.append("=");
 	    line.append(get(key));
 	    line.append("\n");
 
-	    try {
-		out.write(line.toString().getBytes("ASCII"));
-	    } catch (UnsupportedEncodingException x) {
-		throw new IOException("Unsupported encoding: ASCII");
-	    }
+	    out.write(line.toString(), 0, line.length());
 	}
     }
 

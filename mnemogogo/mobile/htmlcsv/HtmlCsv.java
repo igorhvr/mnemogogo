@@ -16,9 +16,11 @@
  */
 
 import java.lang.*;
-import java.io.*;
-import java.util.*;
-import javax.microedition.io.*;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.util.Date;
+import javax.microedition.io.Connector;
 
 public class HtmlCsv
 {
@@ -34,6 +36,7 @@ public class HtmlCsv
     private static String utf8 = "UTF-8";
 
     HtmlCsv(String path)
+	throws IOException
     {
 	long start_time;
 	long adjusted_now;
@@ -94,7 +97,7 @@ public class HtmlCsv
     private void readStats(StringBuffer path)
 	throws IOException
     {
-	InputStreamReader in = InputStreamReader(
+	InputStreamReader in = new InputStreamReader(
 	    Connector.openInputStream(path.append("stats.csv").toString()),
 	    ascii);
 
@@ -111,9 +114,10 @@ public class HtmlCsv
     }
 
     public void writeCards(StringBuffer path)
+	throws IOException
     {
 	OutputStreamWriter out = new OutputStreamWriter(
-	    Connection.openOutputStream(path.append("stats.csv").toString()),
+	    Connector.openOutputStream(path.append("stats.csv").toString()),
 	    ascii);
 
 	StatIO.writeInt(out, stats.length, "\n");
@@ -125,8 +129,10 @@ public class HtmlCsv
 	out.close();
     }
 
-    private void readCategories(StringBuffer path) {
-	InputStreamReader in = InputStreamReader(
+    private void readCategories(StringBuffer path)
+	throws IOException
+    {
+	InputStreamReader in = new InputStreamReader(
 	    Connector.openInputStream(path.append("categories").toString()),
 	    utf8);
 
