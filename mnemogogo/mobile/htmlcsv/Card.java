@@ -154,7 +154,8 @@ public class Card
     public void writeCard(OutputStreamWriter out)
 	throws IOException
     {
-	StatIO.writeHexInt(out, grade, ","); 
+	StatIO.writeString(out, Integer.toString(grade)); 
+	StatIO.writeString(out, ",");
 	StatIO.writeHexInt(out, easiness, ",");
 	StatIO.writeHexInt(out, acq_reps, ",");
 	StatIO.writeHexInt(out, ret_reps, ",");
