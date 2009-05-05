@@ -52,6 +52,7 @@ const char* errorstr(int);
 
 void buildrevisionqueue(carddb_t);
 int numscheduled(carddb_t);
+int daysleft(carddb_t);
 int getcard(carddb_t, card_t* next);
 void processanswer(carddb_t, card_t item, int new_grade,
 		   long thinking_time_secs);

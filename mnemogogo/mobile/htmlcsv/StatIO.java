@@ -4,16 +4,15 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the "BSD License" which is distributed with the
- * software in the file ../LICENSE.
+ * software in the file ../../LICENSE.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the BSD
  * License for more details.
  */
-/*
- * Certain routines Copyright (c) Peter Bienstman <Peter.Bienstman@UGent.be>
- */
+
+package mnemogogo.mobile.htmlcsv;
 
 import java.lang.*;
 import java.io.InputStreamReader;
@@ -21,7 +20,7 @@ import java.io.OutputStreamWriter;
 import java.io.IOException;
 import java.io.EOFException;
 
-public class StatIO
+class StatIO
 {
     static String readLine(InputStreamReader in)
 	throws IOException
@@ -30,7 +29,7 @@ public class StatIO
 	
 	try {
 	    int b = in.read();
-	    while (b != '\n') {
+	    while (b != -1 && b != '\n') {
 		s.append((char)b);
 		b = in.read();
 	    }
@@ -45,7 +44,7 @@ public class StatIO
 	StringBuffer s = new StringBuffer(20);
 	int b = in.read();
 	
-	while (b != ',' && b != '\n') {
+	while (b != -1 && b != ',' && b != '\n') {
 	    s.append((char)b);
 	    b = in.read();
 	}

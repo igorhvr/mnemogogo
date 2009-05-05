@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the "BSD License" which is distributed with the
- * software in the file ../LICENSE.
+ * software in the file ../../LICENSE.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,13 +15,15 @@
  * Certain routines Copyright (c) Peter Bienstman <Peter.Bienstman@UGent.be>
  */
 
+package mnemogogo.mobile.htmlcsv;
+
 import java.lang.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Random;
 
-public class CardStats
+public class Card
 {
     public int serial;
 
@@ -36,29 +38,31 @@ public class CardStats
     public long next_rep;
     public boolean unseen;
     public int inverse;
-    public CardStats inverse_card;
     public int category;
     public boolean skip;
+    private CardList cardlookup;
 
     private static Random rand = new Random();
 
     private static int initial_interval[] = {0, 0, 1, 3, 4, 5};
 
-    CardStats() {
+    Card(CardList cardlist) {
+	cardlookup = cardlist;
     }
 
-    CardStats(InputStreamReader in, int i)
+    Card(CardList cardlist, InputStreamReader in, int i)
 	throws IOException
     {
+	cardlookup = cardlist;
 	readCard(in, i);
-    }
-
-    public void setInverse(CardStats inv) {
-	inverse_card = inv;
     }
 
     public float feasiness() {
 	return (float)easiness / 1000.0f;
+    }
+
+    public String categoryName() {
+	return cardlookup.getCategory(category);
     }
 
     public boolean rememorise0() {
@@ -93,6 +97,41 @@ public class CardStats
 
     public long sortKeyInterval() {
 	return (next_rep - last_rep);
+    }
+
+    public String toString() {
+	StringBuffer r = new StringBuffer(100);
+
+	r.append("#");
+	r.append(serial);
+	r.append(" g=");
+	r.append(grade); 
+	r.append(" easy=");
+	r.append(easiness);
+	r.append(" acqs=");
+	r.append(acq_reps);
+	r.append(" rets=");
+	r.append(ret_reps);
+	r.append(" l=");
+	r.append(lapses);
+	r.append(" acqs_l=");
+	r.append(acq_reps_since_lapse);
+	r.append(" rets_l=");
+	r.append(ret_reps_since_lapse);
+	r.append(" last=");
+	r.append(last_rep);
+	r.append(" next=");
+	r.append(next_rep);
+	r.append(" unseen=");
+	r.append(unseen);
+	r.append(" inv=");
+	r.append(inverse);
+	r.append(" cat=");
+	r.append(category);
+	r.append(" skip=");
+	r.append(skip);
+
+	return r.toString();
     }
 
     public String toString(long days_since_start) {
@@ -143,30 +182,9 @@ public class CardStats
 	last_rep = StatIO.readHexLong(in);
 	next_rep = StatIO.readHexLong(in);
 	unseen = (StatIO.readHexInt(in) == 1);
-	inverse = StatIO.readHexInt(in);
 	category = StatIO.readHexInt(in);
+	inverse = StatIO.readHexInt(in);
 	skip = false;
-    }
-
-    public String htmlFilename(boolean answer) {
-	StringBuffer r = new StringBuffer(10);
-	int a = serial / 10;
-	int i = 0;
-
-	while (a > 0) {
-	    i += 1;
-	    a = a / 10;
-	}
-	i = 3 - i;
-
-	r.append(answer?"A":"Q");
-	while (i > 0) {
-	    r.append("0");
-	}
-	r.append(serial);
-	r.append(".html");
-
-	return r.toString();
     }
 
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x
@@ -192,7 +210,7 @@ public class CardStats
     }
 
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x (process_answer)
-    void gradeCard(long days_since_start, int new_grade,
+    public void gradeCard(long days_since_start, int new_grade,
 		   long thinking_time_msecs, OutputStreamWriter logfile)
 	throws IOException
     {
@@ -203,6 +221,7 @@ public class CardStats
 	int noise;
 
 	// Don't schedule inverse or identical questions on the same day.
+	Card inverse_card = cardlookup.getCard(inverse);
 	if (inverse_card != null) {
 	    inverse_card.skip = true;
 	}

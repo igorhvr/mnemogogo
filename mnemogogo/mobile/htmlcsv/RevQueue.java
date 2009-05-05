@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the "BSD License" which is distributed with the
- * software in the file ../LICENSE.
+ * software in the file ../../LICENSE.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,11 +15,13 @@
  * Certain routines Copyright (c) Peter Bienstman <Peter.Bienstman@UGent.be>
  */
 
+package mnemogogo.mobile.htmlcsv;
+
 import java.lang.*;
 import java.util.Random;
 
-public class RevQueue {
-    private CardStats q[];
+class RevQueue {
+    private Card q[];
 
     int num_scheduled = 0;
     int idx_new;
@@ -33,7 +35,7 @@ public class RevQueue {
     Config config;
 
     RevQueue(int size, long days, Config c) {
-	q = new CardStats[size];
+	q = new Card[size];
 	idx_new = size - 1;
 	limit_new = size;
 	days_since_start = days;
@@ -42,17 +44,17 @@ public class RevQueue {
 
     private void swap(int i, int j)
     {
-	CardStats tmp = q[i];
+	Card tmp = q[i];
 	q[i] = q[j];
 	q[j] = tmp;
     }
 
     // insertion sort: linear when already ordered, won't blow the stack
     // if too slow: implement shell sort
-    private void sortScheduled()
+    private void sortScheduled(Progress progress)
     {
 	int i, j;
-	CardStats c;
+	Card c;
 	long key;
 
 	for (i=1; i < num_scheduled; ++i) {
@@ -63,6 +65,10 @@ public class RevQueue {
 		q[j + 1] = q[j];
 	    }
 	    q[j + 1] = c;
+
+	    if (i % 10 == 0 && progress != null) {
+		progress.updateOperation(10);
+	    }
 	}
     }
 
@@ -114,7 +120,7 @@ public class RevQueue {
     }
 
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x
-    public void buildRevisionQueue(CardStats[] cards)
+    public void buildRevisionQueue(Card[] cards, Progress progress)
     {
 	// form two queues:
 	//	    cards scheduled for today upward from 0
@@ -130,10 +136,14 @@ public class RevQueue {
 	    } else if (cards[i].isDueForAcquisitionRep()) {
 		q[idx_new--] = cards[i];
 	    }
+
+	    if (i % 10 == 0 && progress != null) {
+		progress.updateOperation(10);
+	    }
 	}
 
 	if (config.sorting()) {
-	    sortScheduled();
+	    sortScheduled(progress);
 	} else {
 	    shuffle(0, num_scheduled);
 	}
@@ -142,9 +152,21 @@ public class RevQueue {
 
 	int hd = idx_new + 1;
 	hd = clusterRememorise0(hd, q.length);
+	if (progress != null) {
+	    progress.updateOperation(hd / 10);
+	}
 	hd = clusterRememorise1(hd, q.length);
+	if (progress != null) {
+	    progress.updateOperation(hd / 10);
+	}
 	hd = clusterSeenButNotMemorised0(hd, q.length);
+	if (progress != null) {
+	    progress.updateOperation(hd / 10);
+	}
 	hd = clusterSeenButNotMemorised1(hd, q.length);
+	if (progress != null) {
+	    progress.updateOperation(hd / 10);
+	}
 
 	limit_new = idx_new + 1 + config.grade0ItemsAtOnce();
 	limit_new = Math.min(limit_new, q.length);
@@ -165,7 +187,7 @@ public class RevQueue {
 	return Math.min(0, num_scheduled - curr);
     }
 
-    public CardStats getFirstCard()
+    public Card getFirstCard()
     {
 	first = false;
 
@@ -182,7 +204,7 @@ public class RevQueue {
 	return null;
     }
 
-    public CardStats getCard()
+    public Card getCard()
     {
 	if (first) {
 	    return getFirstCard();
@@ -225,14 +247,6 @@ public class RevQueue {
 	}
 	
 	return q[curr];
-    }
-
-    public void updateInverses(CardStats cards[]) {
-	for (int i=0; i < q.length; ++i) {
-	    if (q[i] != null && q[i].inverse < cards.length) {
-		q[i].inverse_card = cards[q[i].inverse];
-	    }
-	}
     }
 
     public String toString() {

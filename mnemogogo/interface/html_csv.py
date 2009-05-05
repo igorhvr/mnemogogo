@@ -22,10 +22,14 @@
 import mnemogogo
 from os.path import exists, join, splitext
 from os import mkdir, listdir, remove
+from time import time
 import codecs
 
 class Export(mnemogogo.Export):
-    mode = 'html'
+
+    # abstract
+    def write_data(serial_num, q, a, cat, is_overlay):
+	pass
 
     def open(self, start_time, num_cards):
 	self.card_path = join(self.sync_path, 'cards')
@@ -39,6 +43,13 @@ class Export(mnemogogo.Export):
 	sfile.write(str(start_time) + '\n')
 	sfile.close()
 
+	sfile = open(join(self.sync_path, 'last_day'), 'w')
+	sfile.write(str(int(time() / 86400)) + '\n')
+	sfile.close()
+
+	sfile = open(join(self.sync_path, 'prelog'), 'w')
+	sfile.close()
+
 	self.statfile = open(join(self.sync_path, 'stats.csv'), 'w')
 	self.statfile.write(str(num_cards) + '\n')
 
@@ -47,7 +58,7 @@ class Export(mnemogogo.Export):
 
 	for stale_html in listdir(self.card_path):
 	    (_, ext) = splitext(stale_html)
-	    if ext == '.html':
+	    if (ext == '.html' or .ext == '.txt'):
 		remove(join(self.card_path, stale_html))
 	
 	self.add_style_file(join(self.card_path, 'style.css'))
@@ -97,61 +108,14 @@ class Export(mnemogogo.Export):
 	self.idfile.write(id + '\n')
 
 	# Handle images
-	self.extract_image_paths(q)
-	q = self.map_image_paths(q)
-	self.extract_image_paths(a)
-	a = self.map_image_paths(a)
+	self.do_images(self.serial_num, q, a);
 
 	# Write card data
-	if (mode == 'html'):
-	    write_htmldata(self.serial_num, q, a, cat,
-			    (self.is_overlay(q) or self.is_overlay(a)))
-	elif (mode == 'text'):
-	    write_textdata(self.serial_num, q, a, cat,
-			    (self.is_overlay(q) or self.is_overlay(a)))
+	write_data(self.serial_num, q, a, cat,
+		    (self.is_overlay(q) or self.is_overlay(a)))
 
 	self.serial_num += 1
 
-    def write_htmldata(serial_num, q, a, cat, is_overlay):
-	cfile = codecs.open(join(self.card_path, 'Q%04x.htm' % serial_num),
-			    'w', encoding='utf-8')
-	cfile.write('<html>\n')
-	cfile.write('<head>')
-	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
-	cfile.write('</head>\n')
-	cfile.write('<body id="%s" class="single">\n' % cat)
-	cfile.write('<div id="cat">%s</div>\n' % cat)
-	cfile.write('<div id="q" style="display: block;">%s</div>\n' % q)
-	cfile.write('</body></html>\n')
-	cfile.close()
-
-	cfile = codecs.open(join(self.card_path, 'A%04x.htm' % serial_num),
-			    'w', encoding='utf-8')
-	cfile.write('<html>\n')
-	cfile.write('<head>')
-	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
-	cfile.write('</head>\n')
-	if is_overlay:
-	    cfile.write('<body id="%s" class="single">\n' % cat)
-	    cfile.write('<div id="cat">%s</div>\n' % cat)
-	else:
-	    cfile.write('<body id="%s" class="double">\n' % cat)
-	    cfile.write('<div id="cat">%s</div>\n' % cat)
-	    cfile.write('<div id="q" style="display: block;">%s</div>\n' % q)
-	cfile.write('<div id="a" style="display: none;">%s</div>\n' % a)
-	cfile.write('</body></html>\n')
-	cfile.close()
-
-    def write_textdata(serial_num, q, a, cat, is_overlay):
-	cfile = codecs.open(join(self.card_path, 'Q%04x.txt' % serial_num),
-			    'w', encoding='utf-8')
-	cfile.write(q)
-	cfile.close()
-
-	cfile = codecs.open(join(self.card_path, 'A%04x.txt' % serial_num),
-			    'w', encoding='utf-8')
-	cfile.write(a)
-	cfile.close()
 
 class Import(mnemogogo.Import):
     def open(self):
@@ -227,16 +191,112 @@ class HtmlCsv(mnemogogo.Interface):
     def start_import(self, sync_path):
 	return Import(self, sync_path)
 
-class TextCsv(mnemogogo.Interface):
+    def write_data(serial_num, q, a, cat, is_overlay):
+	cfile = codecs.open(join(self.card_path, 'Q%04x.htm' % serial_num),
+			    'w', encoding='utf-8')
+	cfile.write('\n<html>\n')
+	cfile.write('<head>')
+	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
+	cfile.write('</head>\n')
+	cfile.write('<body id="%s" class="single">\n' % cat)
+	cfile.write('<div id="cat">%s</div>\n' % cat)
+	cfile.write('<div id="q" style="display: block;">%s</div>\n' % q)
+	cfile.write('</body></html>\n')
+	cfile.close()
 
-    description = 'Text+CSV: Basic'
+	cfile = codecs.open(join(self.card_path, 'A%04x.htm' % serial_num),
+			    'w', encoding='utf-8')
+	cfile.write('<html>\n')
+	cfile.write('<head>')
+	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
+	cfile.write('</head>\n')
+	if is_overlay:
+	    cfile.write('<body id="%s" class="single">\n' % cat)
+	    cfile.write('<div id="cat">%s</div>\n' % cat)
+	else:
+	    cfile.write('<body id="%s" class="double">\n' % cat)
+	    cfile.write('<div id="cat">%s</div>\n' % cat)
+	    cfile.write('<div id="q" style="display: block;">%s</div>\n' % q)
+	cfile.write('<div id="a" style="display: none;">%s</div>\n' % a)
+	cfile.write('</body></html>\n')
+	cfile.close()
+
+    def do_images(serial_num, q, a):
+	self.extract_image_paths(q)
+	q = self.map_image_paths(q)
+	self.extract_image_paths(a)
+	a = self.map_image_paths(a)
+
+class FullHtmlCsv(mnemogogo.Interface):
+
+    description = 'HTML+CSV: Full'
     version = '0.5.0'
 
     def start_export(self, sync_path):
-	e = Export(self, sync_path)
-	e.mode = 'text'
-	return e
+	return Export(self, sync_path)
 
     def start_import(self, sync_path):
 	return Import(self, sync_path)
+
+    def write_data(serial_num, q, a, cat, is_overlay):
+	cfile = codecs.open(join(self.card_path, 'Q%04x.htm' % serial_num),
+			    'w', encoding='utf-8')
+	if is_overlay:
+	    cfile.write('answerbox: overlay;\n%s\n' % q)
+	else
+	    cfile.write('\n%s\n' % q)
+	cfile.close()
+
+	cfile = codecs.open(join(self.card_path, 'A%04x.htm' % serial_num),
+			    'w', encoding='utf-8')
+	cfile.write('%s\n' % a)
+	cfile.close()
+
+    def do_images(serial_num, q, a):
+	self.extract_image_paths(q)
+	q = self.map_image_paths(q)
+	self.extract_image_paths(a)
+	a = self.map_image_paths(a)
+
+class TextCsv(mnemogogo.Interface):
+
+    description = 'HTML+CSV: Text'
+    version = '0.5.0'
+
+    raw_conversions = [
+	    # ( regex ,	   replacement )
+	    (r'(<.*?>[ \t]*)', r'')
+	]
+    conversions = []
+
+    def start_export(self, sync_path):
+	if not self.conversions:
+	    for (mat, rep) in self.raw_conversions:
+		self.conversions.append((re.compile(mat, re.DOTALL), rep))
+	return Export(self, sync_path)
+
+    def start_import(self, sync_path):
+	return Import(self, sync_path)
+
+    def convert(text):
+	for (mat, rep) in self.conversions:
+	    text = mat.sub(rep, text)
+
+    def write_data(serial_num, q, a, cat, is_overlay):
+	cfile = codecs.open(join(self.card_path, 'Q%04x.txt' % serial_num),
+			    'w', encoding='utf-8')
+	if is_overlay:
+	    cfile.write('answerbox: overlay;\n')
+	else
+	    cfile.write('\n')
+	cfile.write(convert(q))
+	cfile.close()
+
+	cfile = codecs.open(join(self.card_path, 'A%04x.txt' % serial_num),
+			    'w', encoding='utf-8')
+	cfile.write(convert(a))
+	cfile.close()
+
+    def do_images(serial_num, q, a):
+	pass
 

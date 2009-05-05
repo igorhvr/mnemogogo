@@ -89,6 +89,7 @@ struct _carddb_t {
     bool_t sorting;
     bool_t logging;
     stat_t day_starts_at;
+    int days_left;
 };
 
 // functions
@@ -243,6 +244,17 @@ carddb_t loadcarddb(char* path, int* err)
     fclose(fin);
     adjusted_now = (time_t)time(NULL) - (db->day_starts_at * 3600);
     db->days_since_start = (adjusted_now - start_time) / 86400;
+
+    // calculate days_left
+    if (!(fin = fopen(join(fpath, path, "last_day"), "r"))) {
+	*err = ERROR_FILE_NOT_FOUND;
+	goto error;
+    }
+    time_t last_day  = getdecimal(fin);
+    fclose(fin);
+    db->days_left = (int)(last_day - ((time_t)time(NULL) / 86400));
+    if (db->days_left < 0)
+	db->days_left = 0;
 
     // read card stats
     if (!(fin = fopen(join(fpath, path, "stats.csv"), "r"))) {
@@ -534,6 +546,11 @@ int numscheduled(carddb_t db)
 	return 0;
 
     return n;
+}
+
+int daysleft(carddb_t db)
+{
+    return db->days_left;
 }
 
 int getfirstcard(carddb_t db, card_t* next)

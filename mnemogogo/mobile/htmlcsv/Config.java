@@ -4,16 +4,15 @@
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the "BSD License" which is distributed with the
- * software in the file ../LICENSE.
+ * software in the file ../../LICENSE.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the BSD
  * License for more details.
  */
-/*
- * Certain routines Copyright (c) Peter Bienstman <Peter.Bienstman@UGent.be>
- */
+
+package mnemogogo.mobile.htmlcsv;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -25,16 +24,21 @@ import java.util.Enumeration;
 public class Config extends Hashtable/*<String, String>*/
 {
     Config() {
-	put("grade_0_items_at_once", "10");
-	put("sorting", "1");
-	put("logging", "1");
-	put("day_starts_at", "3");
+	setDefaults();
     }
 
     Config(InputStreamReader in)
 	throws IOException
     {
+	setDefaults();
 	readConfig(in);
+    }
+
+    private void setDefaults() {
+	put("grade_0_items_at_once", "10");
+	put("sorting", "1");
+	put("logging", "1");
+	put("day_starts_at", "3");
     }
 
     public int grade0ItemsAtOnce() {
@@ -46,11 +50,13 @@ public class Config extends Hashtable/*<String, String>*/
     }
 
     public boolean logging() {
-	return ((String)get("logging") != "0");
+	String s = (String)get("logging");
+	return (!s.equals("0"));
     }
 
     public boolean sorting() {
-	return ((String)get("sorting") != "0");
+	String s = (String)get("sorting");
+	return (!s.equals("0"));
     }
 
     public void writeConfig(OutputStreamWriter out)
@@ -58,7 +64,8 @@ public class Config extends Hashtable/*<String, String>*/
     {
 	StringBuffer line = new StringBuffer(100);
 
-	for (Enumeration/*<String>*/ e = elements(); e.hasMoreElements(); ) {
+	Enumeration/*<String>*/ e = elements();
+	while (e.hasMoreElements()) {
 	    String key = (String)e.nextElement(); 
 	    line.delete(0, line.length());
 
@@ -85,12 +92,13 @@ public class Config extends Hashtable/*<String, String>*/
 	    curr = namebuf;
 
 	    c = in.read();
-	    while (c != '\n') {
+	    while (c != -1 && c != '\n') {
 		if (c == '=') {
 		    curr = valuebuf;
 		} else {
 		    curr.append((char)c);
 		}
+		c = in.read();
 	    }
 
 	    if (curr != valuebuf) {
