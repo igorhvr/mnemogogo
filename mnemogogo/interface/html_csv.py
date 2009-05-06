@@ -58,7 +58,7 @@ class Export(mnemogogo.Export):
 
 	for stale_html in listdir(self.card_path):
 	    (_, ext) = splitext(stale_html)
-	    if (ext == '.html' or .ext == '.txt'):
+	    if (ext == '.html' or ext == '.txt'):
 		remove(join(self.card_path, stale_html))
 	
 	self.add_style_file(join(self.card_path, 'style.css'))
@@ -80,6 +80,7 @@ class Export(mnemogogo.Export):
 	self.statfile.close()
 	self.idfile.close()
 	self.collect_images()
+	self.collect_sounds()
     
     def write_config(self, config):
 	cfile = open(join(self.sync_path, 'config'), 'w')
@@ -109,6 +110,7 @@ class Export(mnemogogo.Export):
 
 	# Handle images
 	self.do_images(self.serial_num, q, a);
+	self.do_sounds(self.serial_num, q, a);
 
 	# Write card data
 	write_data(self.serial_num, q, a, cat,
@@ -182,7 +184,7 @@ class Import(mnemogogo.Import):
 
 class HtmlCsv(mnemogogo.Interface):
 
-    description = 'HTML+CSV: Basic'
+    description = 'HTML+CSV: with CSS'
     version = '0.5.0'
 
     def start_export(self, sync_path):
@@ -227,9 +229,15 @@ class HtmlCsv(mnemogogo.Interface):
 	self.extract_image_paths(a)
 	a = self.map_image_paths(a)
 
+    def do_sounds(serial_num, q, a):
+	self.extract_sound_paths(q)
+	q = self.map_sound_paths(q)
+	self.extract_sound_paths(a)
+	a = self.map_sound_paths(a)
+
 class FullHtmlCsv(mnemogogo.Interface):
 
-    description = 'HTML+CSV: Full'
+    description = 'HTML+CSV: Basic'
     version = '0.5.0'
 
     def start_export(self, sync_path):
@@ -243,7 +251,7 @@ class FullHtmlCsv(mnemogogo.Interface):
 			    'w', encoding='utf-8')
 	if is_overlay:
 	    cfile.write('answerbox: overlay;\n%s\n' % q)
-	else
+	else:
 	    cfile.write('\n%s\n' % q)
 	cfile.close()
 
@@ -257,6 +265,12 @@ class FullHtmlCsv(mnemogogo.Interface):
 	q = self.map_image_paths(q)
 	self.extract_image_paths(a)
 	a = self.map_image_paths(a)
+
+    def do_sounds(serial_num, q, a):
+	self.extract_sound_paths(q)
+	q = self.map_sound_paths(q)
+	self.extract_sound_paths(a)
+	a = self.map_sound_paths(a)
 
 class TextCsv(mnemogogo.Interface):
 
@@ -287,7 +301,7 @@ class TextCsv(mnemogogo.Interface):
 			    'w', encoding='utf-8')
 	if is_overlay:
 	    cfile.write('answerbox: overlay;\n')
-	else
+	else:
 	    cfile.write('\n')
 	cfile.write(convert(q))
 	cfile.close()
@@ -298,5 +312,8 @@ class TextCsv(mnemogogo.Interface):
 	cfile.close()
 
     def do_images(serial_num, q, a):
+	pass
+
+    def do_sounds(serial_num, q, a):
 	pass
 

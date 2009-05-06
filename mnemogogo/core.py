@@ -91,9 +91,16 @@ class Job:
 class Export(Job):
     categories = []
     imgs = []
+    snds = []
 
     re_img_split = re.compile(r'(<img.*?>)')
     re_img = re.compile( r'(?P<all>(?P<before><img\s+[^>]?)'
+			+ 'src\s*=\s*"(?P<path>[^"]*)"'
+			+ '(?P<after>[^>]*/?>))',
+			re.IGNORECASE + re.MULTILINE + re.DOTALL)
+
+    re_snd_split = re.compile(r'(<sound.*?>)')
+    re_snd = re.compile( r'(?P<all>(?P<before><sound\s+[^>]?)'
 			+ 'src\s*=\s*"(?P<path>[^"]*)"'
 			+ '(?P<after>[^>]*/?>))',
 			re.IGNORECASE + re.MULTILINE + re.DOTALL)
@@ -120,13 +127,16 @@ class Export(Job):
 	for r in self.re_img.finditer(text):
 	    self.imgs.append(r.group('path'))
 
-    def map_image_paths(self, text,
-			f=(lambda x: os.path.join('img', os.path.basename(x)))):
-	stext = self.re_img_split.split(text)
+    def extract_sound_paths(self, text):
+	for r in self.re_snd.finditer(text):
+	    self.snds.append(r.group('path'))
+
+    def map_paths(self, re, re_split, text, f):
+	stext = self.re_split.split(text)
 	ntext = []
 
 	for ele in stext:
-	    r = self.re_img.match(ele)
+	    r = self.re.match(ele)
 	    if r:
 		ele = (r.group('before')
 		       + ' src="' + f(r.group('path'))
@@ -135,34 +145,49 @@ class Export(Job):
 
 	return ''.join(ntext)
 
+    def map_image_paths(self, text,
+			f=(lambda x: os.path.join('img', os.path.basename(x)))):
+	return self.map_paths(re_img, re_img_split, text, f)
+
+    def map_sound_paths(self, text,
+			f=(lambda x: os.path.join('snd', os.path.basename(x)))):
+	return self.map_paths(re_snd, re_snd_split, text, f)
+
     def call_hooks(self, target, hook):
 	if hook in mnemosyne.core.function_hooks:
 	    for f in mnemosyne.core.function_hooks[hook]:
 		f(target)
 
-    def collect_images(self, dst_subdir=os.path.join('cards', 'img'),
-		       fcopy=shutil.copy):
+    def collect_files(self, list, hook_name, dst_subdir, fcopy):
 
 	dstpath = os.path.join(self.sync_path, dst_subdir)
 	if not os.path.exists(dstpath):
 	    os.mkdir(dstpath)
 
 	moved = Set()
-	for srcimg in self.imgs:
-	    moved.add(os.path.basename(srcimg))
-	    dstimg = os.path.join(dstpath, os.path.basename(srcimg))
-	    if (not os.path.exists(dstimg)
-		or (os.path.getmtime(dstimg) < os.path.getmtime(srcimg))):
+	for src in list:
+	    moved.add(os.path.basename(src))
+	    dst = os.path.join(dstpath, os.path.basename(src))
+	    if (not os.path.exists(dst)
+		or (os.path.getmtime(dst) < os.path.getmtime(src))):
 		try:
-		    fcopy(srcimg, dstimg)
-		    self.call_hooks(dstimg, 'gogo_img')
+		    fcopy(src, dst)
+		    self.call_hooks(dst, hook_name)
 		except Exception, e:
-		    print >> sys.stderr, "Error copying image: %s" % e
+		    print >> sys.stderr, "Error copying file: %s" % e
 
 
 	for file in os.listdir(dstpath):
 	    if file not in moved:
 		os.remove(os.path.join(dstpath, file))
+
+    def collect_images(self, dst_subdir=os.path.join('cards', 'img'),
+		       fcopy=shutil.copy):
+	self.collect_files(self.imgs, 'gogo_img', dst_subdir, fcopy);
+
+    def collect_sounds(self, dst_subdir=os.path.join('cards', 'snd'),
+		       fcopy=shutil.copy):
+	self.collect_files(self.snds, 'gogo_snd', dst_subdir, fcopy);
     
     def add_style_file(self, dstpath):
 	shutil.copy(os.path.join(self.gogo_dir, 'style.css'), dstpath)
