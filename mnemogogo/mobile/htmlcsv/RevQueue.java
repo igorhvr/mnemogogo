@@ -223,8 +223,8 @@ class RevQueue {
 	    curr = idx_new + 1;
 
 	} else if (q[curr].grade < 2) {
-	    // shuffle grade 0 cards back into set
-	    swap(curr, rand.nextInt(limit_new - 1 - curr) + curr);
+	    // shuffle grade 0 and 1 cards back into set
+	    swap(curr, rand.nextInt(limit_new - curr) + curr);
 
 	} else if (q[curr].unseen) {
 	    // shift the limit forward

@@ -69,13 +69,10 @@ public class HtmlCsv
 	    p.delete(path_len, p.length());
 	    p.append("prelog");
 
-	    System.out.println("here!"); // XXX
-	    // TODO: check that this really appends?
 	    FileConnection file =
-		(FileConnection)Connector.open(p.toString(), Connector.WRITE);
+		(FileConnection)Connector.open(p.toString());
 	    OutputStream outs = file.openOutputStream(file.fileSize());
 	    logfile = new OutputStreamWriter(outs, ascii);
-	    System.out.println("after!"); // XXX
 	}
 
 	q = new RevQueue(cards.length, days_since_start, config);

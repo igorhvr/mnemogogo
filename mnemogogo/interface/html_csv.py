@@ -273,7 +273,11 @@ class TextExport(BasicExport):
     raw_conversions = [
 	    # ( regex ,	   replacement )
 	    (r'(<br/?>)', r'\n'),
-	    (r'(<.*?>)', r'')
+	    (r'(<.*?>)', r''),
+	    (r'&nbsp;', r' '),
+	    (r'&lt;', r'<'),
+	    (r'&gt;', r'>'),
+	    (r'&amp;', r'&')
 	]
     conversions = []
 
