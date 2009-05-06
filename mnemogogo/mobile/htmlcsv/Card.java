@@ -165,8 +165,8 @@ public class Card
 	StatIO.writeHexLong(out, last_rep, ",");
 	StatIO.writeHexLong(out, next_rep, ",");
 	StatIO.writeBool(out, unseen, ",");
-	StatIO.writeHexInt(out, inverse, ",");
-	StatIO.writeHexInt(out, category, "\n");
+	StatIO.writeHexInt(out, category, ",");
+	StatIO.writeHexInt(out, inverse, "\n");
     }
 
     public void readCard(InputStreamReader in, int i)
@@ -362,6 +362,24 @@ public class Card
 
 	    logfile.write(r.toString(), 0, r.length());
 	}
+    }
+
+    public void appendSerial(StringBuffer path)
+    {
+	int a = serial / 10;
+	int i = 0;
+
+	while (a > 0) {
+	    i += 1;
+	    a = a / 10;
+	}
+	i = 3 - i;
+
+	while (i > 0) {
+	    path.append("0");
+	    --i;
+	}
+	path.append(serial);
     }
 }
 

@@ -184,7 +184,7 @@ class RevQueue {
 
     public int numScheduled()
     {
-	return Math.min(0, num_scheduled - curr);
+	return Math.max(0, num_scheduled - curr);
     }
 
     public Card getFirstCard()
@@ -259,6 +259,9 @@ class RevQueue {
 	    r.append(q[i].serial);
 	    r.append(" key=");
 	    r.append(q[i].sortKeyInterval());
+	    if (i == curr) {
+		r.append(" <-");
+	    }
 	    r.append("\n");
 	}
 
@@ -279,6 +282,9 @@ class RevQueue {
 	    r.append(q[i].seenButNotMemorised0());
 	    r.append(" sn1=");
 	    r.append(q[i].seenButNotMemorised1());
+	    if (i == curr) {
+		r.append(" <-");
+	    }
 	    r.append("\n");
 	}
 

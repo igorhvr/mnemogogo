@@ -38,23 +38,9 @@ public class LoadedCard
     }
 
     private void makeQuestionPath() {
-	int a = card.serial / 10;
-	int i = 0;
-
 	cardPath.delete(cardPathLen, cardPath.length());
-
-	while (a > 0) {
-	    i += 1;
-	    a = a / 10;
-	}
-	i = 3 - i;
-
 	cardPath.append("Q");
-	while (i > 0) {
-	    cardPath.append("0");
-	    --i;
-	}
-	cardPath.append(card.serial);
+	card.appendSerial(cardPath);
 	cardPath.append(".txt");
     }
 

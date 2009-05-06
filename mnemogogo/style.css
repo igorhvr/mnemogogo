@@ -4,13 +4,14 @@ body {
 }
 
 div#cat {
+    padding: 1px;
     background-color: lightgray;
     color: white;
     font-family: sans-serif;
 }
 
 div#q {
-    padding: 0.5em;
+    padding: 2px;
     background-color: white;
     color: black;
     text-align: center;
@@ -18,10 +19,12 @@ div#q {
 
 div.double div#q {
     border-bottom: thin solid black;
+    margin-bottom: 3px;
+    padding-bottom: 3px;
 }
 
 div#a {
-    padding: 0.5em;
+    padding: 2px;
     background-color: white;
     color: black;
     text-align: center;
