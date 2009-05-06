@@ -20,7 +20,8 @@ import java.io.OutputStreamWriter;
 import java.io.IOException;
 import java.util.Date;
 import javax.microedition.io.Connector;
-import java.io.OutputStream; // XXX
+import java.io.OutputStream;
+import javax.microedition.io.file.FileConnection; /*JSR-75*/
 
 public class HtmlCsv
     implements CardList
@@ -65,17 +66,15 @@ public class HtmlCsv
 	readCategories(p);
 
 	if (config.logging()) {
-	    // TODO: check that this really appends?
-	    /*
-	    logfile = new OutputStreamWriter(
-		Connector.openOutputStream(
-		    p.append("prelog").append(";type=a").toString()),
-		ascii);
-	    */
+	    p.delete(path_len, p.length());
+	    p.append("prelog");
+
 	    System.out.println("here!"); // XXX
-	    logfile = new OutputStreamWriter(
-		Connector.openOutputStream(p.append("prelog").toString()),
-		ascii);
+	    // TODO: check that this really appends?
+	    FileConnection file =
+		(FileConnection)Connector.open(p.toString(), Connector.WRITE);
+	    OutputStream outs = file.openOutputStream(file.fileSize());
+	    logfile = new OutputStreamWriter(outs, ascii);
 	    System.out.println("after!"); // XXX
 	}
 
@@ -226,6 +225,15 @@ public class HtmlCsv
 	for (int i=0; i < cards.length; ++i) {
 	    System.out.print("  ");
 	    System.out.println(cards[i].toString());
+	}
+    }
+
+    public void close() {
+	if (logfile != null) {
+	    try {
+		logfile.close();
+	    } catch (IOException e) {}
+	    logfile = null;
 	}
     }
 }

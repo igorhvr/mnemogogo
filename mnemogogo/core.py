@@ -105,6 +105,7 @@ class Export(Job):
 			+ '(?P<after>[^>]*/?>))',
 			re.IGNORECASE + re.MULTILINE + re.DOTALL)
 
+
     # implement in plugin
     def write(self, id, q, a, cat, stats, inverse_ids):
 	pass
@@ -123,6 +124,11 @@ class Export(Job):
 	mnemosyne.pyqt_ui.card_prop.re_card_props.sub('', text)
 	return text
 
+    def call_hooks(self, target, hook):
+	if hook in mnemosyne.core.function_hooks:
+	    for f in mnemosyne.core.function_hooks[hook]:
+		f(target)
+
     def extract_image_paths(self, text):
 	for r in self.re_img.finditer(text):
 	    self.imgs.append(r.group('path'))
@@ -131,12 +137,12 @@ class Export(Job):
 	for r in self.re_snd.finditer(text):
 	    self.snds.append(r.group('path'))
 
-    def map_paths(self, re, re_split, text, f):
-	stext = self.re_split.split(text)
+    def map_paths(self, reg, re_split, text, f):
+	stext = re_split.split(text)
 	ntext = []
 
 	for ele in stext:
-	    r = self.re.match(ele)
+	    r = reg.match(ele)
 	    if r:
 		ele = (r.group('before')
 		       + ' src="' + f(r.group('path'))
@@ -147,16 +153,12 @@ class Export(Job):
 
     def map_image_paths(self, text,
 			f=(lambda x: os.path.join('img', os.path.basename(x)))):
-	return self.map_paths(re_img, re_img_split, text, f)
+	return self.map_paths(self.re_img, self.re_img_split, text, f)
 
     def map_sound_paths(self, text,
 			f=(lambda x: os.path.join('snd', os.path.basename(x)))):
-	return self.map_paths(re_snd, re_snd_split, text, f)
+	return self.map_paths(self.re_snd, self.re_snd_split, text, f)
 
-    def call_hooks(self, target, hook):
-	if hook in mnemosyne.core.function_hooks:
-	    for f in mnemosyne.core.function_hooks[hook]:
-		f(target)
 
     def collect_files(self, list, hook_name, dst_subdir, fcopy):
 
@@ -242,7 +244,6 @@ class Interface:
     def start_import(self, sync_path):
 	return Import(self, sync_path)
 
-    # # # Utility routines # # #
 
 ######################################################################
 # Implementation
