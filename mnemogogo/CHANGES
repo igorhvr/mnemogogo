@@ -1,3 +1,9 @@
+20090507 mnemogogo-0.6.0
+* Fix many bugs.
+* Remove global variables from the C library.
+* Implement the library in Java.
+* Provide a plain text exporter.
+
 20090422 mnemogogo-0.5.1
 * Fix a small bug in mobile/htmlcsv: shiftforgottentonew().
 
