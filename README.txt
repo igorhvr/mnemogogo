@@ -23,10 +23,3 @@ see the file:
 
 Please submit your applications to the Mnemosyne site!
 
-The suggested naming is:
-    Mnemogogo-S60
-    Mnemogogo-iPhone
-    Mnemogogo-D2
-    Mnemogogo-Maemo
-or similar.
-

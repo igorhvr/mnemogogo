@@ -110,8 +110,8 @@ class BasicExport(mnemogogo.Export):
 	self.idfile.write(id + '\n')
 
 	# Handle images
-	self.do_images(self.serial_num, q, a);
-	self.do_sounds(self.serial_num, q, a);
+	(q, a) = self.do_images(self.serial_num, q, a);
+	(q, a) = self.do_sounds(self.serial_num, q, a);
 
 	# Write card data
 	self.write_data(self.card_path, self.serial_num, q, a, cat,
@@ -221,12 +221,14 @@ class HtmlCsvExport(BasicExport):
 	q = self.map_image_paths(q)
 	self.extract_image_paths(a)
 	a = self.map_image_paths(a)
+	return (q, a)
 
     def do_sounds(self, serial_num, q, a):
 	self.extract_sound_paths(q)
 	q = self.map_sound_paths(q)
 	self.extract_sound_paths(a)
 	a = self.map_sound_paths(a)
+	return (q, a)
 
 class HtmlCsv(mnemogogo.Interface):
 
@@ -257,12 +259,20 @@ class FullHtmlCsvExport(HtmlCsvExport):
 	cfile.close()
 
 class FullHtmlCsv(mnemogogo.Interface):
+    max_width = 240
+    max_height = 320
+    ext = 'png'
 
-    description = 'HTML+CSV: Basic'
+    description = 'HTML+CSV: Basic (%dx%d, %s)' % (max_width, max_height, ext)
     version = '0.5.0'
 
     def start_export(self, sync_path):
-	return FullHtmlCsvExport(self, sync_path)
+	e = FullHtmlCsvExport(self, sync_path)
+	e.img_max_width = self.max_width
+	e.img_max_height = self.max_height
+	e.img_to_landscape = True
+	e.img_to_ext = self.ext
+	return e
 
     def start_import(self, sync_path):
 	return Import(self, sync_path)
@@ -306,10 +316,10 @@ class TextExport(BasicExport):
 	cfile.close()
 
     def do_images(self, serial_num, q, a):
-	pass
+	return (q, a)
 
     def do_sounds(self, serial_num, q, a):
-	pass
+	return (q, a)
 
 class TextCsv(mnemogogo.Interface):
 

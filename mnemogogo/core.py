@@ -23,6 +23,12 @@ import itertools
 from sets import Set
 import traceback
 
+try:
+    import Image	# Python Imaging Library
+    hasImageModule = True
+except ImportError:
+    hasImageModule = False
+
 interface_classes = []
 
 class _RegisteredInterface(type):
@@ -88,10 +94,20 @@ class Job:
 	title = self.interface.description + ' interface: '
 	raise InterfaceError(title + msg)
 
+
+def map_img_path(x, new_ext):
+    (root, ext) = os.path.splitext(x)
+    return os.path.join('img', os.path.basename(root) + '.' + new_ext)
+
 class Export(Job):
     categories = []
     imgs = []
     snds = []
+
+    img_max_width = None
+    img_max_height = None
+    img_to_landscape = False
+    img_to_ext = None
 
     re_img_split = re.compile(r'(<img.*?>)')
     re_img = re.compile( r'(?P<all>(?P<before><img\s+[^>]?)'
@@ -151,8 +167,12 @@ class Export(Job):
 
 	return ''.join(ntext)
 
-    def map_image_paths(self, text,
-			f=(lambda x: os.path.join('img', os.path.basename(x)))):
+    def map_image_paths(self, text, f=None):
+	if not f:
+	    if self.img_to_ext:
+		f=(lambda x: map_img_path(x, self.img_to_ext))
+	    else:
+		f=(lambda x: os.path.join('img', os.path.basename(x)))
 	return self.map_paths(self.re_img, self.re_img_split, text, f)
 
     def map_sound_paths(self, text,
@@ -168,24 +188,28 @@ class Export(Job):
 
 	moved = Set()
 	for src in list:
-	    moved.add(os.path.basename(src))
 	    dst = os.path.join(dstpath, os.path.basename(src))
-	    if (not os.path.exists(dst)
-		or (os.path.getmtime(dst) < os.path.getmtime(src))):
-		try:
-		    fcopy(src, dst)
-		    self.call_hooks(dst, hook_name)
-		except Exception, e:
-		    print >> sys.stderr, "Error copying file: %s" % e
 
+	    try:
+		if fcopy:
+		    if (not os.path.exists(dst)
+			or (os.path.getmtime(dst) < os.path.getmtime(src))):
+			fcopy(src, dst)
+		else:
+		    (wasmoved, dst) = self.convert_img(src, dst)
+		    if wasmoved:
+			self.call_hooks(dst, hook_name)
+	    except Exception, e:
+		print >> sys.stderr, "Error copying file: %s" % e
+
+	    moved.add(os.path.basename(dst))
 
 	for file in os.listdir(dstpath):
 	    if file not in moved:
 		os.remove(os.path.join(dstpath, file))
 
-    def collect_images(self, dst_subdir=os.path.join('cards', 'img'),
-		       fcopy=shutil.copy):
-	self.collect_files(self.imgs, 'gogo_img', dst_subdir, fcopy);
+    def collect_images(self, dst_subdir=os.path.join('cards', 'img')):
+	self.collect_files(self.imgs, 'gogo_img', dst_subdir, None);
 
     def collect_sounds(self, dst_subdir=os.path.join('cards', 'snd'),
 		       fcopy=shutil.copy):
@@ -201,6 +225,40 @@ class Export(Job):
 	    i = len(self.categories)
 	    self.categories.append(cat)
 	return i
+
+    def convert_img(self, src, dst):
+	if self.img_to_ext:
+	    (dst_base, dst_ext) = os.path.splitext(dst)
+	    dst = dst_base + '.' + self.img_to_ext
+
+	if (os.path.exists(dst) and
+		(os.path.getmtime(src) < os.path.getmtime(dst))):
+	    return (False, dst)
+
+	if not hasImageModule:
+	    shutil.copy(src, dst)
+	    return (True, dst)
+
+	im = Image.open(src)
+	(width, height) = im.size
+
+	if self.img_to_landscape and width > height:
+	    im = im.transpose(Image.ROTATE_90)
+	    (width, height) = im.size
+	
+	(wratio, hratio) = (1.0, 1.0)
+	if self.img_max_width and width > self.img_max_width:
+	    wratio = width / float(self.img_max_width);
+	
+	if self.img_max_height and height > self.img_max_height:
+	    hratio = height / float(self.img_max_height);
+	
+	ratio = max(wratio, hratio)
+	if ratio != 1.0:
+	    im = im.resize((int(width / ratio), int(height / ratio)))
+	
+	im.save(dst)
+	return (True, dst)
 
 class Import(Job):
     def __iter__(self):
@@ -468,12 +526,12 @@ def do_import(interface, sync_path):
 	log = open(logpath)
 
 	mnemosyne.core.logger.info('mnemogogo: starting log import')
-	line = self.statfile.readline()
+	line = log.readline()
 	while line != '':
 	    mnemosyne.core.logger.info(line)
-	    line = self.statfile.readline()
+	    line = log.readline()
 	mnemosyne.core.logger.info('mnemogogo: finished log import')
 
-	close(log)
+	log.close()
 	os.remove(logpath)
 
