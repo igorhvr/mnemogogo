@@ -1,12 +1,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "htmlcsv.h"
+#include "hexcsv.h"
 
 /*
     Potential mobile clients:
     * Symbian S60 OS on (mostly) Nokia mobile phones
-	- use P.I.P.S to compile htmlcsv library
+	- use P.I.P.S to compile hexcsv library
 	- rewrite the main function in Symbian C++
 	- use the web browser control to display cards
  */

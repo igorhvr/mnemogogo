@@ -12,7 +12,7 @@
  * License for more details.
  */
 
-package mnemogogo.mobile.htmlcsv;
+package mnemogogo.mobile.hexcsv;
 
 import java.lang.*;
 import java.io.InputStreamReader;

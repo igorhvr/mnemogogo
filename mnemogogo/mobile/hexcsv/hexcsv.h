@@ -14,8 +14,8 @@
 /*
  * Certain routines Copyright (c) Peter Bienstman <Peter.Bienstman@UGent.be>
  */
-#ifndef __HTMLCSV_H__
-#define __HTMLCSV_H__
+#ifndef __HEXCSV_H__
+#define __HEXCSV_H__
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -58,7 +58,7 @@ void processanswer(carddb_t, card_t item, int new_grade,
 		   long thinking_time_secs);
 void htmlfilename(carddb_t, card_t, int answer, char *name);
 void assertinvariants(carddb_t);
-void debughtmlcsv(carddb_t, FILE*, int showqueue);
+void debughexcsv(carddb_t, FILE*, int showqueue);
 
 #ifdef __cplusplus
 }

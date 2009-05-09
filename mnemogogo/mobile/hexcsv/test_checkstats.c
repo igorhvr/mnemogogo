@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "htmlcsv.h"
+#include "hexcsv.h"
 
 #define MAX_ID_LEN 20
 #define MAX_DB_SIZE 10000
@@ -114,16 +114,16 @@ int main(int argc, char** argv)
 	return r;
     }
     fprintf(stderr, "assert after load.\n");
-    debughtmlcsv(db, stderr, 0);
+    debughexcsv(db, stderr, 0);
     assertinvariants(db);
 
     buildrevisionqueue(db);
     fprintf(stderr, "assert after buildrevisionqueue.\n");
-    debughtmlcsv(db, stderr, 1);
+    debughexcsv(db, stderr, 1);
     assertinvariants(db);
 
     while (getcard(db, &curr)) {
-	//debughtmlcsv(db, stderr, 0);
+	//debughexcsv(db, stderr, 0);
 	assertinvariants(db);
 
 	if (grades[curr] == -1) {

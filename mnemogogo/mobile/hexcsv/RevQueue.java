@@ -15,7 +15,7 @@
  * Certain routines Copyright (c) Peter Bienstman <Peter.Bienstman@UGent.be>
  */
 
-package mnemogogo.mobile.htmlcsv;
+package mnemogogo.mobile.hexcsv;
 
 import java.lang.*;
 import java.util.Random;
@@ -184,7 +184,7 @@ class RevQueue {
 
     public int numScheduled()
     {
-	return Math.max(0, num_scheduled - curr);
+	return num_scheduled - curr;
     }
 
     public Card getFirstCard()

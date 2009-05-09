@@ -12,7 +12,7 @@
  * License for more details.
  */
 
-package mnemogogo.mobile.htmlcsv;
+package mnemogogo.mobile.hexcsv;
 
 import java.lang.*;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class LoadedCard
 	StringBuffer data;
 	int read;
 	InputStreamReader in = new InputStreamReader(
-	    Connector.openInputStream(cardPath.toString()), HtmlCsv.utf8);
+	    Connector.openInputStream(cardPath.toString()), HexCsv.utf8);
 
 	if (isQuestion) {
 	    readStyleLine(in);

@@ -12,10 +12,11 @@
  * License for more details.
  */
 
-package mnemogogo.mobile.htmlcsv;
+package mnemogogo.mobile.hexcsv;
 
-interface CardList {
-    Card getCard(int serial);
-    String getCategory(int n);
+public interface Progress
+{
+    public void startOperation(int length);
+    public void updateOperation(int delta);
 }
 

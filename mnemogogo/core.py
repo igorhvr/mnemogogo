@@ -255,9 +255,17 @@ class Export(Job):
 	
 	ratio = max(wratio, hratio)
 	if ratio != 1.0:
-	    im = im.resize((int(width / ratio), int(height / ratio)))
+	    im = im.resize((int(width / ratio), int(height / ratio)),
+			   Image.ANTIALIAS)
 	
 	im.save(dst)
+	while (self.img_max_size
+	       and (os.path.getsize(dst) > self.img_max_size)):
+	    (width, height) = im.size
+	    (nwidth, nheight) = (width * .7, height * .7)
+	    im.resize((int(nwidth), int(nheight)), Image.ANTIALIAS)
+	    im.save(dst)
+
 	return (True, dst)
 
 class Import(Job):
@@ -519,6 +527,9 @@ def do_import(interface, sync_path):
     # Only update the database if the entire read is successful
     for (card, stats) in new_stats:
 	stats_to_card(stats, card)
+
+    shutil.move(os.path.join(sync_path, 'stats.csv'),
+		os.path.join(sync_path, 'old-stats.csv'))
 
     # Import logging details
     logpath = os.path.join(sync_path, 'log')

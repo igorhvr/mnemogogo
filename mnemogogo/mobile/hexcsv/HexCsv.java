@@ -12,7 +12,7 @@
  * License for more details.
  */
 
-package mnemogogo.mobile.htmlcsv;
+package mnemogogo.mobile.hexcsv;
 
 import java.lang.*;
 import java.io.InputStreamReader;
@@ -23,7 +23,7 @@ import javax.microedition.io.Connector;
 import java.io.OutputStream;
 import javax.microedition.io.file.FileConnection; /*JSR-75*/
 
-public class HtmlCsv
+public class HexCsv
     implements CardList
 {
     private Card cards[];
@@ -39,7 +39,7 @@ public class HtmlCsv
     public static String ascii = "ASCII";
     public static String utf8 = "UTF-8";
 
-    public HtmlCsv(String path, Progress prog)
+    public HexCsv(String path, Progress prog)
 	throws IOException
     {
 	long start_time;
@@ -192,14 +192,9 @@ public class HtmlCsv
 	int n = StatIO.readInt(in);
 	int bytesize = StatIO.readInt(in);
 
-	System.out.print("num categories: "); // XXX
-	System.out.println(n);
-
 	categories = new String[n];
 	for (int i=0; i < n; ++i) {
 	    categories[i] = StatIO.readLine(in);
-	    System.out.print("-> "); // XXX
-	    System.out.println(categories[i]); // XXX
 	}
 
 	in.close();

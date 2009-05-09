@@ -15,7 +15,7 @@
  * Certain routines Copyright (c) Peter Bienstman <Peter.Bienstman@UGent.be>
  */
 
-#include "htmlcsv.h"
+#include "hexcsv.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -804,7 +804,7 @@ void assertinvariants(carddb_t db)
 	       && (db->revqueue.curr <= db->revqueue.limit_new)));
 }
 
-void debughtmlcsv(carddb_t db, FILE *f, int showqueue)
+void debughexcsv(carddb_t db, FILE *f, int showqueue)
 {
     int i;
 

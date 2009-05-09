@@ -183,9 +183,9 @@ class Import(mnemogogo.Import):
 	sfile.close()
 	return int(timestr)
 
-# HtmlCsv
+# HexCsv
 
-class HtmlCsvExport(BasicExport):
+class HexCsvExport(BasicExport):
     def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
 	cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
 			    'w', encoding='utf-8')
@@ -230,47 +230,71 @@ class HtmlCsvExport(BasicExport):
 	a = self.map_sound_paths(a)
 	return (q, a)
 
-class HtmlCsv(mnemogogo.Interface):
+class HexCsv(mnemogogo.Interface):
 
-    description = 'HTML+CSV: with CSS'
+    description = 'hexcsv: with CSS'
     version = '0.5.0'
 
     def start_export(self, sync_path):
-	return HtmlCsvExport(self, sync_path)
+	return HexCsvExport(self, sync_path)
 
     def start_import(self, sync_path):
 	return Import(self, sync_path)
 
-# FullHtmlCsv
+# JoJoHexCsv
 
-class FullHtmlCsvExport(HtmlCsvExport):
+class JoJoHexCsvExport(HexCsvExport):
+    raw_conversions = [
+	    # ( regex ,	   replacement )
+	    (r'(<br>)', r'<br/>'),
+	    (r'<font\s+color\s*=\s*"([^"]*)"\s*/?>',
+		r'<span style="color: \1;">'),
+	    (r'</font>', r'</span>'),
+	]
+    conversions = []
+
+    def convert(self, text):
+	if not self.conversions:
+	    for (mat, rep) in self.raw_conversions:
+		self.conversions.append((re.compile(mat, re.DOTALL), rep))
+
+	for (mat, rep) in self.conversions:
+	    text = mat.sub(rep, text)
+	return text;
+
     def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
+	q = self.convert(q)
+	a = self.convert(a)
+
 	cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
 			    'w', encoding='utf-8')
-	if is_overlay:
-	    cfile.write('answerbox: overlay;\n%s\n' % q)
-	else:
-	    cfile.write('\n%s\n' % q)
+	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+	cfile.write('<body>%s</body>' % q)
 	cfile.close()
 
 	cfile = codecs.open(join(card_path, 'A%04x.htm' % serial_num),
 			    'w', encoding='utf-8')
-	cfile.write('%s\n' % a)
+	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+	cfile.write('<body>')
+	if not is_overlay:
+	    cfile.write('%s<hr/>' % q)
+	cfile.write('%s</body>' % a)
 	cfile.close()
 
-class FullHtmlCsv(mnemogogo.Interface):
+class JoJoHexCsv(mnemogogo.Interface):
     max_width = 240
-    max_height = 320
+    max_height = 300
     ext = 'png'
 
-    description = 'HTML+CSV: Basic (%dx%d, %s)' % (max_width, max_height, ext)
+    description = 'hexcsv: MnemoJoJo (%dx%d, %s)' % (max_width, max_height, ext)
     version = '0.5.0'
 
     def start_export(self, sync_path):
-	e = FullHtmlCsvExport(self, sync_path)
-	e.img_max_width = self.max_width
-	e.img_max_height = self.max_height
+	e = JoJoHexCsvExport(self, sync_path)
+	e.img_max_width = self.max_width - 10
+	e.img_max_height = self.max_height - 20
 	e.img_to_landscape = True
+	e.img_max_size = 65536	# 64k
 	e.img_to_ext = self.ext
 	return e
 
@@ -323,7 +347,7 @@ class TextExport(BasicExport):
 
 class TextCsv(mnemogogo.Interface):
 
-    description = 'HTML+CSV: Text'
+    description = 'hexcsv: Text'
     version = '0.5.0'
 
     def start_export(self, sync_path):
