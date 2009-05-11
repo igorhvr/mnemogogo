@@ -67,9 +67,9 @@ class BasicExport(mnemogogo.Export):
     def close(self):
 
 	catfile = codecs.open(join(self.sync_path, 'categories'),
-			      'w', encoding='utf-8')
+			      'w', encoding='UTF-8')
 
-	size_in_bytes = (sum([len(c.encode('utf-8')) for c in self.categories])
+	size_in_bytes = (sum([len(c.encode('UTF-8')) for c in self.categories])
 			 + len(self.categories))
 	catfile.write("%d\n" % len(self.categories))
 	catfile.write("%d\n" % size_in_bytes)
@@ -94,7 +94,8 @@ class BasicExport(mnemogogo.Export):
 	for s in self.learning_data:
 	    fmt = "%%0%dx," % self.learning_data_len[s]
 	    self.statfile.write(fmt % stats[s])
-	self.statfile.write("%04x" % self.category_id(cat))
+	cat_id = self.category_id(cat)
+	self.statfile.write("%04x" % cat_id)
 
 	try:
 	    self.statfile.write(",%04x" %
@@ -188,7 +189,7 @@ class Import(mnemogogo.Import):
 class HexCsvExport(BasicExport):
     def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
 	cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
-			    'w', encoding='utf-8')
+			    'w', encoding='UTF-8')
 	cfile.write('\n<html>\n')
 	cfile.write('<head>')
 	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
@@ -200,7 +201,7 @@ class HexCsvExport(BasicExport):
 	cfile.close()
 
 	cfile = codecs.open(join(card_path, 'A%04x.htm' % serial_num),
-			    'w', encoding='utf-8')
+			    'w', encoding='UTF-8')
 	cfile.write('<html>\n')
 	cfile.write('<head>')
 	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
@@ -267,18 +268,18 @@ class JoJoHexCsvExport(HexCsvExport):
 	a = self.convert(a)
 
 	cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
-			    'w', encoding='utf-8')
+			    'w', encoding='UTF-8')
 	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-	cfile.write('<body>%s</body>' % q)
+	cfile.write('<body><p><center>%s</center></p></body>' % q)
 	cfile.close()
 
 	cfile = codecs.open(join(card_path, 'A%04x.htm' % serial_num),
-			    'w', encoding='utf-8')
+			    'w', encoding='UTF-8')
 	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
 	cfile.write('<body>')
 	if not is_overlay:
-	    cfile.write('%s<hr/>' % q)
-	cfile.write('%s</body>' % a)
+	    cfile.write('<p><center>%s</center></p><hr/>' % q)
+	cfile.write('<p><center>%s</center></p></body>' % a)
 	cfile.close()
 
 class JoJoHexCsv(mnemogogo.Interface):
@@ -293,7 +294,7 @@ class JoJoHexCsv(mnemogogo.Interface):
 	e = JoJoHexCsvExport(self, sync_path)
 	e.img_max_width = self.max_width - 10
 	e.img_max_height = self.max_height - 20
-	e.img_to_landscape = True
+	e.img_to_landscape = False
 	e.img_max_size = 65536	# 64k
 	e.img_to_ext = self.ext
 	return e
@@ -326,7 +327,7 @@ class TextExport(BasicExport):
 
     def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
 	cfile = codecs.open(join(card_path, 'Q%04x.txt' % serial_num),
-			    'w', encoding='utf-8')
+			    'w', encoding='UTF-8')
 	if is_overlay:
 	    cfile.write('answerbox: overlay;\n')
 	else:
@@ -335,7 +336,7 @@ class TextExport(BasicExport):
 	cfile.close()
 
 	cfile = codecs.open(join(card_path, 'A%04x.txt' % serial_num),
-			    'w', encoding='utf-8')
+			    'w', encoding='UTF-8')
 	cfile.write(self.convert(a))
 	cfile.close()
 

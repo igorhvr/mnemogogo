@@ -259,12 +259,23 @@ class Export(Job):
 			   Image.ANTIALIAS)
 	
 	im.save(dst)
+	(nwidth, nheight) = (width, height)
 	while (self.img_max_size
-	       and (os.path.getsize(dst) > self.img_max_size)):
-	    (width, height) = im.size
-	    (nwidth, nheight) = (width * .7, height * .7)
-	    im.resize((int(nwidth), int(nheight)), Image.ANTIALIAS)
-	    im.save(dst)
+		and (os.path.getsize(dst) > self.img_max_size)):
+
+	    (owidth, oheight) = (nwidth, nheight)
+	    scale = 0.7
+	    while ((nwidth == owidth or nheight == oheight)
+		   and scale > 0.0):
+		(nwidth, nheight) = (int(nwidth * scale),
+				     int(nheight * scale))
+		scale = scale - .1
+
+	    if nwidth > 0 and nheight > 0:
+		im.resize((nwidth, nheight), Image.ANTIALIAS)
+		im.save(dst)
+	    else:
+		break;
 
 	return (True, dst)
 
