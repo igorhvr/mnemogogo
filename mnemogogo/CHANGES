@@ -1,3 +1,8 @@
+20090511 mnemogogo-0.6.2
+* Bug fixes in image manipulation routines.
+* Rename HtmlCsv to HexCsv.
+* Add an export interface specific to MnemoJoJo.
+
 20090508 mnemogogo-0.6.1
 * Add image scaling / png conversion.
 * Fix bugs in the MnemoGoGo import and export routines.
