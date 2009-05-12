@@ -84,9 +84,13 @@ public class HexCsv
     }
 
     public String getCategory(int n) {
+	System.out.print("getCategory:"); //XXX
+	System.out.println(Integer.toString(n)); //XXX
 	if (0 <= n && n < categories.length) {
+	    System.out.println(categories[n]); //XXX
 	    return categories[n];
 	} else {
+	    System.out.println("null"); //XXX
 	    return null;
 	}
     }

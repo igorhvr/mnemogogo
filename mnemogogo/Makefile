@@ -4,7 +4,7 @@ gogo_frm.py: gogo_frm.ui
 	pyuic gogo_frm.ui > gogo_frm.py
 
 clean:
-	$(MAKE) -C ./mobile/htmlcsv clean
+	$(MAKE) -C ./mobile/hexcsv clean
 	-@rm *.pyc *.pyo
 	-@rm ../mnemogogo_plugin.pyc
 	-@rm ../mnemogogo_plugin.pyo

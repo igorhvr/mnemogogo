@@ -97,6 +97,8 @@ class BasicExport(mnemogogo.Export):
 	cat_id = self.category_id(cat)
 	self.statfile.write("%04x" % cat_id)
 
+	# print ("cat: %4d -> %s" % (cat_id, cat)) # XXX
+
 	try:
 	    self.statfile.write(",%04x" %
 		self.id_to_serial[inverse_ids.next()])
@@ -184,37 +186,90 @@ class Import(mnemogogo.Import):
 	sfile.close()
 	return int(timestr)
 
-# HexCsv
+# MnemoJoJo Exporter
 
-class HexCsvExport(BasicExport):
+def make_map_color_re(name, rgb):
+    return ((r'<font\s+color\s*=\s*"%s"\s*/?>' % name),
+	    (r'<span style="color: %s;">' % rgb))
+
+color_map = [
+    ("pink",	    "#ffc0cb"),
+    ("magenta",	    "#ff00ff"),
+    ("purple",	    "#800080"),
+    ("indigo",	    "#4b0082"),
+    ("blue",	    "#0000ff"),
+    ("darkblue",    "#00008b"),
+    ("navy",	    "#000080"),
+    ("lightblue",   "#add8e6"),
+    ("lightcyan",   "#e0ffff"),
+    ("cyan",	    "#00ffff"),
+    ("darkcyan",    "#008b8b"),
+    ("lightgreen",  "#90ee90"),
+    ("green",	    "#008000"),
+    ("darkgreen",   "#006400"),
+    ("lightyellow", "#ffffe0"),
+    ("yellow",	    "#ffff00"),
+    ("orange",	    "#ffa500"),
+    ("red",	    "#ff0000"),
+    ("brown",	    "#a52a2a"),
+    ("darkred",	    "#8b0000"),
+    ("white",	    "#ffffff"),
+    ("lightgrey",   "#d3d3d3"),
+    ("silver",	    "#c0c0c0"),
+    ("darkgray",    "#a9a9a9"),
+    ("gray",	    "#808080"),
+    ("black",	    "#000000"),
+]
+
+class JoJoExport(BasicExport):
+    raw_conversions = [
+	    # ( regex ,	   replacement )
+	    (r'(<br>)', r'<br/>'),
+	    (r'</font>', r'</span>'),
+	    (r'(<img[^>]*[^/])>', r'\1/>'),
+	]
+    conversions = []
+
+    add_center_tag = False
+
+    def convert(self, text):
+	if not self.conversions:
+	    for (name, rgb) in color_map:
+		self.raw_conversions.append(make_map_color_re(name, rgb))
+
+	    self.raw_conversions.append(
+		(r'<font\s+color\s*=\s*"([^"]*)"\s*/?>',
+		 r'<span style="color: \1;">'))
+
+	    for (mat, rep) in self.raw_conversions:
+		self.conversions.append(
+		    (re.compile(mat, re.DOTALL | re.IGNORECASE), rep))
+
+	for (mat, rep) in self.conversions:
+	    text = mat.sub(rep, text)
+	return text;
+
     def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
+	q = self.convert(q)
+	a = self.convert(a)
+
+	(ot, ct) = ('', '')
+	if self.add_center_tag:
+	    (ot, ct) = ('<center>', '</center>')
+
 	cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
 			    'w', encoding='UTF-8')
-	cfile.write('\n<html>\n')
-	cfile.write('<head>')
-	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
-	cfile.write('</head>\n')
-	cfile.write('<body id="%s" class="single">\n' % cat)
-	cfile.write('<div id="cat">%s</div>\n' % cat)
-	cfile.write('<div id="q" style="display: block;">%s</div>\n' % q)
-	cfile.write('</body></html>\n')
+	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+	cfile.write('<body><p>%s%s%s</p></body>' % (ot, q, ct))
 	cfile.close()
 
 	cfile = codecs.open(join(card_path, 'A%04x.htm' % serial_num),
 			    'w', encoding='UTF-8')
-	cfile.write('<html>\n')
-	cfile.write('<head>')
-	cfile.write('<link rel="stylesheet" href="style.css" type="text/css">')
-	cfile.write('</head>\n')
-	if is_overlay:
-	    cfile.write('<body id="%s" class="single">\n' % cat)
-	    cfile.write('<div id="cat">%s</div>\n' % cat)
-	else:
-	    cfile.write('<body id="%s" class="double">\n' % cat)
-	    cfile.write('<div id="cat">%s</div>\n' % cat)
-	    cfile.write('<div id="q" style="display: block;">%s</div>\n' % q)
-	cfile.write('<div id="a" style="display: none;">%s</div>\n' % a)
-	cfile.write('</body></html>\n')
+	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+	cfile.write('<body>')
+	if not is_overlay:
+	    cfile.write('<p>%s%s%s</p><hr/>' % (ot, q, ct))
+	cfile.write('<p>%s%s%s</p></body>' % (ot, a, ct))
 	cfile.close()
 
     def do_images(self, serial_num, q, a):
@@ -231,78 +286,29 @@ class HexCsvExport(BasicExport):
 	a = self.map_sound_paths(a)
 	return (q, a)
 
-class HexCsv(mnemogogo.Interface):
-
-    description = 'hexcsv: with CSS'
-    version = '0.5.0'
-
-    def start_export(self, sync_path):
-	return HexCsvExport(self, sync_path)
-
-    def start_import(self, sync_path):
-	return Import(self, sync_path)
-
-# JoJoHexCsv
-
-class JoJoHexCsvExport(HexCsvExport):
-    raw_conversions = [
-	    # ( regex ,	   replacement )
-	    (r'(<br>)', r'<br/>'),
-	    (r'<font\s+color\s*=\s*"([^"]*)"\s*/?>',
-		r'<span style="color: \1;">'),
-	    (r'</font>', r'</span>'),
-	]
-    conversions = []
-
-    def convert(self, text):
-	if not self.conversions:
-	    for (mat, rep) in self.raw_conversions:
-		self.conversions.append((re.compile(mat, re.DOTALL), rep))
-
-	for (mat, rep) in self.conversions:
-	    text = mat.sub(rep, text)
-	return text;
-
-    def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
-	q = self.convert(q)
-	a = self.convert(a)
-
-	cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
-			    'w', encoding='UTF-8')
-	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-	cfile.write('<body><p><center>%s</center></p></body>' % q)
-	cfile.close()
-
-	cfile = codecs.open(join(card_path, 'A%04x.htm' % serial_num),
-			    'w', encoding='UTF-8')
-	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-	cfile.write('<body>')
-	if not is_overlay:
-	    cfile.write('<p><center>%s</center></p><hr/>' % q)
-	cfile.write('<p><center>%s</center></p></body>' % a)
-	cfile.close()
-
 class JoJoHexCsv(mnemogogo.Interface):
     max_width = 240
     max_height = 300
+    max_size = 64
     ext = 'png'
 
-    description = 'hexcsv: MnemoJoJo (%dx%d, %s)' % (max_width, max_height, ext)
+    description = ('MnemoJoJo (%dx%d <%dk, %s)' %
+		    (max_width, max_height, max_size, ext))
     version = '0.5.0'
 
     def start_export(self, sync_path):
-	e = JoJoHexCsvExport(self, sync_path)
+	e = JoJoExport(self, sync_path)
 	e.img_max_width = self.max_width - 10
 	e.img_max_height = self.max_height - 20
-	e.img_to_landscape = False
-	e.img_max_size = 65536	# 64k
+	e.img_to_landscape = True
+	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
 	return e
 
     def start_import(self, sync_path):
 	return Import(self, sync_path)
 
-# TextCsv
+# Plain Text Exporter
 
 class TextExport(BasicExport):
     raw_conversions = [
@@ -348,7 +354,7 @@ class TextExport(BasicExport):
 
 class TextCsv(mnemogogo.Interface):
 
-    description = 'hexcsv: Text'
+    description = 'Text Only'
     version = '0.5.0'
 
     def start_export(self, sync_path):

@@ -147,7 +147,7 @@ class StatIO
     static void writeInt(OutputStreamWriter out, int d, String sep)
 	throws IOException
     {
-	write(out, 4, Integer.toString(d));
+	write(out, 0, Integer.toString(d));
 	write(out, 0, sep);
     }
 

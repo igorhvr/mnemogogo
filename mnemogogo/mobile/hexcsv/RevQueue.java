@@ -44,9 +44,11 @@ class RevQueue {
 
     private void swap(int i, int j)
     {
-	Card tmp = q[i];
-	q[i] = q[j];
-	q[j] = tmp;
+	if (i < q.length && j < q.length) {
+	    Card tmp = q[i];
+	    q[i] = q[j];
+	    q[j] = tmp;
+	}
     }
 
     // insertion sort: linear when already ordered, won't blow the stack
@@ -184,7 +186,7 @@ class RevQueue {
 
     public int numScheduled()
     {
-	return num_scheduled - curr;
+	return Math.max(0, num_scheduled - curr);
     }
 
     public Card getFirstCard()
@@ -224,7 +226,10 @@ class RevQueue {
 
 	} else if (q[curr].grade < 2) {
 	    // shuffle grade 0 and 1 cards back into set
-	    swap(curr, rand.nextInt(limit_new - curr) + curr);
+	    int swapwith = rand.nextInt(limit_new - 1 - curr) + 1 + curr;
+	    if (swapwith < limit_new) {
+		swap(curr,  swapwith);
+	    }
 
 	} else if (q[curr].unseen) {
 	    // shift the limit forward
@@ -240,7 +245,7 @@ class RevQueue {
 	    ++limit_new;
 	}
 
-	limit_new = Math.max(limit_new, q.length);
+	limit_new = Math.min(limit_new, q.length);
 
 	if (curr >= limit_new) {
 	    return null;

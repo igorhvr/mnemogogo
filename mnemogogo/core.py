@@ -242,7 +242,9 @@ class Export(Job):
 	im = Image.open(src)
 	(width, height) = im.size
 
-	if self.img_to_landscape and width > height:
+	if (self.img_to_landscape and self.img_max_width
+		and float(width) > (height * 1.2)
+		and width > self.img_max_width):
 	    im = im.transpose(Image.ROTATE_90)
 	    (width, height) = im.size
 	

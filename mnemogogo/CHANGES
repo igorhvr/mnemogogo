@@ -1,3 +1,8 @@
+20090512 mnemogogo-0.6.3
+* Speed up loading/saving databases in Java library.
+* Map more color names.
+* Tidy up the HexCsv exporters.
+
 20090511 mnemogogo-0.6.2
 * Bug fixes in image manipulation routines.
 * Rename HtmlCsv to HexCsv.

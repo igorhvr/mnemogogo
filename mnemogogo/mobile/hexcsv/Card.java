@@ -44,6 +44,12 @@ public class Card
 
     private static Random rand = new Random();
 
+    private static int statLineLength = 62;
+    private static char[] buffer = new char[statLineLength]; // NOT reentrant
+    private static int pos;
+    private static final int fourDigits = 12;
+    private static final int eightDigits = 28;
+
     private static int initial_interval[] = {0, 0, 1, 3, 4, 5};
 
     Card(CardList cardlist) {
@@ -151,40 +157,90 @@ public class Card
 	return r.toString();
     }
 
+    public void addDigit(int d)
+    {
+	if (d < 10) {
+	    buffer[pos++] = (char)('0' + d);
+	} else {
+	    buffer[pos++] = (char)('a' - 10 + d);
+	}
+    }
+
+    public void addStat(long v, int d)
+    {
+	while (d >= 0) {
+	    addDigit((int)(v >> d & 0x0000000f));
+	    d -= 4;
+	}
+    }
+
     public void writeCard(OutputStreamWriter out)
 	throws IOException
     {
-	StatIO.writeString(out, Integer.toString(grade)); 
-	StatIO.writeString(out, ",");
-	StatIO.writeHexInt(out, easiness, ",");
-	StatIO.writeHexInt(out, acq_reps, ",");
-	StatIO.writeHexInt(out, ret_reps, ",");
-	StatIO.writeHexInt(out, lapses, ",");
-	StatIO.writeHexInt(out, acq_reps_since_lapse, ",");
-	StatIO.writeHexInt(out, ret_reps_since_lapse, ",");
-	StatIO.writeHexLong(out, last_rep, ",");
-	StatIO.writeHexLong(out, next_rep, ",");
-	StatIO.writeBool(out, unseen, ",");
-	StatIO.writeHexInt(out, category, ",");
-	StatIO.writeHexInt(out, inverse, "\n");
+	pos = 0;
+
+	addDigit(grade);
+	buffer[pos++] = ',';
+	addStat(easiness, fourDigits);
+	buffer[pos++] = ',';
+	addStat(acq_reps, fourDigits);
+	buffer[pos++] = ',';
+	addStat(ret_reps, fourDigits);
+	buffer[pos++] = ',';
+	addStat(lapses, fourDigits);
+	buffer[pos++] = ',';
+	addStat(acq_reps_since_lapse, fourDigits);
+	buffer[pos++] = ',';
+	addStat(ret_reps_since_lapse, fourDigits);
+	buffer[pos++] = ',';
+	addStat(last_rep, eightDigits);
+	buffer[pos++] = ',';
+	addStat(next_rep, eightDigits);
+	buffer[pos++] = ',';
+	buffer[pos++] = (unseen?'1':'0');
+	buffer[pos++] = ',';
+	addStat(category, fourDigits);
+	buffer[pos++] = ',';
+	addStat(inverse, fourDigits);
+	buffer[pos++] = '\n';
+
+	out.write(buffer, 0, statLineLength);
+    }
+
+    public long hexLong()
+    {
+	long v = 0;
+
+	while (pos < buffer.length
+	       && buffer[pos] != ',' && buffer[pos] != '\n')
+	{
+	    v = v * 16 + Character.digit(buffer[pos], 16);
+	    ++pos;
+	}
+	++pos;
+
+	return v;
     }
 
     public void readCard(InputStreamReader in, int i)
 	throws IOException
     {
+	in.read(buffer, 0, statLineLength);
+	pos = 0;
+
 	serial = i;
-	grade = StatIO.readHexInt(in); 
-	easiness = StatIO.readHexInt(in);
-	acq_reps = StatIO.readHexInt(in);
-	ret_reps = StatIO.readHexInt(in);
-	lapses = StatIO.readHexInt(in);
-	acq_reps_since_lapse = StatIO.readHexInt(in);
-	ret_reps_since_lapse = StatIO.readHexInt(in);
-	last_rep = StatIO.readHexLong(in);
-	next_rep = StatIO.readHexLong(in);
-	unseen = (StatIO.readHexInt(in) == 1);
-	category = StatIO.readHexInt(in);
-	inverse = StatIO.readHexInt(in);
+	grade = (int)hexLong(); 
+	easiness = (int)hexLong();
+	acq_reps = (int)hexLong();
+	ret_reps = (int)hexLong();
+	lapses = (int)hexLong();
+	acq_reps_since_lapse = (int)hexLong();
+	ret_reps_since_lapse = (int)hexLong();
+	last_rep = hexLong();
+	next_rep = hexLong();
+	unseen = (hexLong() == 1);
+	category = (int)hexLong();
+	inverse = (int)hexLong();
 	skip = false;
     }
 
