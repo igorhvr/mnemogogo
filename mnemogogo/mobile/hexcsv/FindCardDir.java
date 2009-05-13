@@ -84,7 +84,8 @@ public class FindCardDir
 
 	try {
 	    FileConnection fconn =
-		(FileConnection)Connector.open(path.toString());
+		(FileConnection)Connector.open(path.toString(),
+					       Connector.READ);
 	    r = isCardDir(fconn);
 	    fconn.close();
 	} catch (IOException e) {
@@ -113,7 +114,8 @@ public class FindCardDir
 		    pathbuf.append((String)e.nextElement());
 
 		    FileConnection c =
-			(FileConnection)Connector.open(pathbuf.toString());
+			(FileConnection)Connector.open(pathbuf.toString(),
+						       Connector.READ);
 		    if (c.isDirectory() && c.canRead()) {
 			doDir(c, pathbuf, found);
 		    }
@@ -139,7 +141,8 @@ public class FindCardDir
 		pathbuf.append((String)roots.nextElement());
 
 		FileConnection root =
-		    (FileConnection)Connector.open(pathbuf.toString());
+		    (FileConnection)Connector.open(pathbuf.toString(),
+						   Connector.READ);
 		doDir(root, pathbuf, paths);
 		root.close();
 	    } catch (IOException e) {

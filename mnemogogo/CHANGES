@@ -1,3 +1,6 @@
+20090000 mnemogogo-0.6.5
+* Java library now only asks for READ permission in FindCardDir.
+
 20090513 mnemogogo-0.6.4
 * Resize images in a temporary directory.
 * Fix a major bug in the mapping of card ids to html filenames.
