@@ -157,19 +157,19 @@ public class Card
 	return r.toString();
     }
 
-    public void addDigit(int d)
+    private static char hexDigit(int d)
     {
 	if (d < 10) {
-	    buffer[pos++] = (char)('0' + d);
+	    return (char)('0' + d);
 	} else {
-	    buffer[pos++] = (char)('a' - 10 + d);
+	    return (char)('a' - 10 + d);
 	}
     }
 
     public void addStat(long v, int d)
     {
 	while (d >= 0) {
-	    addDigit((int)(v >> d & 0x0000000f));
+	    buffer[pos++] = hexDigit((int)(v >> d & 0x0000000f));
 	    d -= 4;
 	}
     }
@@ -179,7 +179,7 @@ public class Card
     {
 	pos = 0;
 
-	addDigit(grade);
+	buffer[pos++] = hexDigit(grade);
 	buffer[pos++] = ',';
 	addStat(easiness, fourDigits);
 	buffer[pos++] = ',';
@@ -422,20 +422,11 @@ public class Card
 
     public void appendSerial(StringBuffer path)
     {
-	int a = serial / 10;
-	int i = 0;
-
-	while (a > 0) {
-	    i += 1;
-	    a = a / 10;
+	int d = 12;
+	while (d >= 0) {
+	    path.append(hexDigit(serial >> d & 0x000f));
+	    d -= 4;
 	}
-	i = 3 - i;
-
-	while (i > 0) {
-	    path.append("0");
-	    --i;
-	}
-	path.append(serial);
     }
 }
 

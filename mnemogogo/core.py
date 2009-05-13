@@ -260,25 +260,31 @@ class Export(Job):
 	    im = im.resize((int(width / ratio), int(height / ratio)),
 			   Image.ANTIALIAS)
 	
+	if self.img_max_size:
+	    tmpdstdir = os.tempnam()
+	    os.mkdir(tmpdstdir)
+	    tmpdst = os.path.join(tmpdstdir, '_gogo_scaling.png')
+
+	    im.save(tmpdst)
+	    (nwidth, nheight) = (width, height)
+	    while (os.path.getsize(tmpdst) > self.img_max_size):
+
+		(owidth, oheight) = (nwidth, nheight)
+		scale = 0.7
+		while ((nwidth == owidth or nheight == oheight)
+		       and scale > 0.0):
+		    (nwidth, nheight) = (int(nwidth * scale),
+					 int(nheight * scale))
+		    scale = scale - .1
+
+		if nwidth > 0 and nheight > 0:
+		    im.resize((nwidth, nheight), Image.ANTIALIAS)
+		    im.save(tmpdst)
+		else:
+		    break;
+	    shutil.rmtree(tmpdstdir)
+
 	im.save(dst)
-	(nwidth, nheight) = (width, height)
-	while (self.img_max_size
-		and (os.path.getsize(dst) > self.img_max_size)):
-
-	    (owidth, oheight) = (nwidth, nheight)
-	    scale = 0.7
-	    while ((nwidth == owidth or nheight == oheight)
-		   and scale > 0.0):
-		(nwidth, nheight) = (int(nwidth * scale),
-				     int(nheight * scale))
-		scale = scale - .1
-
-	    if nwidth > 0 and nheight > 0:
-		im.resize((nwidth, nheight), Image.ANTIALIAS)
-		im.save(dst)
-	    else:
-		break;
-
 	return (True, dst)
 
 class Import(Job):
