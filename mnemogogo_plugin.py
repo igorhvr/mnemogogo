@@ -4,9 +4,6 @@
 #
 # MnemoGoGo: making mnemosyne mobile
 #
-# 0.5.0
-#   * Development/proof-of-concept release
-#
 ##############################################################################
 
 #
@@ -37,7 +34,7 @@ def log_info(msg):
 	print >> sys.stderr, msg
 
 class MnemoGoGoPlugin(Plugin):
-    version = "0.6.3"
+    version = "0.6.4"
     is_locked = False
     old_overlay = None
 
