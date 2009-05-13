@@ -298,8 +298,8 @@ class JoJoHexCsv(mnemogogo.Interface):
 
     def start_export(self, sync_path):
 	e = JoJoExport(self, sync_path)
-	e.img_max_width = self.max_width - 10
-	e.img_max_height = self.max_height - 20
+	e.img_max_width = self.max_width
+	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = True
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
