@@ -24,6 +24,8 @@ import javax.microedition.io.file.FileSystemRegistry;
 
 public class FindCardDir
 {
+    public static String[] standard = { "cards/" };
+
     public static boolean isCardDir(FileConnection fconn)
     {
 	boolean hasStats = false;
@@ -60,7 +62,7 @@ public class FindCardDir
 		} else if (f.equals("start_time")) {
 		    hasStartTime = true;
 
-		} else if (f.equals("cards/")) {
+		} else if (f.equals("cards.db")) {
 		    hasCards = true;
 		}
 	    }
@@ -148,6 +150,41 @@ public class FindCardDir
 	    } catch (IOException e) {
 	    } catch (SecurityException e) {
 	    }
+	}
+
+	if (paths.isEmpty()) {
+	    return null;
+	}
+
+	String r[] = new String[paths.size()];
+	paths.copyInto(r);
+
+	return r;
+    }
+
+    public static String[] checkStandard() {
+	Vector paths = new Vector();
+	StringBuffer pathbuf = new StringBuffer("file://");
+
+	Enumeration roots = FileSystemRegistry.listRoots();
+	while (roots.hasMoreElements()) {
+	    try {
+		pathbuf.delete(7, pathbuf.length());
+		pathbuf.append("/");
+		pathbuf.append((String)roots.nextElement());
+
+		for (int i = 0; i < standard.length; ++i) {
+		    int last = pathbuf.length();
+		    pathbuf.append(standard[i]);
+
+		    if (isCardDir(pathbuf)) {
+			paths.addElement(pathbuf.toString());
+		    }
+
+		    pathbuf.delete(last, pathbuf.length());
+		}
+
+	    } catch (SecurityException e) { }
 	}
 
 	if (paths.isEmpty()) {

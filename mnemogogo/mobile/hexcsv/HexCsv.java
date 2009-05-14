@@ -42,6 +42,7 @@ public class HexCsv
     public HexCsv(String path, Progress prog)
 	throws IOException
     {
+	String v;
 	long start_time;
 	long adjusted_now;
 	int num_cards;
@@ -53,11 +54,21 @@ public class HexCsv
 
 	readConfig(p);
 
-	p.delete(path_len, p.length());
-	readDaysLeft(p);
+	v = config.getString("last_day");
+	if (v != null) {
+	    days_left = daysLeft(Long.parseLong(v));
+	} else {
+	    p.delete(path_len, p.length());
+	    readDaysLeft(p);
+	}
 
-	p.delete(path_len, p.length());
-	calculateDaysSinceStart(p);
+	v = config.getString("start_time");
+	if (v != null) {
+	    days_since_start = daysSinceStart(Long.parseLong(v));
+	} else {
+	    p.delete(path_len, p.length());
+	    calculateDaysSinceStart(p);
+	}
 
 	p.delete(path_len, p.length());
 	readCards(p);
@@ -70,7 +81,7 @@ public class HexCsv
 	    p.append("prelog");
 
 	    FileConnection file =
-		(FileConnection)Connector.open(p.toString());
+		(FileConnection)Connector.open(p.toString(), Connector.WRITE);
 	    OutputStream outs = file.openOutputStream(file.fileSize());
 	    logfile = new OutputStreamWriter(outs, ascii);
 	}
@@ -109,6 +120,14 @@ public class HexCsv
 	in.close();
     }
 
+    private long daysSinceStart(long start_time)
+    {
+	Date now = new Date();
+	long adjusted_now = (now.getTime() / 1000) -
+				(config.dayStartsAt() * 3600);
+	return (adjusted_now - start_time) / 86400;
+    }
+
     private void calculateDaysSinceStart(StringBuffer path)
 	throws IOException
     {
@@ -118,10 +137,13 @@ public class HexCsv
 	long start_time = StatIO.readLong(in);
 	in.close();
 
+	days_since_start = daysSinceStart(start_time);
+    }
+
+    private int daysLeft(long last_day)
+    {
 	Date now = new Date();
-	long adjusted_now = (now.getTime() / 1000) -
-				(config.dayStartsAt() * 3600);
-	days_since_start = (adjusted_now - start_time) / 86400;
+	return Math.max(0, (int)(last_day - (now.getTime() / 86400)));
     }
 
     private void readDaysLeft(StringBuffer path)
@@ -134,8 +156,7 @@ public class HexCsv
 	long last_day = StatIO.readLong(in);
 	in.close();
 
-	Date now = new Date();
-	days_left = Math.max(0, (int)(last_day - (now.getTime() / 86400)));
+	days_left = daysLeft(last_day);
     }
 
     private void readCards(StringBuffer path)

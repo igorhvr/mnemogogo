@@ -94,10 +94,14 @@ class Job:
 	title = self.interface.description + ' interface: '
 	raise InterfaceError(title + msg)
 
+def encode_filename(filename):
+    (root, ext) = os.path.splitext(filename)
+    return root.encode('punycode') + ext
 
 def map_img_path(x, new_ext):
     (root, ext) = os.path.splitext(x)
-    return os.path.join('img', os.path.basename(root) + '.' + new_ext)
+    return os.path.join('img',
+	encode_filename(os.path.basename(root)) + '.' + new_ext)
 
 class Export(Job):
     categories = []
@@ -179,7 +183,6 @@ class Export(Job):
 			f=(lambda x: os.path.join('snd', os.path.basename(x)))):
 	return self.map_paths(self.re_snd, self.re_snd_split, text, f)
 
-
     def collect_files(self, list, hook_name, dst_subdir, fcopy):
 
 	dstpath = os.path.join(self.sync_path, dst_subdir)
@@ -188,7 +191,7 @@ class Export(Job):
 
 	moved = Set()
 	for src in list:
-	    dst = os.path.join(dstpath, os.path.basename(src))
+	    dst = os.path.join(dstpath, encode_filename(os.path.basename(src)))
 
 	    try:
 		if fcopy:
@@ -307,7 +310,7 @@ class Import(Job):
 
     # implement in plugin
     def get_start_time(self):
-	return 0
+	raise Exception('The plugin does not implement get_start_time!')
 
 class Interface:
     __metaclass__ = _RegisteredInterface
@@ -508,8 +511,10 @@ def do_export(interface, num_days, sync_path, extra = 1.00):
     exporter.close()
 
 def adjust_start_date(import_start_date):
+
     time_of_start = mnemosyne.core.get_time_of_start()
     cur_start_date = time_of_start.time
+
     imp_time_of_start = mnemosyne.core.StartTime(import_start_date)
     imp_start_date = imp_time_of_start.time
 

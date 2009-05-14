@@ -49,6 +49,10 @@ public class Config extends Hashtable/*<String, String>*/
 	return Integer.parseInt((String)get("day_starts_at"));
     }
 
+    public String getString(String key) {
+	return (String)get(key);
+    }
+
     public boolean logging() {
 	String s = (String)get("logging");
 	return (!s.equals("0"));

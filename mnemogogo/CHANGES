@@ -1,5 +1,11 @@
-20090000 mnemogogo-0.6.5
+20090514 mnemogogo-0.6.5
 * Java library now only asks for READ permission in FindCardDir.
+* Fix a major start_time corruption bug when importing.
+* Encode image filenames (with punycode) to avoid problems.
+* Bundle the html and png files into single file that is unpacked
+  into the MIDlet's resource directory. This should make exports
+  a bit faster (less files), but more importantly it should
+  reduce the number of security confirmation prompts.
 
 20090513 mnemogogo-0.6.4
 * Resize images in a temporary directory.

@@ -6,7 +6,8 @@ import sys, os, locale
 
 from qt import *
 from mnemosyne.core import basedir, get_config, set_config, \
-                           initialise, finalise, get_items, load_database
+                           initialise, finalise, get_items, load_database, \
+			   get_time_of_start
 from mnemosyne.pyqt_ui.main_dlg import MainDlg, install_tooltip_strings, prefix
 from mnemosyne.pyqt_ui.message_boxes import messagebox_errors
 from mnemosyne.pyqt_ui.plugin import * # To be picked up by py2exe.
@@ -148,6 +149,11 @@ except MnemosyneError, e:
 
 filename = get_config("path")
 load_database(filename)
+
+time_of_start = get_time_of_start()
+time_of_start.update_days_since()
+print "time_of_start=%d" % long(time_of_start.time)
+
 items = get_items()
 for item in items:
     stats = card_to_stats(item)

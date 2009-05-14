@@ -37,6 +37,7 @@ CardList.class: CardList.java
 FindCardDir.class: FindCardDir.java Progress.class
 Progress.class: Progress.java
 LoadedCard.class: LoadedCard.java
+Unpack.class: Unpack.java Progress.class
 
 # General
 

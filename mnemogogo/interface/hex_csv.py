@@ -21,32 +21,53 @@
 
 import mnemogogo
 from os.path import exists, join, splitext
-from os import mkdir, listdir, remove
+from os import mkdir, listdir, remove, tempnam
+from shutil import rmtree
 from time import time
 import codecs
 import re
 
 class BasicExport(mnemogogo.Export):
 
+    single_cardfile = False
+
+    extra_config = {}
+
     # abstract
     def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
 	pass
 
     def open(self, start_time, num_cards):
-	self.card_path = join(self.sync_path, 'cards')
-	self.img_path = join(self.card_path, 'img')
-
 	if not exists(self.sync_path): mkdir(self.sync_path)
-	if not exists(self.card_path): mkdir(self.card_path)
-	if not exists(self.img_path): mkdir(self.img_path)
+	self.card_path = join(self.sync_path, 'cards')
+
+	if self.single_cardfile:
+	    self.cardfile_path = join(self.sync_path, 'cards.db')
+	    self.cardfile = open(self.cardfile_path, 'wb')
+	else:
+	    self.img_path = join(self.card_path, 'img')
+	    self.snd_path = join(self.card_path, 'snd')
+
+	    if not exists(self.card_path): mkdir(self.card_path)
+	    if not exists(self.snd_path): mkdir(self.snd_path)
+
+	    for stale_html in listdir(self.card_path):
+		(_, ext) = splitext(stale_html)
+		if (ext == '.htm' or ext == '.txt'):
+		    remove(join(self.card_path, stale_html))
+	    
+	    self.add_style_file(join(self.card_path, 'style.css'))
 
 	sfile = open(join(self.sync_path, 'start_time'), 'w')
 	sfile.write(str(start_time) + '\n')
 	sfile.close()
+	extra_config['start_time'] = str(start_time);
 
+	last_day = int(time() / 86400)
 	sfile = open(join(self.sync_path, 'last_day'), 'w')
-	sfile.write(str(int(time() / 86400)) + '\n')
+	sfile.write(str(last_day) + '\n')
 	sfile.close()
+	extra_config['last_day'] = str(last_day);
 
 	sfile = open(join(self.sync_path, 'prelog'), 'w')
 	sfile.close()
@@ -56,13 +77,6 @@ class BasicExport(mnemogogo.Export):
 
 	self.idfile = open(join(self.sync_path, 'ids'), 'w')
 	self.serial_num = 0
-
-	for stale_html in listdir(self.card_path):
-	    (_, ext) = splitext(stale_html)
-	    if (ext == '.htm' or ext == '.txt'):
-		remove(join(self.card_path, stale_html))
-	
-	self.add_style_file(join(self.card_path, 'style.css'))
 
     def close(self):
 
@@ -80,13 +94,36 @@ class BasicExport(mnemogogo.Export):
 
 	self.statfile.close()
 	self.idfile.close()
-	self.collect_images()
-	self.collect_sounds()
+
+	if self.single_cardfile:
+	    tmpdir = tempnam()
+	    mkdir(tmpdir)
+
+	    self.collect_images(tmpdir)
+	    for file in listdir(tmpdir):
+		self.copy_to_cardfile(join('cards', 'img', file),
+				      join(tmpdir, file))
+	    rmtree(tmpdir)
+
+	    mkdir(tmpdir)
+	    self.collect_sounds(tmpdir)
+	    for file in listdir(tmpdir):
+		self.copy_to_cardfile(join('cards', 'snd', file),
+				      join(tmpdir, file))
+
+	    self.cardfile.close()
+	else:
+	    self.collect_images()
+	    self.collect_sounds()
     
     def write_config(self, config):
 	cfile = open(join(self.sync_path, 'config'), 'w')
 	for c in config.iteritems():
 	    cfile.write("%s=%s\n" % c)
+
+	for c in extra_config.iteritems():
+	    cfile.write("%s=%s\n" % c)
+
 	cfile.close()
 
     def write(self, id, q, a, cat, stats, inverse_ids):
@@ -96,8 +133,6 @@ class BasicExport(mnemogogo.Export):
 	    self.statfile.write(fmt % stats[s])
 	cat_id = self.category_id(cat)
 	self.statfile.write("%04x" % cat_id)
-
-	# print ("cat: %4d -> %s" % (cat_id, cat)) # XXX
 
 	try:
 	    self.statfile.write(",%04x" %
@@ -122,6 +157,22 @@ class BasicExport(mnemogogo.Export):
 
 	self.serial_num += 1
 
+    def write_to_cardfile(self, filename, data):
+	self.cardfile.write(filename.encode('UTF-8') + '\n')
+	dataenc = data.encode('UTF-8')
+	self.cardfile.write('%d\n' % len(dataenc))
+	self.cardfile.write(dataenc)
+	self.cardfile.write('\n')
+
+    def copy_to_cardfile(self, filename, srcpath):
+	srcfile = open(srcpath, 'rb')
+	data = srcfile.read()
+	srcfile.close()
+
+	self.cardfile.write(filename.encode('UTF-8') + '\n')
+	self.cardfile.write('%d\n' % len(data))
+	self.cardfile.write(data)
+	self.cardfile.write('\n')
 
 class Import(mnemogogo.Import):
     def open(self):
@@ -181,10 +232,10 @@ class Import(mnemogogo.Import):
 	return (id, dict(zip(self.learning_data, stats)))
 
     def get_start_time(self):
-	sfile = open(join(self.sync_path, 'stats.csv'), 'r')
+	sfile = open(join(self.sync_path, 'start_time'), 'r')
 	timestr = sfile.readline().rstrip()
 	sfile.close()
-	return int(timestr)
+	return long(timestr)
 
 # MnemoJoJo Exporter
 
@@ -257,20 +308,15 @@ class JoJoExport(BasicExport):
 	if self.add_center_tag:
 	    (ot, ct) = ('<center>', '</center>')
 
-	cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
-			    'w', encoding='UTF-8')
-	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-	cfile.write('<body><p>%s%s%s</p></body>' % (ot, q, ct))
-	cfile.close()
+	qd = '<?xml version="1.0" encoding="UTF-8"?>\n'
+	qd = qd + ('<body><p>%s%s%s</p></body>' % (ot, q, ct))
+	self.write_to_cardfile(join('cards', 'Q%04x.htm' % serial_num), qd)
 
-	cfile = codecs.open(join(card_path, 'A%04x.htm' % serial_num),
-			    'w', encoding='UTF-8')
-	cfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-	cfile.write('<body>')
+	ad = '<?xml version="1.0" encoding="UTF-8"?>\n<body>'
 	if not is_overlay:
-	    cfile.write('<p>%s%s%s</p><hr/>' % (ot, q, ct))
-	cfile.write('<p>%s%s%s</p></body>' % (ot, a, ct))
-	cfile.close()
+	    ad = ad + ('<p>%s%s%s</p><hr/>' % (ot, q, ct))
+	ad = ad + ('<p>%s%s%s</p></body>' % (ot, a, ct))
+	self.write_to_cardfile(join('cards', 'A%04x.htm' % serial_num), ad)
 
     def do_images(self, serial_num, q, a):
 	self.extract_image_paths(q)
@@ -298,6 +344,7 @@ class JoJoHexCsv(mnemogogo.Interface):
 
     def start_export(self, sync_path):
 	e = JoJoExport(self, sync_path)
+	e.single_cardfile = True
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = True
