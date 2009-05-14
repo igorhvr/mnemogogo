@@ -62,6 +62,9 @@ public class FindCardDir
 		} else if (f.equals("start_time")) {
 		    hasStartTime = true;
 
+		} else if (f.equals("cards/")) {
+		    hasCards = true;
+
 		} else if (f.equals("cards.db")) {
 		    hasCards = true;
 		}

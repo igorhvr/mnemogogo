@@ -81,7 +81,7 @@ public class HexCsv
 	    p.append("prelog");
 
 	    FileConnection file =
-		(FileConnection)Connector.open(p.toString(), Connector.WRITE);
+		(FileConnection)Connector.open(p.toString());
 	    OutputStream outs = file.openOutputStream(file.fileSize());
 	    logfile = new OutputStreamWriter(outs, ascii);
 	}

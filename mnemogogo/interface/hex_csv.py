@@ -61,13 +61,13 @@ class BasicExport(mnemogogo.Export):
 	sfile = open(join(self.sync_path, 'start_time'), 'w')
 	sfile.write(str(start_time) + '\n')
 	sfile.close()
-	extra_config['start_time'] = str(start_time);
+	self.extra_config['start_time'] = str(start_time);
 
 	last_day = int(time() / 86400)
 	sfile = open(join(self.sync_path, 'last_day'), 'w')
 	sfile.write(str(last_day) + '\n')
 	sfile.close()
-	extra_config['last_day'] = str(last_day);
+	self.extra_config['last_day'] = str(last_day);
 
 	sfile = open(join(self.sync_path, 'prelog'), 'w')
 	sfile.close()
@@ -121,7 +121,7 @@ class BasicExport(mnemogogo.Export):
 	for c in config.iteritems():
 	    cfile.write("%s=%s\n" % c)
 
-	for c in extra_config.iteritems():
+	for c in self.extra_config.iteritems():
 	    cfile.write("%s=%s\n" % c)
 
 	cfile.close()
@@ -310,13 +310,24 @@ class JoJoExport(BasicExport):
 
 	qd = '<?xml version="1.0" encoding="UTF-8"?>\n'
 	qd = qd + ('<body><p>%s%s%s</p></body>' % (ot, q, ct))
-	self.write_to_cardfile(join('cards', 'Q%04x.htm' % serial_num), qd)
 
 	ad = '<?xml version="1.0" encoding="UTF-8"?>\n<body>'
 	if not is_overlay:
 	    ad = ad + ('<p>%s%s%s</p><hr/>' % (ot, q, ct))
 	ad = ad + ('<p>%s%s%s</p></body>' % (ot, a, ct))
-	self.write_to_cardfile(join('cards', 'A%04x.htm' % serial_num), ad)
+
+	if self.single_cardfile:
+	    self.write_to_cardfile(join('cards', 'Q%04x.htm' % serial_num), qd)
+	    self.write_to_cardfile(join('cards', 'A%04x.htm' % serial_num), ad)
+	else:
+	    cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
+				'w', encoding='UTF-8')
+	    cfile.write(qd);
+	    cfile.close();
+	    cfile = codecs.open(join(card_path, 'A%04x.htm' % serial_num),
+				'w', encoding='UTF-8')
+	    cfile.write(ad);
+	    cfile.close();
 
     def do_images(self, serial_num, q, a):
 	self.extract_image_paths(q)
@@ -344,7 +355,7 @@ class JoJoHexCsv(mnemogogo.Interface):
 
     def start_export(self, sync_path):
 	e = JoJoExport(self, sync_path)
-	e.single_cardfile = True
+	# e.single_cardfile = True
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = True

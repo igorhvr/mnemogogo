@@ -20,6 +20,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.EOFException;
 import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 
 public class Unpack
 {
@@ -68,7 +69,8 @@ public class Unpack
 	int value = 0;
 	int len = 0;
 	pos = 0;
-	while (readByte(src) && Character.isDigit((char)buffer[0])) {
+	while (readByte(src) && (char)buffer[0] != '\n') {
+	    pos = 0;
 	    value = (value * 10) + Character.digit((char)buffer[0], 10);
 	    ++len;
 	}
@@ -95,11 +97,15 @@ public class Unpack
 	throws IOException
     {
 	int origPathLen = path.length();
+	String filename = readFilename(src);
 
-	path.append(readFilename(src));
+	path.append(filename);
 	int size = readDecimal(src);
 
-	DataOutputStream dst = Connector.openDataOutputStream(path.toString());
+	FileConnection c = (FileConnection)Connector.open(path.toString(),
+	    Connector.READ_WRITE);
+	c.create();
+	DataOutputStream dst = c.openDataOutputStream();
 	copyBytes(src, dst, size);
 
 	// Strip of the trailing new line
@@ -109,12 +115,12 @@ public class Unpack
 	progress.updateOperation(size + 1);
 	path.delete(origPathLen, path.length());
 	dst.close();
+	c.close();
     }
 
-    public void unpack(String filepath, String destpath)
+    public void unpack(DataInputStream src, String destpath)
 	throws IOException
     {
-	DataInputStream src = Connector.openDataInputStream(filepath.toString());
 	StringBuffer dstpath = new StringBuffer(destpath);
 
 	try {
@@ -124,6 +130,13 @@ public class Unpack
 	} catch (EOFException e) { }
 
 	src.close();
+    }
+
+    public void unpack(String filepath, String destpath)
+	throws IOException
+    {
+	DataInputStream is = Connector.openDataInputStream(filepath.toString());
+	unpack(is, destpath);
     }
 }
 
