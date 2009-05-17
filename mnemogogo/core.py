@@ -83,10 +83,6 @@ class Job:
 	self.sync_path = sync_path
 
     # implement in plugin
-    def open(self, start_time, num_cards):
-	pass
-
-    # implement in plugin
     def close(self):
 	pass
 
@@ -125,6 +121,9 @@ class Export(Job):
 			+ '(?P<after>[^>]*/?>))',
 			re.IGNORECASE + re.MULTILINE + re.DOTALL)
 
+    # implement in plugin
+    def open(self, start_time, num_days, num_cards):
+	pass
 
     # implement in plugin
     def write(self, id, q, a, cat, stats, inverse_ids):
@@ -303,6 +302,10 @@ class Import(Job):
 	    raise StopIteration
 
 	return r
+
+    # implement in plugin
+    def open(self):
+	pass
 
     # implement in plugin
     def read(self):
@@ -496,7 +499,7 @@ def do_export(interface, num_days, sync_path, extra = 1.00):
     time_of_start = mnemosyne.core.get_time_of_start()
     items = mnemosyne.core.get_items()
 
-    exporter.open(long(time_of_start.time), len(cards))
+    exporter.open(long(time_of_start.time), num_days, len(cards))
     exporter.id_to_serial = dict(zip((i.id for i in cards),
 				 range(0, len(cards))))
     exporter.write_config(config)

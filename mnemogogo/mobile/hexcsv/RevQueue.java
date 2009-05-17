@@ -173,10 +173,14 @@ class RevQueue {
 	    }
 	}
 
-	if (config.sorting()) {
-	    sortScheduled();
+	if (num_scheduled > 0) {
+	    if (config.sorting()) {
+		sortScheduled();
+	    } else {
+		shuffle(0, num_scheduled);
+	    }
 	} else {
-	    shuffle(0, num_scheduled);
+	    rebuildNewQueue();
 	}
     }
 
@@ -288,7 +292,7 @@ class RevQueue {
 	    }
 	}
 
-	r.append("new----------------------------\n");
+	r.append("new waiting--------------------\n");
 	for (int i=idx_new + 1; i < q.length; ++i) {
 	    if (i == limit_new) {
 		r.append("--new limit--\n");

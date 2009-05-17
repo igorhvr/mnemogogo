@@ -37,7 +37,7 @@ class BasicExport(mnemogogo.Export):
     def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
 	pass
 
-    def open(self, start_time, num_cards):
+    def open(self, start_time, num_days, num_cards):
 	if not exists(self.sync_path): mkdir(self.sync_path)
 	self.card_path = join(self.sync_path, 'cards')
 
@@ -63,7 +63,7 @@ class BasicExport(mnemogogo.Export):
 	sfile.close()
 	self.extra_config['start_time'] = str(start_time);
 
-	last_day = int(time() / 86400)
+	last_day = int(time() / 86400) + num_days;
 	sfile = open(join(self.sync_path, 'last_day'), 'w')
 	sfile.write(str(last_day) + '\n')
 	sfile.close()
