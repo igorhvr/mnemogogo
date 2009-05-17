@@ -280,9 +280,11 @@ public class Card
 
     public void skipInverse()
     {
-	Card inverse_card = cardlookup.getCard(inverse);
-	if (inverse_card != null) {
-	    inverse_card.skip = true;
+	if (cardlookup != null) {
+	    Card inverse_card = cardlookup.getCard(inverse);
+	    if (inverse_card != null) {
+		inverse_card.skip = true;
+	    }
 	}
     }
 

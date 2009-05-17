@@ -216,8 +216,8 @@ class RevQueue {
 		continue;
 	    }
 
-	    q[bot].skipInverse();
-	    q[bot++] = q[top];
+	    q[bot] = q[top];
+	    q[bot++].skipInverse();
 
 	    if ((new_at_once > 5) && (q[top].grade == 0) && (bot < new_at_once))
 	    {
@@ -265,7 +265,8 @@ class RevQueue {
 	    }
 	}
 
-	while (true) {
+	while (limit_new > 0) {
+
 	    if (curr == limit_new) {
 		rebuildNewQueue();
 		if (curr == limit_new) {
@@ -280,6 +281,8 @@ class RevQueue {
 	    // skip duplicates where the first instance was graded >= 2
 	    ++curr;
 	};
+
+	return null;
     }
 
     public String toString() {
