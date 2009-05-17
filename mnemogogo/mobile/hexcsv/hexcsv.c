@@ -572,6 +572,7 @@ int getfirstcard(carddb_t db, card_t* next)
     return 0;
 }
 
+// TODO: rework per RevQueue.java with cluster() and rebuildNewQueue()
 int getcard(carddb_t db, card_t* next)
 {
     if (db->revqueue.first)

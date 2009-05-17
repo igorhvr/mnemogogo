@@ -24,22 +24,30 @@ class RevQueue {
     private Card q[];
 
     int num_scheduled = 0;
+    int limit_new = 0;
     int idx_new;
-    int limit_new;
+    int new_at_once;
 
-    int curr = 0;
-    boolean first = true;
+    int curr = -1;
     Random rand = new Random();
 
     long days_since_start = 0;
     Config config;
 
-    RevQueue(int size, long days, Config c) {
+    Progress progress;
+
+    RevQueue(int size, long days, Config c, Progress p) {
+	config = c;
+
+	new_at_once = config.grade0ItemsAtOnce();
+	size += new_at_once;
+
 	q = new Card[size];
 	idx_new = size - 1;
 	limit_new = size;
 	days_since_start = days;
-	config = c;
+
+	progress = p;
     }
 
     private void swap(int i, int j)
@@ -53,7 +61,7 @@ class RevQueue {
 
     // insertion sort: linear when already ordered, won't blow the stack
     // if too slow: implement shell sort
-    private void sortScheduled(Progress progress)
+    private void sortScheduled()
     {
 	int i, j;
 	Card c;
@@ -121,8 +129,29 @@ class RevQueue {
 	return hd;
     }
 
+    private int clusterUnseen(int hd, int max)
+    {
+	for (int i=hd; i < max; ++i) {
+	    if (q[i].unseen) {
+		swap(i, hd++);
+	    }
+	}
+	return hd;
+    }
+
+    private void cluster()
+    {
+	int hd = idx_new + 1;
+
+	hd = clusterRememorise0(hd, q.length);
+	hd = clusterRememorise1(hd, q.length);
+	hd = clusterSeenButNotMemorised0(hd, q.length);
+	hd = clusterSeenButNotMemorised1(hd, q.length);
+	hd = clusterUnseen(hd, q.length);
+    }
+
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x
-    public void buildRevisionQueue(Card[] cards, Progress progress)
+    public void buildRevisionQueue(Card[] cards)
     {
 	// form two queues:
 	//	    cards scheduled for today upward from 0
@@ -145,33 +174,36 @@ class RevQueue {
 	}
 
 	if (config.sorting()) {
-	    sortScheduled(progress);
+	    sortScheduled();
 	} else {
 	    shuffle(0, num_scheduled);
 	}
-	shuffle(idx_new + 1, q.length);
+    }
 
+    public void rebuildNewQueue()
+    {
+	cluster();
 
-	int hd = idx_new + 1;
-	hd = clusterRememorise0(hd, q.length);
-	if (progress != null) {
-	    progress.updateOperation(hd / 10);
-	}
-	hd = clusterRememorise1(hd, q.length);
-	if (progress != null) {
-	    progress.updateOperation(hd / 10);
-	}
-	hd = clusterSeenButNotMemorised0(hd, q.length);
-	if (progress != null) {
-	    progress.updateOperation(hd / 10);
-	}
-	hd = clusterSeenButNotMemorised1(hd, q.length);
-	if (progress != null) {
-	    progress.updateOperation(hd / 10);
+	int bot = 0;
+	int top = idx_new + 1;
+	while ((bot < new_at_once) && (top < q.length) && (q[top].grade < 2)) {
+	    if (q[top].skip) {
+		++top;
+		continue;
+	    }
+
+	    q[bot++] = q[top];
+
+	    if ((q[top].grade == 0) && (bot < new_at_once)) {
+		q[bot++] = q[top];
+	    }
+
+	    ++top;
 	}
 
-	limit_new = idx_new + 1 + config.grade0ItemsAtOnce();
-	limit_new = Math.min(limit_new, q.length);
+	shuffle(0, bot);
+	limit_new = bot;
+	curr = 0;
     }
 
     private void shiftForgottenToNew()
@@ -189,85 +221,71 @@ class RevQueue {
 	return Math.max(0, num_scheduled - curr);
     }
 
-    public Card getFirstCard()
-    {
-	first = false;
-
-	if (num_scheduled > 0) {
-	    curr = 0;
-	    return q[curr];
-	}
-
-	if (idx_new + 1 < limit_new) {
-	    curr = idx_new + 1;
-	    return q[curr];
-	}
-
-	return null;
-    }
-
     public Card getCard()
     {
-	if (first) {
-	    return getFirstCard();
-	}
+	++curr;
 
-	if (curr >= limit_new) {
-	    return null;
-	}
+	if (num_scheduled > 0) {
+	    if (curr < num_scheduled) {
+		return q[curr];
 
-	if (curr + 1 < num_scheduled) {
-	    return q[++curr];
-	}
-
-	if (curr + 1 == num_scheduled) {
-	    shiftForgottenToNew();
-	    curr = idx_new + 1;
-
-	} else if (q[curr].grade < 2) {
-	    // shuffle grade 0 and 1 cards back into set
-	    int swapwith = rand.nextInt(limit_new - 1 - curr) + 1 + curr;
-	    if (swapwith < limit_new) {
-		swap(curr,  swapwith);
+	    } else {
+		// scheduled cards done
+		num_scheduled = 0;
+		limit_new = new_at_once;
+		curr = limit_new;
+		shiftForgottenToNew();
 	    }
-
-	} else if (q[curr].unseen) {
-	    // shift the limit forward
-	    ++limit_new;
-	    ++curr;
-
-	} else {
-	    ++curr;
 	}
 
-	while (curr < q.length && q[curr].skip && q[curr].unseen) {
-	    ++curr;
-	    ++limit_new;
+	if (curr == limit_new) {
+	    rebuildNewQueue();
+	    if (curr == limit_new) {
+		return null;
+	    }
 	}
 
-	limit_new = Math.min(limit_new, q.length);
-
-	if (curr >= limit_new) {
-	    return null;
-	}
-	
 	return q[curr];
     }
 
     public String toString() {
 	StringBuffer r = new StringBuffer();
 
-	r.append("scheduled----------------------\n");
-	for (int i=0; i < num_scheduled; ++i) {
-	    r.append(i);
-	    r.append(" serial=");
-	    r.append(q[i].serial);
-	    r.append(" key=");
-	    r.append(q[i].sortKeyInterval());
-	    if (i == curr) {
-		r.append(" <-");
+	if (num_scheduled > 0) {
+	    r.append("scheduled----------------------\n");
+	    for (int i=0; i < num_scheduled; ++i) {
+		r.append(i);
+		r.append(" serial=");
+		r.append(q[i].serial);
+		r.append(" key=");
+		r.append(q[i].sortKeyInterval());
+		if (i == curr) {
+		    r.append(" <-");
+		}
+		r.append("\n");
 	    }
-	    r.append("\n");
+
+	} else {
+	    r.append("new cards----------------------\n");
+	    for (int i=0; i < limit_new; ++i) {
+		r.append(i);
+		r.append(" serial=");
+		r.append(q[i].serial);
+		r.append(" re0=");
+		r.append(q[i].rememorise0());
+		r.append(" re1=");
+		r.append(q[i].rememorise1());
+		r.append(" sn0=");
+		r.append(q[i].seenButNotMemorised0());
+		r.append(" sn1=");
+		r.append(q[i].seenButNotMemorised1());
+		r.append(" un=");
+		r.append(q[i].unseen);
+		if (i == curr) {
+		    r.append(" <-");
+		}
+		r.append("\n");
+	    }
 	}
 
 	r.append("new----------------------------\n");
@@ -287,9 +305,8 @@ class RevQueue {
 	    r.append(q[i].seenButNotMemorised0());
 	    r.append(" sn1=");
 	    r.append(q[i].seenButNotMemorised1());
-	    if (i == curr) {
-		r.append(" <-");
-	    }
+	    r.append(" un=");
+	    r.append(q[i].unseen);
 	    r.append("\n");
 	}
 
@@ -311,9 +328,6 @@ class RevQueue {
 	r.append(", ");
 	r.append("curr=");
 	r.append(curr);
-	r.append(", ");
-	r.append("first=");
-	r.append(first);
 	r.append("\n");
 
 	return r.toString();

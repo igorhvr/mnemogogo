@@ -85,13 +85,6 @@ public class HexCsv
 	    OutputStream outs = file.openOutputStream(file.fileSize());
 	    logfile = new OutputStreamWriter(outs, ascii);
 	}
-
-	q = new RevQueue(cards.length, days_since_start, config);
-	q.buildRevisionQueue(cards, progress);
-    }
-
-    public int daysLeft() {
-	return days_left;
     }
 
     public String getCategory(int n) {
@@ -140,10 +133,14 @@ public class HexCsv
 	days_since_start = daysSinceStart(start_time);
     }
 
+    public int daysLeft() {
+	return days_left;
+    }
+
     private int daysLeft(long last_day)
     {
 	Date now = new Date();
-	return Math.max(0, (int)(last_day - (now.getTime() / 86400)));
+	return (int)(last_day - (now.getTime() / 86400000));
     }
 
     private void readDaysLeft(StringBuffer path)
@@ -170,7 +167,6 @@ public class HexCsv
 	progress.startOperation(ncards * 3);
 
 	cards = new Card[ncards];
-	q = new RevQueue(ncards, days_since_start, config);
 
 	for (int i=0; i < ncards; ++i) {
 	    cards[i] = new Card(this, in, i);
@@ -180,6 +176,9 @@ public class HexCsv
 	}
 
 	in.close();
+
+	q = new RevQueue(ncards, days_since_start, config, progress);
+	q.buildRevisionQueue(cards);
     }
 
     public void writeCards(StringBuffer path, Progress progress)

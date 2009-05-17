@@ -105,6 +105,18 @@ public class Card
 	return (next_rep - last_rep);
     }
 
+    public int repetitions() {
+	return (acq_reps + ret_reps);
+    }
+
+    public int daysSinceLastRep(long days_since_start) {
+	return (int)(days_since_start - last_rep);
+    }
+
+    public int daysUntilNextRep(long days_since_start) {
+	return (int)(next_rep - days_since_start);
+    }
+
     public String toString() {
 	StringBuffer r = new StringBuffer(100);
 
