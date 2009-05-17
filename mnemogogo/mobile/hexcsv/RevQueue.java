@@ -19,6 +19,7 @@ package mnemogogo.mobile.hexcsv;
 
 import java.lang.*;
 import java.util.Random;
+import java.lang.Math;
 
 class RevQueue {
     private Card q[];
@@ -39,7 +40,7 @@ class RevQueue {
     RevQueue(int size, long days, Config c, Progress p) {
 	config = c;
 
-	new_at_once = config.grade0ItemsAtOnce();
+	new_at_once = Math.max(0, config.grade0ItemsAtOnce());
 	size += new_at_once;
 
 	q = new Card[size];
@@ -86,6 +87,19 @@ class RevQueue {
     {
 	for (int i=first; i < max; ++i) {
 	    swap(i, rand.nextInt(max - first) + first);
+	}
+    }
+
+    private void shiftDuplicates(int first, int max)
+    {
+	for (int i=first + 1; i < max; ++i) {
+	    if (q[i] == q[i - 1]) {
+		if (i + 1 == max) {
+		    swap(i, first);
+		} else {
+		    swap(i, i + 1);
+		}
+	    }
 	}
     }
 
@@ -186,6 +200,12 @@ class RevQueue {
 
     public void rebuildNewQueue()
     {
+	if (new_at_once == 0) {
+	    limit_new = 0;
+	    curr = 0;
+	    return;
+	}
+
 	cluster();
 
 	int bot = 0;
@@ -196,9 +216,11 @@ class RevQueue {
 		continue;
 	    }
 
+	    q[bot].skipInverse();
 	    q[bot++] = q[top];
 
-	    if ((q[top].grade == 0) && (bot < new_at_once)) {
+	    if ((new_at_once > 5) && (q[top].grade == 0) && (bot < new_at_once))
+	    {
 		q[bot++] = q[top];
 	    }
 
@@ -206,6 +228,7 @@ class RevQueue {
 	}
 
 	shuffle(0, bot);
+	shiftDuplicates(0, bot);
 	limit_new = bot;
 	curr = 0;
     }
@@ -242,14 +265,21 @@ class RevQueue {
 	    }
 	}
 
-	if (curr == limit_new) {
-	    rebuildNewQueue();
+	while (true) {
 	    if (curr == limit_new) {
-		return null;
+		rebuildNewQueue();
+		if (curr == limit_new) {
+		    return null;
+		}
 	    }
-	}
 
-	return q[curr];
+	    if (q[curr].grade < 2) {
+		return q[curr];
+	    }
+
+	    // skip duplicates where the first instance was graded >= 2
+	    ++curr;
+	};
     }
 
     public String toString() {

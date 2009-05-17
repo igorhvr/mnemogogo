@@ -278,6 +278,14 @@ public class Card
 	}
     }
 
+    public void skipInverse()
+    {
+	Card inverse_card = cardlookup.getCard(inverse);
+	if (inverse_card != null) {
+	    inverse_card.skip = true;
+	}
+    }
+
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x (process_answer)
     public void gradeCard(long days_since_start, int new_grade,
 		   long thinking_time_msecs, OutputStreamWriter logfile)
@@ -290,10 +298,7 @@ public class Card
 	int noise;
 
 	// Don't schedule inverse or identical questions on the same day.
-	Card inverse_card = cardlookup.getCard(inverse);
-	if (inverse_card != null) {
-	    inverse_card.skip = true;
-	}
+	skipInverse();
 
 	// Calculate scheduled and actual interval, taking care of corner
 	// case when learning ahead on the same day.

@@ -480,7 +480,7 @@ def process(card, which):
 	    text = f(text, card)
     return text
 
-def do_export(interface, num_days, sync_path, extra = 1.00):
+def do_export(interface, num_days, sync_path, progress_bar=None, extra = 1.00):
     basedir = mnemosyne.core.get_basedir()
 
     eliminate_duplicate_ids()
@@ -499,6 +499,9 @@ def do_export(interface, num_days, sync_path, extra = 1.00):
     time_of_start = mnemosyne.core.get_time_of_start()
     items = mnemosyne.core.get_items()
 
+    total = len(cards)
+    current = 0
+
     exporter.open(long(time_of_start.time), num_days, len(cards))
     exporter.id_to_serial = dict(zip((i.id for i in cards),
 				 range(0, len(cards))))
@@ -510,6 +513,10 @@ def do_export(interface, num_days, sync_path, extra = 1.00):
 	inverses = (i.id for i in cards
 		    if mnemosyne.core.items_are_inverses(card, i))
 	exporter.write(card.id, q, a, card.cat.name, stats, inverses)
+	current += 1
+
+	if (progress_bar and current % 10 == 0):
+	    progress_bar.setProgress(current * 100 / total)
 
     exporter.close()
 

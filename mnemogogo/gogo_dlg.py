@@ -51,6 +51,7 @@ class GoGoDlg(GoGoFrm):
 	self.importButton.setEnabled(0)
 	self.forceMobileButton.setEnabled(1)
 	self.forceLocalButton.setEnabled(0)
+	self.progressBar.setProgress(0)
 
     def setMobile(self):
 	self.mode = "mobile"
@@ -60,6 +61,7 @@ class GoGoDlg(GoGoFrm):
 	self.importButton.setEnabled(1)
 	self.forceMobileButton.setEnabled(0)
 	self.forceLocalButton.setEnabled(1)
+	self.progressBar.setProgress(0)
 
     def setInterfaceList(self, interfaces):
 	self.name_to_desc = {}
@@ -103,6 +105,7 @@ class GoGoDlg(GoGoFrm):
 		self.name_to_object[self.settings['interface']],
 		self.settings['n_days'],
 		self.settings['sync_path'],
+		self.progressBar,
 		self.settings['extra_factor'])
 	    self.setMobile()
 	except InterfaceError, e:

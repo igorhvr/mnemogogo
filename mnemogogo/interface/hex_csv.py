@@ -343,7 +343,53 @@ class JoJoExport(BasicExport):
 	a = self.map_sound_paths(a)
 	return (q, a)
 
-class JoJoHexCsv(mnemogogo.Interface):
+class JoJoHexCsv128x128(mnemogogo.Interface):
+    max_width = 128
+    max_height = 128
+    max_size = 64
+    ext = 'png'
+
+    description = ('MnemoJoJo (%dx%d <%dk, %s)' %
+		    (max_width, max_height, max_size, ext))
+    version = '1.0.0'
+
+    def start_export(self, sync_path):
+	e = JoJoExport(self, sync_path)
+	# e.single_cardfile = True
+	e.img_max_width = self.max_width
+	e.img_max_height = self.max_height - 43 
+	e.img_to_landscape = False
+	e.img_max_size = self.max_size * 1024;
+	e.img_to_ext = self.ext
+	return e
+
+    def start_import(self, sync_path):
+	return Import(self, sync_path)
+
+class JoJoHexCsv128x160(mnemogogo.Interface):
+    max_width = 128
+    max_height = 160
+    max_size = 64
+    ext = 'png'
+
+    description = ('MnemoJoJo (%dx%d <%dk, %s)' %
+		    (max_width, max_height, max_size, ext))
+    version = '1.0.0'
+
+    def start_export(self, sync_path):
+	e = JoJoExport(self, sync_path)
+	# e.single_cardfile = True
+	e.img_max_width = self.max_width
+	e.img_max_height = self.max_height - 43 
+	e.img_to_landscape = False
+	e.img_max_size = self.max_size * 1024;
+	e.img_to_ext = self.ext
+	return e
+
+    def start_import(self, sync_path):
+	return Import(self, sync_path)
+
+class JoJoHexCsv240x300(mnemogogo.Interface):
     max_width = 240
     max_height = 300
     max_size = 64
@@ -351,14 +397,37 @@ class JoJoHexCsv(mnemogogo.Interface):
 
     description = ('MnemoJoJo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
-    version = '0.5.0'
+    version = '1.0.0'
 
     def start_export(self, sync_path):
 	e = JoJoExport(self, sync_path)
 	# e.single_cardfile = True
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
-	e.img_to_landscape = True
+	e.img_to_landscape = False
+	e.img_max_size = self.max_size * 1024;
+	e.img_to_ext = self.ext
+	return e
+
+    def start_import(self, sync_path):
+	return Import(self, sync_path)
+
+class JoJoHexCsv640x480(mnemogogo.Interface):
+    max_width = 640
+    max_height = 480
+    max_size = 64
+    ext = 'png'
+
+    description = ('MnemoJoJo (%dx%d <%dk, %s)' %
+		    (max_width, max_height, max_size, ext))
+    version = '1.0.0'
+
+    def start_export(self, sync_path):
+	e = JoJoExport(self, sync_path)
+	# e.single_cardfile = True
+	e.img_max_width = self.max_width
+	e.img_max_height = self.max_height - 43 
+	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
 	return e
@@ -413,7 +482,7 @@ class TextExport(BasicExport):
 class TextCsv(mnemogogo.Interface):
 
     description = 'Text Only'
-    version = '0.5.0'
+    version = '1.0.0'
 
     def start_export(self, sync_path):
 	return TextExport(self, sync_path)

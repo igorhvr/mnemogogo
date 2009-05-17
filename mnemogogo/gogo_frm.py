@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gogo_frm.ui'
 #
-# Created: Wed Apr 22 07:23:52 2009
+# Created: Mon May 18 07:44:47 2009
 #      by: The PyQt User Interface Compiler (pyuic) 3.17.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -36,11 +36,9 @@ class GoGoFrm(QDialog):
         self.tabWidget.setGeometry(QRect(10,10,550,310))
 
         self.synchronizeTab = QWidget(self.tabWidget,"synchronizeTab")
-        synchronizeTabLayout = QHBoxLayout(self.synchronizeTab,11,6,"synchronizeTabLayout")
-        spacer7_2_3 = QSpacerItem(16,21,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        synchronizeTabLayout.addItem(spacer7_2_3)
 
         self.localFrame = QFrame(self.synchronizeTab,"localFrame")
+        self.localFrame.setGeometry(QRect(24,11,176,261))
         self.localFrame.setPaletteBackgroundColor(QColor(0,170,0))
         self.localFrame.setFrameShape(QFrame.StyledPanel)
         self.localFrame.setFrameShadow(QFrame.Sunken)
@@ -58,38 +56,9 @@ class GoGoFrm(QDialog):
         self.localLabel.setPaletteForegroundColor(QColor(255,255,255))
 
         localFrameLayout.addWidget(self.localLabel,1,1)
-        synchronizeTabLayout.addWidget(self.localFrame)
-        spacer7 = QSpacerItem(20,21,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        synchronizeTabLayout.addItem(spacer7)
-
-        self.buttonGroup1 = QButtonGroup(self.synchronizeTab,"buttonGroup1")
-        self.buttonGroup1.setFrameShape(QButtonGroup.NoFrame)
-        self.buttonGroup1.setFrameShadow(QButtonGroup.Plain)
-        self.buttonGroup1.setColumnLayout(0,Qt.Vertical)
-        self.buttonGroup1.layout().setSpacing(6)
-        self.buttonGroup1.layout().setMargin(11)
-        buttonGroup1Layout = QVBoxLayout(self.buttonGroup1.layout())
-        buttonGroup1Layout.setAlignment(Qt.AlignTop)
-        spacer11 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        buttonGroup1Layout.addItem(spacer11)
-
-        self.exportButton = QPushButton(self.buttonGroup1,"exportButton")
-        buttonGroup1Layout.addWidget(self.exportButton)
-        spacer11_2 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        buttonGroup1Layout.addItem(spacer11_2)
-        spacer11_2_2 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        buttonGroup1Layout.addItem(spacer11_2_2)
-
-        self.importButton = QPushButton(self.buttonGroup1,"importButton")
-        self.importButton.setEnabled(0)
-        buttonGroup1Layout.addWidget(self.importButton)
-        spacer11_2_2_2 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        buttonGroup1Layout.addItem(spacer11_2_2_2)
-        synchronizeTabLayout.addWidget(self.buttonGroup1)
-        spacer7_2 = QSpacerItem(20,21,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        synchronizeTabLayout.addItem(spacer7_2)
 
         self.mobileFrame = QFrame(self.synchronizeTab,"mobileFrame")
+        self.mobileFrame.setGeometry(QRect(330,11,192,261))
         self.mobileFrame.setFrameShape(QFrame.StyledPanel)
         self.mobileFrame.setFrameShadow(QFrame.Sunken)
         mobileFrameLayout = QGridLayout(self.mobileFrame,1,1,11,6,"mobileFrameLayout")
@@ -106,9 +75,38 @@ class GoGoFrm(QDialog):
         self.mobileLabel.setPaletteForegroundColor(QColor(124,124,124))
 
         mobileFrameLayout.addWidget(self.mobileLabel,1,1)
-        synchronizeTabLayout.addWidget(self.mobileFrame)
-        spacer7_2_3_2 = QSpacerItem(16,21,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        synchronizeTabLayout.addItem(spacer7_2_3_2)
+
+        self.buttonGroup1 = QButtonGroup(self.synchronizeTab,"buttonGroup1")
+        self.buttonGroup1.setGeometry(QRect(210,10,109,257))
+        self.buttonGroup1.setFrameShape(QButtonGroup.NoFrame)
+        self.buttonGroup1.setFrameShadow(QButtonGroup.Plain)
+        self.buttonGroup1.setColumnLayout(0,Qt.Vertical)
+        self.buttonGroup1.layout().setSpacing(6)
+        self.buttonGroup1.layout().setMargin(11)
+        buttonGroup1Layout = QVBoxLayout(self.buttonGroup1.layout())
+        buttonGroup1Layout.setAlignment(Qt.AlignTop)
+        spacer11 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        buttonGroup1Layout.addItem(spacer11)
+
+        self.exportButton = QPushButton(self.buttonGroup1,"exportButton")
+        buttonGroup1Layout.addWidget(self.exportButton)
+        spacer11_2 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        buttonGroup1Layout.addItem(spacer11_2)
+
+        self.progressBar = QProgressBar(self.buttonGroup1,"progressBar")
+        self.progressBar.setPaletteForegroundColor(QColor(0,170,0))
+        self.progressBar.setProgress(0)
+        self.progressBar.setCenterIndicator(1)
+        self.progressBar.setPercentageVisible(0)
+        buttonGroup1Layout.addWidget(self.progressBar)
+        spacer11_2_2 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        buttonGroup1Layout.addItem(spacer11_2_2)
+
+        self.importButton = QPushButton(self.buttonGroup1,"importButton")
+        self.importButton.setEnabled(0)
+        buttonGroup1Layout.addWidget(self.importButton)
+        spacer11_2_2_2 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        buttonGroup1Layout.addItem(spacer11_2_2_2)
         self.tabWidget.insertTab(self.synchronizeTab,QString.fromLatin1(""))
 
         self.optionsTab = QWidget(self.tabWidget,"optionsTab")
@@ -178,12 +176,12 @@ class GoGoFrm(QDialog):
         self.doneButton.setText(self.__tr("&Done"))
         self.doneButton.setAccel(QKeySequence(self.__tr("Alt+D")))
         self.localLabel.setText(self.__tr("<p align=\"center\"><font size=\"+3\"><b>Local</b></font></p>"))
+        self.mobileLabel.setText(self.__tr("<p align=\"center\"><font size=\"+3\"><b>Mobile</b></font></p>"))
         self.buttonGroup1.setTitle(QString.null)
         self.exportButton.setText(self.__tr("&Export >>"))
         self.exportButton.setAccel(QKeySequence(self.__tr("Alt+E")))
         self.importButton.setText(self.__tr("<< &Import"))
         self.importButton.setAccel(QKeySequence(self.__tr("Alt+I")))
-        self.mobileLabel.setText(self.__tr("<p align=\"center\"><font size=\"+3\"><b>Mobile</b></font></p>"))
         self.tabWidget.changeTab(self.synchronizeTab,self.__tr("Synchronize"))
         self.textLabel2.setText(self.__tr("Number of days to export:"))
         self.textLabel4.setText(self.__tr("Interface:"))
