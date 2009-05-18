@@ -120,7 +120,8 @@ class GoGoDlg(GoGoFrm):
 	try:
 	    do_import(
 		self.name_to_object[self.settings['interface']],
-		self.settings['sync_path'])
+		self.settings['sync_path'],
+		self.progressBar)
 	    self.setLocal()
 	    rebuild_revision_queue(False)
 	    self.main_dlg.newQuestion()

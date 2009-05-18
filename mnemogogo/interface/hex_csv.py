@@ -40,6 +40,7 @@ class BasicExport(mnemogogo.Export):
     def open(self, start_time, num_days, num_cards):
 	if not exists(self.sync_path): mkdir(self.sync_path)
 	self.card_path = join(self.sync_path, 'cards')
+	self.num_cards = num_cards
 
 	if self.single_cardfile:
 	    self.cardfile_path = join(self.sync_path, 'cards.db')
@@ -156,6 +157,8 @@ class BasicExport(mnemogogo.Export):
 			 (self.is_overlay(q) or self.is_overlay(a)))
 
 	self.serial_num += 1
+	self.percentage_complete = (self.serial_num * 80) / self.num_cards
+	    # leave 20% for images/sounds
 
     def write_to_cardfile(self, filename, data):
 	self.cardfile.write(filename.encode('UTF-8') + '\n')
@@ -177,7 +180,7 @@ class BasicExport(mnemogogo.Export):
 class Import(mnemogogo.Import):
     def open(self):
 	self.statfile = open(join(self.sync_path, 'stats.csv'), 'r')
-	self.statfile.readline() # skip the number of entries
+	self.num_cards = int(self.statfile.readline())
 	self.idfile = open(join(self.sync_path, 'ids'), 'r')
 	self.num_stats = len(self.learning_data)
 	self.line = 0
@@ -229,6 +232,8 @@ class Import(mnemogogo.Import):
 	    self.error("stats.csv:" + str(self.line) + ":too few fields")
 
 	self.serial_num += 1
+	self.percentage_complete = (self.serial_num * 100) / self.num_cards
+
 	return (id, dict(zip(self.learning_data, stats)))
 
     def get_start_time(self):

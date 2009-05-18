@@ -1,7 +1,7 @@
 Mnemogogo: Making Mnemosyne Mobile
 Timothy Bourke <timbob@bigpond.com>
 
-THIS IS EXPERIMENTAL SOFTWARE. USE AT YOUR OWN RISK. BACKUP YOUR FILES.
+YOU USE THIS SOFTWARE AT YOUR OWN RISK. BACKUP YOUR FILES.
 
 Please report bugs, preferably with patches to the author or the Mnemosyne
 development mailing list.

@@ -136,8 +136,7 @@ class MnemoGoGoPlugin(Plugin):
 	self.is_locked = False
 	self.main_dlg.show_button.unlockAndRestore()
 	self.main_dlg.grades.unlockAndRestore()
-	if not self.old_overlay is None:
-	    self.main_dlg.style['answerbox'] = self.old_overlay
+	self.main_dlg.style['answerbox'] = self.old_overlay
 	self.main_dlg.question.show()
 	self.main_dlg.question_label.show()
 	self.main_dlg.answer.show()

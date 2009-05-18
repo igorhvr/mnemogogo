@@ -77,6 +77,7 @@ class InterfaceError(Exception):
 class Job:
     learning_data = learning_data
     learning_data_len = learning_data_len
+    percentage_complete = 0
 
     def __init__(self, interface, sync_path):
 	self.interface = interface
@@ -182,11 +183,17 @@ class Export(Job):
 			f=(lambda x: os.path.join('snd', os.path.basename(x)))):
 	return self.map_paths(self.re_snd, self.re_snd_split, text, f)
 
-    def collect_files(self, list, hook_name, dst_subdir, fcopy):
+    def collect_files(self, list, hook_name, dst_subdir, fcopy,
+		      percentage_max=100):
 
 	dstpath = os.path.join(self.sync_path, dst_subdir)
 	if not os.path.exists(dstpath):
 	    os.mkdir(dstpath)
+	
+	percentage_base = self.percentage_complete
+	percentage_stretch = (percentage_max - percentage_base)
+	total = len(list)
+	count = 0
 
 	moved = Set()
 	for src in list:
@@ -206,16 +213,24 @@ class Export(Job):
 
 	    moved.add(os.path.basename(dst))
 
+	    count += 1
+	    if self.progress_bar:
+		self.progress_bar.setProgress(
+		    count * percentage_stretch / total + percentage_base)
+
 	for file in os.listdir(dstpath):
 	    if file not in moved:
 		os.remove(os.path.join(dstpath, file))
 
-    def collect_images(self, dst_subdir=os.path.join('cards', 'img')):
-	self.collect_files(self.imgs, 'gogo_img', dst_subdir, None);
+    def collect_images(self, dst_subdir=os.path.join('cards', 'img'),
+		       percentage_max=80):
+	self.collect_files(self.imgs, 'gogo_img', dst_subdir, None,
+			   percentage_max);
 
     def collect_sounds(self, dst_subdir=os.path.join('cards', 'snd'),
-		       fcopy=shutil.copy):
-	self.collect_files(self.snds, 'gogo_snd', dst_subdir, fcopy);
+		       fcopy=shutil.copy, percentage_max=100):
+	self.collect_files(self.snds, 'gogo_snd', dst_subdir, fcopy,
+			   percentage_max);
     
     def add_style_file(self, dstpath):
 	shutil.copy(os.path.join(self.gogo_dir, 'style.css'), dstpath)
@@ -486,6 +501,7 @@ def do_export(interface, num_days, sync_path, progress_bar=None, extra = 1.00):
     eliminate_duplicate_ids()
     exporter = interface.start_export(sync_path)
     exporter.gogo_dir = unicode(os.path.join(basedir, "plugins", "mnemogogo"))
+    exporter.progress_bar = progress_bar
 
     config = {
 	    'grade_0_items_at_once'
@@ -513,10 +529,9 @@ def do_export(interface, num_days, sync_path, progress_bar=None, extra = 1.00):
 	inverses = (i.id for i in cards
 		    if mnemosyne.core.items_are_inverses(card, i))
 	exporter.write(card.id, q, a, card.cat.name, stats, inverses)
-	current += 1
 
-	if (progress_bar and current % 10 == 0):
-	    progress_bar.setProgress(current * 100 / total)
+	if progress_bar:
+	    progress_bar.setProgress(exporter.percentage_complete)
 
     exporter.close()
 
@@ -541,8 +556,9 @@ def adjust_start_date(import_start_date):
 
     return offset
 
-def do_import(interface, sync_path):
+def do_import(interface, sync_path, progress_bar=None):
     importer = interface.start_import(sync_path)
+    importer.progress_bar = progress_bar
 
     offset = adjust_start_date(importer.get_start_time())
 
@@ -557,6 +573,9 @@ def do_import(interface, sync_path):
 	else:
 	    print >> sys.stderr, (
 		"Quietly ignoring card with missing id: %s" % id)
+
+	if (progress_bar):
+	    progress_bar.setProgress(importer.percentage_complete)
 
     # Only update the database if the entire read is successful
     for (card, stats) in new_stats:
