@@ -177,7 +177,7 @@ public class HexCsv
 
 	in.close();
 
-	q = new RevQueue(ncards, days_since_start, config, progress);
+	q = new RevQueue(ncards, days_since_start, config, progress, days_left);
 	q.buildRevisionQueue(cards);
     }
 
@@ -226,6 +226,14 @@ public class HexCsv
 
     public Card getCard() {
 	return q.getCard();
+    }
+
+    public void updateFutureSchedule(Card card) {
+	q.updateFutureSchedule(card);
+    }
+
+    public int[] getFutureSchedule() {
+	return q.futureSchedule;
     }
 
     public String toString() {

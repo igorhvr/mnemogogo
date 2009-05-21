@@ -1,3 +1,6 @@
+200905xx mnemogogo-0.9.1
+* Ensure that forgotten cards are shifted onto new queue.
+
 20090519 mnemogogo-0.9.0
 * Fix the scheduling of 0/1 cards.
 * Add card functions for displaying statistics.

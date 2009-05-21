@@ -35,9 +35,11 @@ class RevQueue {
     long days_since_start = 0;
     Config config;
 
+    public int[] futureSchedule; // 0 = in 1 day, ...
+
     Progress progress;
 
-    RevQueue(int size, long days, Config c, Progress p) {
+    RevQueue(int size, long days, Config c, Progress p, int days_left) {
 	config = c;
 
 	new_at_once = Math.max(0, config.grade0ItemsAtOnce());
@@ -45,8 +47,14 @@ class RevQueue {
 
 	q = new Card[size];
 	idx_new = size - 1;
-	limit_new = size;
+	limit_new = 0;
 	days_since_start = days;
+
+	if (days_left > 1) {
+	    futureSchedule = new int[days_left]; // 0 = in 1 day, ...
+	} else {
+	    futureSchedule = null;
+	}
 
 	progress = p;
     }
@@ -164,6 +172,16 @@ class RevQueue {
 	hd = clusterUnseen(hd, q.length);
     }
 
+    public void updateFutureSchedule(Card card)
+    {
+	int next_rep = card.daysUntilNextRep(days_since_start) - 1;
+	if ((futureSchedule != null)
+	    && (0 <= next_rep) && (next_rep < futureSchedule.length))
+	{
+	    ++futureSchedule[next_rep];
+	}
+    }
+
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x
     public void buildRevisionQueue(Card[] cards)
     {
@@ -175,6 +193,8 @@ class RevQueue {
 	idx_new = q.length - 1;
 	
 	for (int i=0; i < cards.length; ++i) {
+	    updateFutureSchedule(cards[i]);
+
 	    if (cards[i].isDueForRetentionRep(days_since_start)) {
 		q[num_scheduled++] = cards[i];
 
@@ -258,10 +278,8 @@ class RevQueue {
 
 	    } else {
 		// scheduled cards done
-		num_scheduled = 0;
-		limit_new = new_at_once;
-		curr = limit_new;
 		shiftForgottenToNew();
+		rebuildNewQueue();
 	    }
 	}
 
@@ -274,11 +292,12 @@ class RevQueue {
 		}
 	    }
 
-	    if (q[curr].grade < 2) {
+	    // skip duplicates where the first instance was graded >= 2
+	    // and also inverse cards
+	    if (q[curr].grade < 2 && (!q[curr].skip)) {
 		return q[curr];
 	    }
 
-	    // skip duplicates where the first instance was graded >= 2
 	    ++curr;
 	};
 
