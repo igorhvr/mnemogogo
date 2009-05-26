@@ -1,3 +1,8 @@
+20090526 mnemogogo-0.9.2
+* Fix a bug in the transition from scheduled cards to new/forgotten cards.
+* Use the types module in locking_enabling.py instead of the deprecated
+  new module. This should fix a problem running the plugin on windows.
+
 20090521 mnemogogo-0.9.1
 * Ensure that forgotten cards are shifted onto new queue.
 * Calculate future card tallies.

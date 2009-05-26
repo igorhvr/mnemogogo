@@ -265,7 +265,11 @@ class RevQueue {
 
     public int numScheduled()
     {
-	return Math.max(0, num_scheduled - curr);
+	if (num_scheduled > 0) {
+	    return (num_scheduled - curr);
+	}
+
+	return 0;
     }
 
     public Card getCard()
@@ -279,6 +283,7 @@ class RevQueue {
 	    } else {
 		// scheduled cards done
 		shiftForgottenToNew();
+		num_scheduled = 0;
 		rebuildNewQueue();
 	    }
 	}

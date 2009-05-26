@@ -26,7 +26,7 @@
 #   To unlock and restore the state:	widget.unlockAndRestore()
 #
 
-import new
+import types
 
 def _setEnabledWithLocking(self, status=True):
     self._status = status
@@ -59,12 +59,8 @@ def add(obj):
     obj._locked = False
 
     obj._setEnabled = obj.setEnabled
-    obj.setEnabled = new.instancemethod(_setEnabledWithLocking,
-					obj, obj.__class__)
-    obj.disableAndLock = new.instancemethod(_disableAndLock,
-					    obj, obj.__class__)
-    obj.unlockAndRestore = new.instancemethod(_unlockAndRestore,
-					   obj, obj.__class__)
-    obj.removeLocking = new.instancemethod(_removeLocking,
-					   obj, obj.__class__)
+    obj.setEnabled = types.MethodType(_setEnabledWithLocking, obj)
+    obj.disableAndLock = types.MethodType(_disableAndLock, obj)
+    obj.unlockAndRestore = types.MethodType(_unlockAndRestore, obj)
+    obj.removeLocking = types.MethodType(_removeLocking, obj)
 
