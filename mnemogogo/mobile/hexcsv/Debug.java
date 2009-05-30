@@ -23,9 +23,10 @@ import javax.microedition.io.file.FileSystemRegistry;
 
 public class Debug
 {
+    public static boolean open = false;
     public static PrintStream logFile = null;
 
-    public Debug() {
+    public static void open() {
 	StringBuffer path = new StringBuffer("file://");
 	Enumeration roots = FileSystemRegistry.listRoots();
 
@@ -45,27 +46,42 @@ public class Debug
 	    } catch (SecurityException e) {
 	    } catch (IOException e) {}
 	}
+
+	open = true;
     }
 
     public static void log(String msg) {
-	logFile.print(msg);
-	logFile.flush();
+	if (!open) open();
+
+	if (logFile != null) {
+	    logFile.print(msg);
+	    logFile.flush();
+	}
     }
 
     public static void log(int msg) {
-	logFile.print(msg);
-	logFile.flush();
+	if (!open) open();
+
+	if (logFile != null) {
+	    logFile.print(msg);
+	    logFile.flush();
+	}
     }
 
     public static void log(long msg) {
-	logFile.print(msg);
-	logFile.flush();
+	if (!open) open();
+
+	if (logFile != null) {
+	    logFile.print(msg);
+	    logFile.flush();
+	}
     }
 
     public static void stopLog() {
 	if (logFile != null) {
 	    logFile.close();
 	    logFile = null;
+	    open = false;
 	}
     }
 }
