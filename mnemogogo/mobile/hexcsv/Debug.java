@@ -20,6 +20,7 @@ import java.io.PrintStream;
 import java.util.Enumeration;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileSystemRegistry;
+import javax.microedition.io.file.FileConnection;
 
 public class Debug
 {
@@ -37,14 +38,22 @@ public class Debug
 		path.append((String)roots.nextElement());
 		path.append("mnemogogo.log");
 
-		logFile = new PrintStream(
-		    Connector.openOutputStream(path.toString()));
+		System.out.println("Debug: " + path.toString());//XXX
+
+		FileConnection fconn = (FileConnection)Connector.open(path.toString());
+		if (!fconn.exists()) {
+		    fconn.create();
+		}
+		logFile = new PrintStream(fconn.openOutputStream());
 
 		if (logFile != null) {
 		    break;
 		}
 	    } catch (SecurityException e) {
-	    } catch (IOException e) {}
+		System.out.println("Debug: " + e.toString());//XXX
+	    } catch (IOException e) {
+		System.out.println("Debug: " + e.toString());//XXX
+	    }
 	}
 
 	open = true;
@@ -55,6 +64,16 @@ public class Debug
 
 	if (logFile != null) {
 	    logFile.print(msg);
+	    logFile.flush();
+	}
+    }
+
+    public static void logln(String msg) {
+	if (!open) open();
+
+	if (logFile != null) {
+	    logFile.print(msg);
+	    logFile.print("\n");
 	    logFile.flush();
 	}
     }
