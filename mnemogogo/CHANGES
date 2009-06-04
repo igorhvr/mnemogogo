@@ -1,3 +1,10 @@
+20090604 mnemogogo-0.9.3
+* Fix an export problem on Windows that caused a
+  java.lang.NumberFormatException in MnemoGoGo
+* Fix an export problem on Windows that put backslashes
+  rather than slashes in html img paths.
+(Thanks to Johannes Charman for reporting and testing these bugs on Windows)
+
 20090526 mnemogogo-0.9.2
 * Fix a bug in the transition from scheduled cards to new/forgotten cards.
 * Use the types module in locking_enabling.py instead of the deprecated

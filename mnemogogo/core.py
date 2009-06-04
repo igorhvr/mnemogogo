@@ -97,8 +97,9 @@ def encode_filename(filename):
 
 def map_img_path(x, new_ext):
     (root, ext) = os.path.splitext(x)
-    return os.path.join('img',
-	encode_filename(os.path.basename(root)) + '.' + new_ext)
+    return ('img' + '/' +
+	    encode_filename(os.path.basename(root).replace(' ', '_')) +
+	    '.' + new_ext)
 
 class Export(Job):
     categories = []

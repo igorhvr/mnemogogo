@@ -19,7 +19,7 @@ Development
 -----------
 To implement a mobile platform using the htmlcvs interface and library,
 see the file:
-    mnemogogo/mobile/htmlcsv/template.c
+    mnemogogo/mobile/hexcsv/template.c
 
 Please submit your applications to the Mnemosyne site!
 

@@ -59,24 +59,24 @@ class BasicExport(mnemogogo.Export):
 	    
 	    self.add_style_file(join(self.card_path, 'style.css'))
 
-	sfile = open(join(self.sync_path, 'start_time'), 'w')
+	sfile = open(join(self.sync_path, 'start_time'), 'wb')
 	sfile.write(str(start_time) + '\n')
 	sfile.close()
 	self.extra_config['start_time'] = str(start_time);
 
 	last_day = int(time() / 86400) + num_days;
-	sfile = open(join(self.sync_path, 'last_day'), 'w')
+	sfile = open(join(self.sync_path, 'last_day'), 'wb')
 	sfile.write(str(last_day) + '\n')
 	sfile.close()
 	self.extra_config['last_day'] = str(last_day);
 
-	sfile = open(join(self.sync_path, 'prelog'), 'w')
+	sfile = open(join(self.sync_path, 'prelog'), 'wb')
 	sfile.close()
 
-	self.statfile = open(join(self.sync_path, 'stats.csv'), 'w')
+	self.statfile = open(join(self.sync_path, 'stats.csv'), 'wb')
 	self.statfile.write(str(num_cards) + '\n')
 
-	self.idfile = open(join(self.sync_path, 'ids'), 'w')
+	self.idfile = open(join(self.sync_path, 'ids'), 'wb')
 	self.serial_num = 0
 
     def close(self):
@@ -118,7 +118,7 @@ class BasicExport(mnemogogo.Export):
 	    self.collect_sounds()
     
     def write_config(self, config):
-	cfile = open(join(self.sync_path, 'config'), 'w')
+	cfile = open(join(self.sync_path, 'config'), 'wb')
 	for c in config.iteritems():
 	    cfile.write("%s=%s\n" % c)
 
