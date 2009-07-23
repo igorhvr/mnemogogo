@@ -20,6 +20,7 @@ import os.path
 import shutil
 import re
 import itertools
+import random
 from sets import Set
 import traceback
 
@@ -427,6 +428,7 @@ def extra_cards(items):
 def cards_for_ndays(days = 0, extra = 1.00):
             
     items = mnemosyne.core.get_items()
+    random.shuffle(items)
     revision_queue = []
 
     if len(items) == 0:
