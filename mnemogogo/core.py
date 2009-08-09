@@ -222,7 +222,10 @@ class Export(Job):
 
 	for file in os.listdir(dstpath):
 	    if file not in moved:
-		os.remove(os.path.join(dstpath, file))
+		try:
+		    os.remove(os.path.join(dstpath, file))
+		except:
+		    print >> sys.stderr, "Could not remove: %s" % file
 
     def collect_images(self, dst_subdir=os.path.join('cards', 'img'),
 		       percentage_max=80):
