@@ -1,5 +1,7 @@
-200906__ mnemogogo-0.9.4
+20090905 mnemogogo-0.9.4
 * Randomize the choice of new cards.
+* No longer crashes when a file cannot be removed.
+* Open files with US-ASCII instead of ASCII
 
 20090604 mnemogogo-0.9.3
 * Fix an export problem on Windows that caused a

@@ -36,7 +36,7 @@ public class HexCsv
     public OutputStreamWriter logfile;
     public String categories[];
 
-    public static String ascii = "ASCII";
+    public static String ascii = "US-ASCII";
     public static String utf8 = "UTF-8";
 
     public HexCsv(String path, Progress prog)
