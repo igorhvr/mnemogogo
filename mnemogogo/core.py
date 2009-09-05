@@ -227,12 +227,11 @@ class Export(Job):
 		except:
 		    print >> sys.stderr, "Could not remove: %s" % file
 
-    def collect_images(self, dst_subdir=os.path.join('cards', 'img'),
-		       percentage_max=80):
+    def collect_images(self, dst_subdir='IMG', percentage_max=80):
 	self.collect_files(self.imgs, 'gogo_img', dst_subdir, None,
 			   percentage_max);
 
-    def collect_sounds(self, dst_subdir=os.path.join('cards', 'snd'),
+    def collect_sounds(self, dst_subdir='SND',
 		       fcopy=shutil.copy, percentage_max=100):
 	self.collect_files(self.snds, 'gogo_snd', dst_subdir, fcopy,
 			   percentage_max);
@@ -587,11 +586,11 @@ def do_import(interface, sync_path, progress_bar=None):
     for (card, stats) in new_stats:
 	stats_to_card(stats, card)
 
-    shutil.move(os.path.join(sync_path, 'stats.csv'),
-		os.path.join(sync_path, 'old-stats.csv'))
+    shutil.move(os.path.join(sync_path, 'STATS.CSV'),
+		os.path.join(sync_path, 'OLDSTATS.CSV'))
 
     # Import logging details
-    logpath = os.path.join(sync_path, 'log')
+    logpath = os.path.join(sync_path, 'LOG')
     if os.path.exists(logpath):
 	log = open(logpath)
 

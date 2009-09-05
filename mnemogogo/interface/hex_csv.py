@@ -14,7 +14,7 @@
 
 #
 # Basic exporter:
-#   * Questions and Answers to separate html files.
+#   * Questions and Answers to a single file.
 #   * Statistics to a csv file.
 #   * Collect images into subdirectory.
 #
@@ -29,59 +29,42 @@ import re
 
 class BasicExport(mnemogogo.Export):
 
-    single_cardfile = False
-
     extra_config = {}
 
     # abstract
-    def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
+    def write_data(self, cardfile, serial_num, q, a, cat, is_overlay):
 	pass
 
     def open(self, start_time, num_days, num_cards):
 	if not exists(self.sync_path): mkdir(self.sync_path)
-	self.card_path = join(self.sync_path, 'cards')
 	self.num_cards = num_cards
 
-	if self.single_cardfile:
-	    self.cardfile_path = join(self.sync_path, 'cards.db')
-	    self.cardfile = open(self.cardfile_path, 'wb')
-	else:
-	    self.img_path = join(self.card_path, 'img')
-	    self.snd_path = join(self.card_path, 'snd')
+	self.cardfile_path = join(self.sync_path, 'CARDS')
+	self.cardfile = open(self.cardfile_path, 'wb')
 
-	    if not exists(self.card_path): mkdir(self.card_path)
-	    if not exists(self.snd_path): mkdir(self.snd_path)
+	self.img_path = join(self.sync_path, 'IMG')
+	self.snd_path = join(self.sync_path, 'SND')
 
-	    for stale_html in listdir(self.card_path):
-		(_, ext) = splitext(stale_html)
-		if (ext == '.htm' or ext == '.txt'):
-		    remove(join(self.card_path, stale_html))
-	    
-	    self.add_style_file(join(self.card_path, 'style.css'))
+	if not exists(self.img_path): mkdir(self.img_path)
+	if not exists(self.snd_path): mkdir(self.snd_path)
 
-	sfile = open(join(self.sync_path, 'start_time'), 'wb')
-	sfile.write(str(start_time) + '\n')
-	sfile.close()
 	self.extra_config['start_time'] = str(start_time);
 
 	last_day = int(time() / 86400) + num_days;
-	sfile = open(join(self.sync_path, 'last_day'), 'wb')
-	sfile.write(str(last_day) + '\n')
-	sfile.close()
 	self.extra_config['last_day'] = str(last_day);
 
-	sfile = open(join(self.sync_path, 'prelog'), 'wb')
+	sfile = open(join(self.sync_path, 'PRELOG'), 'wb')
 	sfile.close()
 
-	self.statfile = open(join(self.sync_path, 'stats.csv'), 'wb')
+	self.statfile = open(join(self.sync_path, 'STATS.CSV'), 'wb')
 	self.statfile.write(str(num_cards) + '\n')
 
-	self.idfile = open(join(self.sync_path, 'ids'), 'wb')
+	self.idfile = open(join(self.sync_path, 'IDS'), 'wb')
 	self.serial_num = 0
 
     def close(self):
 
-	catfile = codecs.open(join(self.sync_path, 'categories'),
+	catfile = codecs.open(join(self.sync_path, 'CATS'),
 			      'w', encoding='UTF-8')
 
 	size_in_bytes = (sum([len(c.encode('UTF-8')) for c in self.categories])
@@ -95,30 +78,13 @@ class BasicExport(mnemogogo.Export):
 
 	self.statfile.close()
 	self.idfile.close()
+	self.cardfile.close()
 
-	if self.single_cardfile:
-	    tmpdir = tempnam()
-	    mkdir(tmpdir)
-
-	    self.collect_images(tmpdir)
-	    for file in listdir(tmpdir):
-		self.copy_to_cardfile(join('cards', 'img', file),
-				      join(tmpdir, file))
-	    rmtree(tmpdir)
-
-	    mkdir(tmpdir)
-	    self.collect_sounds(tmpdir)
-	    for file in listdir(tmpdir):
-		self.copy_to_cardfile(join('cards', 'snd', file),
-				      join(tmpdir, file))
-
-	    self.cardfile.close()
-	else:
-	    self.collect_images()
-	    self.collect_sounds()
+	self.collect_images()
+	self.collect_sounds()
     
     def write_config(self, config):
-	cfile = open(join(self.sync_path, 'config'), 'wb')
+	cfile = open(join(self.sync_path, 'CONFIG'), 'wb')
 	for c in config.iteritems():
 	    cfile.write("%s=%s\n" % c)
 
@@ -143,7 +109,6 @@ class BasicExport(mnemogogo.Export):
 	except KeyError:
 	    self.statfile.write(",ffff")
 
-	#self.statfile.write("%d", (self.is_overlay(q) or self.is_overlay(a)))
 	self.statfile.write("\n");
 
 	self.idfile.write(id + '\n')
@@ -153,35 +118,24 @@ class BasicExport(mnemogogo.Export):
 	(q, a) = self.do_sounds(self.serial_num, q, a);
 
 	# Write card data
-	self.write_data(self.card_path, self.serial_num, q, a, cat,
+	self.write_data(self.cardfile, self.serial_num, q, a, cat,
 			 (self.is_overlay(q) or self.is_overlay(a)))
 
 	self.serial_num += 1
 	self.percentage_complete = (self.serial_num * 80) / self.num_cards
-	    # leave 20% for images/sounds
+	    # cludge: leave 20% for images/sounds
 
-    def write_to_cardfile(self, filename, data):
-	self.cardfile.write(filename.encode('UTF-8') + '\n')
+    def write_to_cardfile(self, data):
 	dataenc = data.encode('UTF-8')
 	self.cardfile.write('%d\n' % len(dataenc))
 	self.cardfile.write(dataenc)
 	self.cardfile.write('\n')
 
-    def copy_to_cardfile(self, filename, srcpath):
-	srcfile = open(srcpath, 'rb')
-	data = srcfile.read()
-	srcfile.close()
-
-	self.cardfile.write(filename.encode('UTF-8') + '\n')
-	self.cardfile.write('%d\n' % len(data))
-	self.cardfile.write(data)
-	self.cardfile.write('\n')
-
 class Import(mnemogogo.Import):
     def open(self):
-	self.statfile = open(join(self.sync_path, 'stats.csv'), 'r')
+	self.statfile = open(join(self.sync_path, 'STATS.CSV'), 'r')
 	self.num_cards = int(self.statfile.readline())
-	self.idfile = open(join(self.sync_path, 'ids'), 'r')
+	self.idfile = open(join(self.sync_path, 'IDS'), 'r')
 	self.num_stats = len(self.learning_data)
 	self.line = 0
 	self.serial_num = 0
@@ -191,8 +145,8 @@ class Import(mnemogogo.Import):
 	self.statfile.close()
 	self.idfile.close()
 
-	prelog_path = join(self.sync_path, 'prelog')
-	postlog_path = join(self.sync_path, 'log')
+	prelog_path = join(self.sync_path, 'PRELOG')
+	postlog_path = join(self.sync_path, 'LOG')
 
 	if not exists(prelog_path):
 	    return
@@ -236,11 +190,25 @@ class Import(mnemogogo.Import):
 
 	return (id, dict(zip(self.learning_data, stats)))
 
+    def read_config(self):
+	config = {}
+
+	cfile = open(join(self.sync_path, 'CONFIG'), 'rb')
+	configline_re = re.compile(r'(?P<name>[^=]+)=(?P<value>.*)')
+
+	line = cfile.readline()
+	while line != '':
+	    r = configline_re.match(line.rstrip())
+	    config[r.group('name')] = r.group('value')
+
+	    line = cfile.readline()
+
+	cfile.close()
+	return config
+
     def get_start_time(self):
-	sfile = open(join(self.sync_path, 'start_time'), 'r')
-	timestr = sfile.readline().rstrip()
-	sfile.close()
-	return long(timestr)
+	config = self.read_config()
+	return long(config['start_time'])
 
 # MnemoJoJo Exporter
 
@@ -305,7 +273,7 @@ class JoJoExport(BasicExport):
 	    text = mat.sub(rep, text)
 	return text;
 
-    def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
+    def write_data(self, cardfile, serial_num, q, a, cat, is_overlay):
 	q = self.convert(q)
 	a = self.convert(a)
 
@@ -321,18 +289,8 @@ class JoJoExport(BasicExport):
 	    ad = ad + ('<p>%s%s%s</p><hr/>' % (ot, q, ct))
 	ad = ad + ('<p>%s%s%s</p></body>' % (ot, a, ct))
 
-	if self.single_cardfile:
-	    self.write_to_cardfile(join('cards', 'Q%04x.htm' % serial_num), qd)
-	    self.write_to_cardfile(join('cards', 'A%04x.htm' % serial_num), ad)
-	else:
-	    cfile = codecs.open(join(card_path, 'Q%04x.htm' % serial_num),
-				'w', encoding='UTF-8')
-	    cfile.write(qd);
-	    cfile.close();
-	    cfile = codecs.open(join(card_path, 'A%04x.htm' % serial_num),
-				'w', encoding='UTF-8')
-	    cfile.write(ad);
-	    cfile.close();
+	self.write_to_cardfile(qd)
+	self.write_to_cardfile(ad)
 
     def do_images(self, serial_num, q, a):
 	self.extract_image_paths(q)
@@ -360,7 +318,6 @@ class JoJoHexCsv128x128(mnemogogo.Interface):
 
     def start_export(self, sync_path):
 	e = JoJoExport(self, sync_path)
-	# e.single_cardfile = True
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = False
@@ -383,7 +340,6 @@ class JoJoHexCsv128x160(mnemogogo.Interface):
 
     def start_export(self, sync_path):
 	e = JoJoExport(self, sync_path)
-	# e.single_cardfile = True
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = False
@@ -406,7 +362,6 @@ class JoJoHexCsv240x300(mnemogogo.Interface):
 
     def start_export(self, sync_path):
 	e = JoJoExport(self, sync_path)
-	# e.single_cardfile = True
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = False
@@ -429,7 +384,6 @@ class JoJoHexCsv640x480(mnemogogo.Interface):
 
     def start_export(self, sync_path):
 	e = JoJoExport(self, sync_path)
-	# e.single_cardfile = True
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = False
