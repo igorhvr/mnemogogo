@@ -31,8 +31,6 @@ public class FindCardDir
 	boolean hasStats = false;
 	boolean hasCategories = false;
 	boolean hasConfig = false;
-	boolean hasLastDay = false;
-	boolean hasStartTime = false;
 	boolean hasCards = false;
 
 	try {
@@ -47,25 +45,16 @@ public class FindCardDir
 	    while (e.hasMoreElements()) {
 		String f = (String)e.nextElement();
 
-		if (f.equals("stats.csv")) {
+		if (f.equals("STATS.CSV")) {
 		    hasStats = true;
 
-		} else if (f.equals("categories")) {
+		} else if (f.equals("CATS")) {
 		    hasCategories = true;
 
-		} else if (f.equals("config")) {
+		} else if (f.equals("CONFIG")) {
 		    hasConfig = true;
 
-		} else if (f.equals("last_day")) {
-		    hasLastDay = true;
-
-		} else if (f.equals("start_time")) {
-		    hasStartTime = true;
-
-		} else if (f.equals("cards/")) {
-		    hasCards = true;
-
-		} else if (f.equals("cards.db")) {
+		} else if (f.equals("CARDS")) {
 		    hasCards = true;
 		}
 	    }
@@ -79,8 +68,6 @@ public class FindCardDir
 	return (hasStats
 		&& hasCategories
 		&& hasConfig
-		&& hasLastDay
-		&& hasStartTime
 		&& hasCards);
     }
 

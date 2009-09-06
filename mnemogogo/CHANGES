@@ -1,5 +1,7 @@
 200909__ mnemogogo-0.9.5
 * MAJOR CHANGE: new export/import format
+* Handle a missing Python Image Library more gracefully
+* Tidy up image handling functions
 
 20090905 mnemogogo-0.9.4
 * Randomize the choice of new cards.

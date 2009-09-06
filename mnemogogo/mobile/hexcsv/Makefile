@@ -26,9 +26,9 @@ template: template.c hexcsv.o
 
 # Java
 
-java: HexCsv.class FindCardDir.class LoadedCard.class
+java: HexCsv.class FindCardDir.class
 HexCsv.class: HexCsv.java Card.class Config.class RevQueue.class StatIO.class \
-	CardList.class
+	CardList.class CardData.class
 Card.class: Card.java StatIO.class CardList.class
 Config.class: Config.java
 RevQueue.class: RevQueue.java Config.class StatIO.class Card.class Progress.class
@@ -36,8 +36,7 @@ StatIO.class: StatIO.java
 CardList.class: CardList.java
 FindCardDir.class: FindCardDir.java Progress.class
 Progress.class: Progress.java
-LoadedCard.class: LoadedCard.java
-Unpack.class: Unpack.java Progress.class
+CardData.class: CardData.java Progress.class
 
 # General
 

@@ -40,6 +40,9 @@ public class Card
     public int inverse;
     public int category;
     public boolean skip;
+    public String question;
+    public String answer;
+    public boolean overlay;
     private CardList cardlookup;
 
     private static Random rand = new Random();

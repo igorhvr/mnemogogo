@@ -17,6 +17,7 @@ package mnemogogo.mobile.hexcsv;
 import java.lang.*;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Date;
 import javax.microedition.io.Connector;
@@ -24,7 +25,7 @@ import java.io.OutputStream;
 import javax.microedition.io.file.FileConnection; /*JSR-75*/
 
 public class HexCsv
-    implements CardList
+    implements CardList, CardDataSet
 {
     private Card cards[];
     private RevQueue q;
@@ -55,30 +56,23 @@ public class HexCsv
 	readConfig(p);
 
 	v = config.getString("last_day");
-	if (v != null) {
-	    days_left = daysLeft(Long.parseLong(v));
-	} else {
-	    p.delete(path_len, p.length());
-	    readDaysLeft(p);
-	}
+	days_left = daysLeft(Long.parseLong(v));
 
 	v = config.getString("start_time");
-	if (v != null) {
-	    days_since_start = daysSinceStart(Long.parseLong(v));
-	} else {
-	    p.delete(path_len, p.length());
-	    calculateDaysSinceStart(p);
-	}
+	days_since_start = daysSinceStart(Long.parseLong(v));
 
 	p.delete(path_len, p.length());
 	readCards(p);
+
+	p.delete(path_len, p.length());
+	readCardText(p);
 
 	p.delete(path_len, p.length());
 	readCategories(p);
 
 	if (config.logging()) {
 	    p.delete(path_len, p.length());
-	    p.append("prelog");
+	    p.append("PRELOG");
 
 	    FileConnection file =
 		(FileConnection)Connector.open(p.toString());
@@ -107,7 +101,7 @@ public class HexCsv
 	throws IOException
     {
 	InputStreamReader in = new InputStreamReader(
-		Connector.openInputStream(path.append("config").toString()),
+		Connector.openInputStream(path.append("CONFIG").toString()),
 		ascii);
 	config = new Config(in);
 	in.close();
@@ -121,18 +115,6 @@ public class HexCsv
 	return (adjusted_now - start_time) / 86400;
     }
 
-    private void calculateDaysSinceStart(StringBuffer path)
-	throws IOException
-    {
-	InputStreamReader in = new InputStreamReader(
-	    Connector.openInputStream(path.append("start_time").toString()),
-	    ascii);
-	long start_time = StatIO.readLong(in);
-	in.close();
-
-	days_since_start = daysSinceStart(start_time);
-    }
-
     public int daysLeft() {
 	return days_left;
     }
@@ -143,24 +125,11 @@ public class HexCsv
 	return (int)(last_day - (now.getTime() / 86400000));
     }
 
-    private void readDaysLeft(StringBuffer path)
-	throws IOException
-    {
-
-	InputStreamReader in = new InputStreamReader(
-	    Connector.openInputStream(path.append("last_day").toString()),
-	    ascii);
-	long last_day = StatIO.readLong(in);
-	in.close();
-
-	days_left = daysLeft(last_day);
-    }
-
     private void readCards(StringBuffer path)
 	throws IOException
     {
 	InputStreamReader in = new InputStreamReader(
-	    Connector.openInputStream(path.append("stats.csv").toString()),
+	    Connector.openInputStream(path.append("STATS.CSV").toString()),
 	    ascii);
 
 	int ncards = StatIO.readInt(in);
@@ -185,7 +154,7 @@ public class HexCsv
 	throws IOException
     {
 	OutputStreamWriter out = new OutputStreamWriter(
-	    Connector.openOutputStream(path.append("stats.csv").toString()),
+	    Connector.openOutputStream(path.append("STATS.CSV").toString()),
 	    ascii);
 
 	StatIO.writeInt(out, cards.length, "\n");
@@ -206,8 +175,7 @@ public class HexCsv
 	throws IOException
     {
 	InputStreamReader in = new InputStreamReader(
-	    Connector.openInputStream(path.append("categories").toString()),
-	    utf8);
+	    Connector.openInputStream(path.append("CATS").toString()), utf8);
 
 	int n = StatIO.readInt(in);
 	int bytesize = StatIO.readInt(in);
@@ -218,6 +186,31 @@ public class HexCsv
 	}
 
 	in.close();
+    }
+
+    public void setCardData(int serial, String question, String answer,
+		boolean overlay)
+    {
+	cards[serial].overlay = overlay;
+	cards[serial].question = question;
+	cards[serial].answer = answer;
+    }
+
+    public boolean cardDataNeeded(int serial)
+    {
+	return (cards[serial].isDueForRetentionRep(days_since_start)
+		|| cards[serial].isDueForAcquisitionRep());
+    }
+
+    private void readCardText(StringBuffer path)
+	throws IOException
+    {
+	DataInputStream is = Connector.openDataInputStream(
+	    path.append("CARDS").toString());
+
+	CardData carddata = new CardData(is, progress, this);
+
+	is.close();
     }
 
     public int numScheduled() {

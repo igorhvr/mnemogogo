@@ -92,20 +92,13 @@ class Job:
 	title = self.interface.description + ' interface: '
 	raise InterfaceError(title + msg)
 
-def encode_filename(filename):
-    (root, ext) = os.path.splitext(filename)
-    return root.encode('punycode') + ext
-
-def map_img_path(x, new_ext):
-    (root, ext) = os.path.splitext(x)
-    return ('img' + '/' +
-	    encode_filename(os.path.basename(root).replace(' ', '_')) +
-	    '.' + new_ext)
-
 class Export(Job):
     categories = []
-    imgs = []
-    snds = []
+    imgs = {}
+    img_cnt = 0
+    snds = {}
+    snd_cnt = 0
+    name_with_numbers = True
 
     img_max_width = None
     img_max_height = None
@@ -143,98 +136,28 @@ class Export(Job):
 	return (abox == 'overlay')
     
     def remove_overlay(self, text):
-	mnemosyne.pyqt_ui.card_prop.re_card_props.sub('', text)
-	return text
+	return mnemosyne.pyqt_ui.card_prop.re_card_props.sub('', text)
 
     def call_hooks(self, target, hook):
 	if hook in mnemosyne.core.function_hooks:
 	    for f in mnemosyne.core.function_hooks[hook]:
 		f(target)
 
-    def extract_image_paths(self, text):
-	for r in self.re_img.finditer(text):
-	    self.imgs.append(r.group('path'))
-
-    def extract_sound_paths(self, text):
-	for r in self.re_snd.finditer(text):
-	    self.snds.append(r.group('path'))
-
-    def map_paths(self, reg, re_split, text, f):
-	stext = re_split.split(text)
-	ntext = []
-
-	for ele in stext:
-	    r = reg.match(ele)
-	    if r:
-		ele = (r.group('before')
-		       + ' src="' + f(r.group('path'))
-		       + '" ' + r.group('after'))
-	    ntext.append(ele)
-
-	return ''.join(ntext)
-
-    def map_image_paths(self, text, f=None):
-	if not f:
-	    if self.img_to_ext:
-		f=(lambda x: map_img_path(x, self.img_to_ext))
-	    else:
-		f=(lambda x: os.path.join('img', os.path.basename(x)))
-	return self.map_paths(self.re_img, self.re_img_split, text, f)
-
-    def map_sound_paths(self, text,
-			f=(lambda x: os.path.join('snd', os.path.basename(x)))):
-	return self.map_paths(self.re_snd, self.re_snd_split, text, f)
-
-    def collect_files(self, list, hook_name, dst_subdir, fcopy,
-		      percentage_max=100):
-
+    def tidy_files(self, dst_subdir, list):
 	dstpath = os.path.join(self.sync_path, dst_subdir)
-	if not os.path.exists(dstpath):
-	    os.mkdir(dstpath)
-	
-	percentage_base = self.percentage_complete
-	percentage_stretch = (percentage_max - percentage_base)
-	total = len(list)
-	count = 0
-
-	moved = Set()
-	for src in list:
-	    dst = os.path.join(dstpath, encode_filename(os.path.basename(src)))
-
-	    try:
-		if fcopy:
-		    if (not os.path.exists(dst)
-			or (os.path.getmtime(dst) < os.path.getmtime(src))):
-			fcopy(src, dst)
-		else:
-		    (wasmoved, dst) = self.convert_img(src, dst)
-		    if wasmoved:
-			self.call_hooks(dst, hook_name)
-	    except Exception, e:
-		print >> sys.stderr, "Error copying file: %s" % e
-
-	    moved.add(os.path.basename(dst))
-
-	    count += 1
-	    if self.progress_bar:
-		self.progress_bar.setProgress(
-		    count * percentage_stretch / total + percentage_base)
 
 	for file in os.listdir(dstpath):
-	    if file not in moved:
+	    if os.path.join(dst_subdir, file) not in list:
 		try:
 		    os.remove(os.path.join(dstpath, file))
 		except:
 		    print >> sys.stderr, "Could not remove: %s" % file
 
-    def collect_images(self, dst_subdir='IMG', percentage_max=80):
-	self.collect_files(self.imgs, 'gogo_img', dst_subdir, None,
-			   percentage_max);
+    def tidy_images(self, dst_subdir):
+	self.tidy_files(dst_subdir, self.imgs.values())
 
-    def collect_sounds(self, dst_subdir='SND',
-		       fcopy=shutil.copy, percentage_max=100):
-	self.collect_files(self.snds, 'gogo_snd', dst_subdir, fcopy,
-			   percentage_max);
+    def tidy_sounds(self, dst_subdir):
+	self.tidy_files(dst_subdir, self.snds.values())
     
     def add_style_file(self, dstpath):
 	shutil.copy(os.path.join(self.gogo_dir, 'style.css'), dstpath)
@@ -247,18 +170,34 @@ class Export(Job):
 	    self.categories.append(cat)
 	return i
 
-    def convert_img(self, src, dst):
-	if self.img_to_ext:
-	    (dst_base, dst_ext) = os.path.splitext(dst)
-	    dst = dst_base + '.' + self.img_to_ext
+    def map_paths(self, reg, re_split, text, mapping):
+	stext = re_split.split(text)
+	ntext = []
+
+	for ele in stext:
+	    r = reg.match(ele)
+	    if r:
+		ele = (r.group('before')
+		       + ' src="' + mapping[r.group('path')]
+		       + '" ' + r.group('after'))
+	    ntext.append(ele)
+
+	return ''.join(ntext)
+
+    def convert_img(self, src, dst_subdir, dst_name, dst_ext):
+	dst_file = dst_name + '.' + dst_ext
+	dst = os.path.join(self.sync_path, dst_subdir, dst_file)
 
 	if (os.path.exists(dst) and
 		(os.path.getmtime(src) < os.path.getmtime(dst))):
-	    return (False, dst)
+	    return (False, dst_file)
 
 	if not hasImageModule:
+	    (src_base, src_ext) = os.path.splitext(src)
+	    dst_file = dst_name + '.' + src_ext.upper()
+	    dst = os.path.join(self.sync_path, dst_subdir, dst_file)
 	    shutil.copy(src, dst)
-	    return (True, dst)
+	    return (True, dst_file)
 
 	im = Image.open(src)
 	(width, height) = im.size
@@ -306,7 +245,51 @@ class Export(Job):
 	    shutil.rmtree(tmpdstdir)
 
 	im.save(dst)
-	return (True, dst)
+	return (True, dst_file)
+
+    def handle_images(self, dst_subdir, text):
+	for r in self.re_img.finditer(text):
+	    src = r.group('path')
+
+	    if not (src in self.imgs):
+		(src_root, src_ext) = os.path.splitext(os.path.basename(src))
+		if self.name_with_numbers:
+		    name = '%08X' % self.img_cnt
+		else:
+		    name = src_root.encode('punycode').upper()
+		self.img_cnt += 1
+
+		(moved, dst) = self.convert_img(src, dst_subdir, name,
+			self.img_to_ext)
+		if moved:
+		    self.call_hooks(os.path.join(
+			self.sync_path, dst_subdir, dst), 'gogo_img')
+
+		self.imgs[src] = os.path.join(dst_subdir, dst)
+
+	return self.map_paths(self.re_img, self.re_img_split, text, self.imgs)
+
+    def handle_sounds(self, dst_subdir, text):
+	for r in self.re_snd.finditer(text):
+	    src = r.group('path')
+
+	    if not (src in self.snds):
+		(src_root, src_ext) = os.path.splitext(os.path.basename(src))
+		if self.name_with_numbers:
+		    name = '%08X' % self.snd_cnt
+		else:
+		    name = src_root.encode('punycode').upper()
+		self.snd_cnt += 1
+
+		dst = name + '.' + src_ext
+		dst_path = os.path.join(self.sync_path, dst_subdir, dst)
+		shutil.copy(src_path, dst_path)
+
+		if moved:
+		    self.call_hooks(dst_path, 'gogo_snd')
+		self.snds[src_path] = os.path.join(dst_subdir, dst)
+
+	return self.map_paths(self.re_snd, self.re_snd_split, text, self.snds)
 
 class Import(Job):
     def __iter__(self):

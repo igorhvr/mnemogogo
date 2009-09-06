@@ -41,9 +41,15 @@ class BasicExport(mnemogogo.Export):
 
 	self.cardfile_path = join(self.sync_path, 'CARDS')
 	self.cardfile = open(self.cardfile_path, 'wb')
+	self.cardfile.write(str(num_cards) + '\n')
 
 	self.img_path = join(self.sync_path, 'IMG')
+	if not exists(self.img_path):
+	    os.mkdir(self.img_path)
+
 	self.snd_path = join(self.sync_path, 'SND')
+	if not exists(self.snd_path):
+	    os.mkdir(self.snd_path)
 
 	if not exists(self.img_path): mkdir(self.img_path)
 	if not exists(self.snd_path): mkdir(self.snd_path)
@@ -80,8 +86,8 @@ class BasicExport(mnemogogo.Export):
 	self.idfile.close()
 	self.cardfile.close()
 
-	self.collect_images()
-	self.collect_sounds()
+	self.tidy_images('IMG')
+	self.tidy_sounds('SND')
     
     def write_config(self, config):
 	cfile = open(join(self.sync_path, 'CONFIG'), 'wb')
@@ -257,6 +263,8 @@ class JoJoExport(BasicExport):
     add_center_tag = False
 
     def convert(self, text):
+	text = self.remove_overlay(text)
+
 	if not self.conversions:
 	    for (name, rgb) in color_map:
 		self.raw_conversions.append(make_map_color_re(name, rgb))
@@ -281,36 +289,29 @@ class JoJoExport(BasicExport):
 	if self.add_center_tag:
 	    (ot, ct) = ('<center>', '</center>')
 
-	qd = '<?xml version="1.0" encoding="UTF-8"?>\n'
-	qd = qd + ('<body><p>%s%s%s</p></body>' % (ot, q, ct))
+	if is_overlay:
+	    self.cardfile.write('1\n')
+	else:
+	    self.cardfile.write('0\n')
 
-	ad = '<?xml version="1.0" encoding="UTF-8"?>\n<body>'
-	if not is_overlay:
-	    ad = ad + ('<p>%s%s%s</p><hr/>' % (ot, q, ct))
-	ad = ad + ('<p>%s%s%s</p></body>' % (ot, a, ct))
-
-	self.write_to_cardfile(qd)
-	self.write_to_cardfile(ad)
+	self.write_to_cardfile(('%s%s%s' % (ot, q, ct)))
+	self.write_to_cardfile(('%s%s%s' % (ot, a, ct)))
 
     def do_images(self, serial_num, q, a):
-	self.extract_image_paths(q)
-	q = self.map_image_paths(q)
-	self.extract_image_paths(a)
-	a = self.map_image_paths(a)
+	q = self.handle_images('IMG', q)
+	a = self.handle_images('IMG', a)
 	return (q, a)
 
     def do_sounds(self, serial_num, q, a):
-	self.extract_sound_paths(q)
-	q = self.map_sound_paths(q)
-	self.extract_sound_paths(a)
-	a = self.map_sound_paths(a)
+	q = self.handle_sounds('SND', q)
+	a = self.handle_sounds('SND', a)
 	return (q, a)
 
 class JoJoHexCsv128x128(mnemogogo.Interface):
     max_width = 128
     max_height = 128
     max_size = 64
-    ext = 'png'
+    ext = 'PNG'
 
     description = ('MnemoJoJo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
@@ -323,6 +324,7 @@ class JoJoHexCsv128x128(mnemogogo.Interface):
 	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
+	e.name_with_numbers = False
 	return e
 
     def start_import(self, sync_path):
@@ -332,7 +334,7 @@ class JoJoHexCsv128x160(mnemogogo.Interface):
     max_width = 128
     max_height = 160
     max_size = 64
-    ext = 'png'
+    ext = 'PNG'
 
     description = ('MnemoJoJo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
@@ -345,6 +347,7 @@ class JoJoHexCsv128x160(mnemogogo.Interface):
 	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
+	e.name_with_numbers = False
 	return e
 
     def start_import(self, sync_path):
@@ -354,7 +357,7 @@ class JoJoHexCsv240x300(mnemogogo.Interface):
     max_width = 240
     max_height = 300
     max_size = 64
-    ext = 'png'
+    ext = 'PNG'
 
     description = ('MnemoJoJo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
@@ -367,6 +370,7 @@ class JoJoHexCsv240x300(mnemogogo.Interface):
 	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
+	e.name_with_numbers = False
 	return e
 
     def start_import(self, sync_path):
@@ -376,7 +380,7 @@ class JoJoHexCsv640x480(mnemogogo.Interface):
     max_width = 640
     max_height = 480
     max_size = 64
-    ext = 'png'
+    ext = 'PNG'
 
     description = ('MnemoJoJo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
@@ -389,6 +393,7 @@ class JoJoHexCsv640x480(mnemogogo.Interface):
 	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
+	e.name_with_numbers = False
 	return e
 
     def start_import(self, sync_path):
@@ -409,6 +414,7 @@ class TextExport(BasicExport):
     conversions = []
 
     def convert(self, text):
+	text = self.remove_overlay(text)
 	if not self.conversions:
 	    for (mat, rep) in self.raw_conversions:
 		self.conversions.append((re.compile(mat, re.DOTALL), rep))

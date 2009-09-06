@@ -16,22 +16,23 @@ package mnemogogo.mobile.hexcsv;
 
 import java.lang.*;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.EOFException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
-public class Unpack
+class CardData
 {
     static int bufferLen = 1024;
     byte[] buffer = new byte[bufferLen];
     int pos;
     Progress progress;
 
-    public Unpack(Progress p)
+    public CardData(DataInputStream is, Progress p, CardDataSet carddb)
+	throws IOException
     {
 	progress = p;
+	load(is, carddb);
     }
 
     boolean readByte(DataInputStream src)
@@ -47,20 +48,6 @@ public class Unpack
 	}
 
 	return true;
-    }
-
-    String readFilename(DataInputStream src)
-	throws IOException, EOFException
-    {
-	pos = 0;
-	while (readByte(src) && buffer[pos - 1] != '\n') {}
-
-	if (pos == 0) {
-	    throw new EOFException();
-	}
-
-	progress.updateOperation(pos);
-	return new String(buffer, 0, pos - 1, "UTF-8");
     }
 
     int readDecimal(DataInputStream src)
@@ -79,64 +66,66 @@ public class Unpack
 	return value;
     }
 
-    void copyBytes(DataInputStream in, DataOutputStream out, int len)
+    String readString(DataInputStream src)
 	throws IOException
     {
-	int s = 0;
+	int len = readDecimal(src);
 
-	while (len > 0 && s >= 0)  {
-	    s = in.read(buffer, 0, Math.min(len, bufferLen));
-	    if (s >= 0) {
-		out.write(buffer, 0, s);
-		len -= s;
-	    }
+	if (bufferLen < len) {
+	    bufferLen = len;
+	    buffer = new byte[bufferLen];
 	}
-    }
 
-    void unpackFile(StringBuffer path, DataInputStream src)
-	throws IOException
-    {
-	int origPathLen = path.length();
-	String filename = readFilename(src);
+	pos = 0;
+	while (readByte(src) && pos < len) {}
 
-	path.append(filename);
-	int size = readDecimal(src);
+	if (pos == 0) {
+	    throw new EOFException();
+	}
 
-	FileConnection c = (FileConnection)Connector.open(path.toString(),
-	    Connector.READ_WRITE);
-	c.create();
-	DataOutputStream dst = c.openDataOutputStream();
-	copyBytes(src, dst, size);
+	String r = new String(buffer, 0, pos, "UTF-8");
 
 	// Strip of the trailing new line
 	pos = 0;
 	readByte(src);
 
-	progress.updateOperation(size + 1);
-	path.delete(origPathLen, path.length());
-	dst.close();
-	c.close();
+	return r;
     }
 
-    public void unpack(DataInputStream src, String destpath)
+    void skipString(DataInputStream src)
 	throws IOException
     {
-	StringBuffer dstpath = new StringBuffer(destpath);
+	int len = readDecimal(src) + 1;	// + \n
+
+	while (len > 0) {
+	    len -= src.skip(len);
+	}
+    }
+
+    private void load(DataInputStream src, CardDataSet carddb)
+	throws IOException
+    {
+	int num_cards = readDecimal(src);
+	int overlay;
+	String qcard = null;
+	String acard = null;
 
 	try {
-	    while (true) {
-		unpackFile(dstpath, src);
+	    for (int i = 0; i < num_cards; ++i) {
+		overlay = readDecimal(src);
+		if (carddb.cardDataNeeded(i)) {
+		    qcard = readString(src);
+		    acard = readString(src);
+		} else {
+		    skipString(src);
+		    skipString(src);
+		}
+		carddb.setCardData(i, qcard, acard, overlay != 0);
+		progress.updateOperation(1);
 	    }
 	} catch (EOFException e) { }
 
 	src.close();
-    }
-
-    public void unpack(String filepath, String destpath)
-	throws IOException
-    {
-	DataInputStream is = Connector.openDataInputStream(filepath.toString());
-	unpack(is, destpath);
     }
 }
 
