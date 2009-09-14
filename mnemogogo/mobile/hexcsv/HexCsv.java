@@ -20,6 +20,8 @@ import java.io.OutputStreamWriter;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
 import javax.microedition.io.Connector;
 import java.io.OutputStream;
 import javax.microedition.io.file.FileConnection; /*JSR-75*/
@@ -122,7 +124,16 @@ public class HexCsv
     private int daysLeft(long last_day)
     {
 	Date now = new Date();
-	return (int)(last_day - (now.getTime() / 86400000));
+
+	// hours since epoch in UTC
+	long hours = now.getTime() / 3600000;
+	Calendar cal = Calendar.getInstance();
+	TimeZone tz = cal.getTimeZone();
+	long tzoff = tz.getRawOffset() / 3600000;
+	System.out.print("tzoff="); // XXX
+	System.out.println(tzoff); // XXX
+
+	return (int)(last_day - ((hours - tzoff - config.dayStartsAt()) / 24));
     }
 
     private void readCards(StringBuffer path)
