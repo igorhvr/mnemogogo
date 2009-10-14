@@ -117,7 +117,7 @@ public class HexCsv
     }
 
     public Card getCard(int serial) {
-	if (0 < serial && serial < cards.length) {
+	if (0 <= serial && serial < cards.length) {
 	    return cards[serial];
 	} else {
 	    return null;
