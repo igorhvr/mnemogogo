@@ -1,4 +1,4 @@
-Mnemogogo: Making Mnemosyne Mobile
+MnemoGoGo: Making Mnemosyne Mobile
 Timothy Bourke <timbob@bigpond.com>
 
 YOU USE THIS SOFTWARE AT YOUR OWN RISK. BACKUP YOUR FILES.
@@ -14,12 +14,4 @@ Installation
 
 2. Copy the mnemogogo_plugin.py file and mnemogogo directory to your
    Mnemosyne plugins directory.
-
-Development
------------
-To implement a mobile platform using the htmlcvs interface and library,
-see the file:
-    mnemogogo/mobile/hexcsv/template.c
-
-Please submit your applications to the Mnemosyne site!
 
