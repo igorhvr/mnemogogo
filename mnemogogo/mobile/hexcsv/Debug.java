@@ -38,8 +38,6 @@ public class Debug
 		path.append((String)roots.nextElement());
 		path.append("mnemogogo.log");
 
-		//System.out.println("Debug: " + path.toString());//XXX
-
 		FileConnection fconn = (FileConnection)Connector.open(path.toString());
 		if (!fconn.exists()) {
 		    fconn.create();
@@ -50,10 +48,7 @@ public class Debug
 		    break;
 		}
 	    } catch (SecurityException e) {
-		//System.out.println("Debug: " + e.toString());//XXX
-	    } catch (IOException e) {
-		//System.out.println("Debug: " + e.toString());//XXX
-	    }
+	    } catch (IOException e) { }
 	}
 
 	open = true;

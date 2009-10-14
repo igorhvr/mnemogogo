@@ -71,13 +71,12 @@ public class FindCardDir
 		&& hasCards);
     }
 
-    public static boolean isCardDir(StringBuffer path) {
+    public static boolean isCardDir(String path) {
 	boolean r = false;
 
 	try {
 	    FileConnection fconn =
-		(FileConnection)Connector.open(path.toString(),
-					       Connector.READ);
+		(FileConnection)Connector.open(path, Connector.READ);
 	    r = isCardDir(fconn);
 	    fconn.close();
 	} catch (IOException e) {
@@ -167,7 +166,7 @@ public class FindCardDir
 		    int last = pathbuf.length();
 		    pathbuf.append(standard[i]);
 
-		    if (isCardDir(pathbuf)) {
+		    if (isCardDir(pathbuf.toString())) {
 			paths.addElement(pathbuf.toString());
 		    }
 

@@ -39,8 +39,17 @@ public class HexCsv
     public OutputStreamWriter logfile;
     public String categories[];
 
-    public static String ascii = "US-ASCII";
-    public static String utf8 = "UTF-8";
+    public int cards_to_load = 50;
+
+    public static final String ascii = "US-ASCII";
+    public static final String utf8 = "UTF-8";
+
+    public static final String readingStatsText = "Loading statistics...";
+    public static final String writingStatsText = "Writing statistics...";
+    public static final String loadingCardsText = "Loading cards...";
+
+    private StringBuffer pathbuf;
+    private int path_len;
 
     public HexCsv(String path, Progress prog)
 	throws IOException
@@ -49,13 +58,14 @@ public class HexCsv
 	long start_time;
 	long adjusted_now;
 	int num_cards;
-	int path_len = path.length();
-	StringBuffer p = new StringBuffer(path_len + 20);
-	p.append(path);
+
+	path_len = path.length();
+	pathbuf = new StringBuffer(path_len + 20);
+	pathbuf.append(path);
 
 	progress = prog;
 
-	readConfig(p);
+	readConfig(pathbuf);
 
 	v = config.getString("last_day");
 	days_left = daysLeft(Long.parseLong(v));
@@ -63,24 +73,35 @@ public class HexCsv
 	v = config.getString("start_time");
 	days_since_start = daysSinceStart(Long.parseLong(v));
 
-	p.delete(path_len, p.length());
-	readCards(p);
+	truncatePathBuf();
+	readCards(pathbuf);
 
-	p.delete(path_len, p.length());
-	readCardText(p);
-
-	p.delete(path_len, p.length());
-	readCategories(p);
+	truncatePathBuf();
+	readCategories(pathbuf);
 
 	if (config.logging()) {
-	    p.delete(path_len, p.length());
-	    p.append("PRELOG");
+	    truncatePathBuf();
+	    pathbuf.append("PRELOG");
 
-	    FileConnection file =
-		(FileConnection)Connector.open(p.toString());
-	    OutputStream outs = file.openOutputStream(file.fileSize());
-	    logfile = new OutputStreamWriter(outs, ascii);
+	    try {
+		FileConnection file =
+		    (FileConnection)Connector.open(pathbuf.toString(),
+						   Connector.READ_WRITE);
+		if (!file.exists()) {
+		    file.create();
+		}
+
+		OutputStream outs = file.openOutputStream(file.fileSize() + 1);
+		logfile = new OutputStreamWriter(outs, ascii);
+	    } catch (Exception e) {
+		logfile = null;
+	    }
 	}
+    }
+
+    void truncatePathBuf()
+    {
+	pathbuf.delete(path_len, pathbuf.length());
     }
 
     public String getCategory(int n) {
@@ -127,13 +148,20 @@ public class HexCsv
 
 	// hours since epoch in UTC
 	long hours = now.getTime() / 3600000;
+
+	// offset from UTC to local in hours
 	Calendar cal = Calendar.getInstance();
 	TimeZone tz = cal.getTimeZone();
 	long tzoff = tz.getRawOffset() / 3600000;
-	System.out.print("tzoff="); // XXX
-	System.out.println(tzoff); // XXX
 
-	return (int)(last_day - ((hours - tzoff - config.dayStartsAt()) / 24));
+	// e.g.
+	// for day_starts_at = 3 (0300 local time)
+	// and UTC +8
+	// the next day should start at UTC 1900
+	// (not at UTC 0000)
+	// because 1900 + 8 - 3 = 0000
+
+	return (int)(last_day - ((hours + tzoff - config.dayStartsAt()) / 24));
     }
 
     private void readCards(StringBuffer path)
@@ -144,16 +172,18 @@ public class HexCsv
 	    ascii);
 
 	int ncards = StatIO.readInt(in);
-	progress.startOperation(ncards * 3);
+	progress.startOperation(ncards * 3, readingStatsText);
 
 	cards = new Card[ncards];
+	Card.cardlookup = this;
 
 	for (int i=0; i < ncards; ++i) {
-	    cards[i] = new Card(this, in, i);
+	    cards[i] = new Card(in, i);
 	    if (i % 10 == 0) {
 		progress.updateOperation(10);
 	    }
 	}
+	progress.stopOperation();
 
 	in.close();
 
@@ -170,7 +200,7 @@ public class HexCsv
 
 	StatIO.writeInt(out, cards.length, "\n");
 
-	progress.startOperation(cards.length);
+	progress.startOperation(cards.length, writingStatsText);
 	for (int i=0; i < cards.length; ++i) {
 	    cards[i].writeCard(out);
 
@@ -178,6 +208,7 @@ public class HexCsv
 		progress.updateOperation(10);
 	    }
 	}
+	progress.stopOperation();
 
 	out.close();
     }
@@ -202,15 +233,16 @@ public class HexCsv
     public void setCardData(int serial, String question, String answer,
 		boolean overlay)
     {
-	cards[serial].overlay = overlay;
-	cards[serial].question = question;
-	cards[serial].answer = answer;
+	cards[serial].setOverlay(overlay);
+	cards[serial].setQuestion(question);
+	cards[serial].setAnswer(answer);
     }
 
     public boolean cardDataNeeded(int serial)
     {
-	return (cards[serial].isDueForRetentionRep(days_since_start)
-		|| cards[serial].isDueForAcquisitionRep());
+	return ((cards[serial].isDueForRetentionRep(days_since_start)
+			    || cards[serial].isDueForAcquisitionRep())
+		&& q.isScheduledSoon(serial, cards_to_load));
     }
 
     private void readCardText(StringBuffer path)
@@ -222,6 +254,22 @@ public class HexCsv
 	CardData carddata = new CardData(is, progress, this);
 
 	is.close();
+    }
+
+    public void loadCardData()
+	throws IOException
+    {
+	// clear any existing questions and answers
+	for (int i=0; i < cards.length; ++i) {
+	    cards[i].setQuestion(null);
+	    cards[i].setAnswer(null);
+	}
+
+	// load them again
+	truncatePathBuf();
+	progress.startOperation(cards.length, loadingCardsText);
+	readCardText(pathbuf);
+	progress.stopOperation();
     }
 
     public int numScheduled() {
@@ -256,7 +304,7 @@ public class HexCsv
 	if (logfile != null) {
 	    try {
 		logfile.close();
-	    } catch (IOException e) {}
+	    } catch (IOException e) { }
 	    logfile = null;
 	}
     }

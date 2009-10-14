@@ -59,6 +59,30 @@ class RevQueue {
 	progress = p;
     }
 
+    public boolean isScheduledSoon(int serial, int within)
+    {
+	int start = Math.max(curr, 0);
+	int limit;
+
+	// not exact when it comes to new cards
+	// or the threshold between scheduled and new cards
+	if (num_scheduled > 0) {
+	    limit = Math.min(num_scheduled, within + start);
+	} else {
+	    // TODO: make this more accurate.
+	    // limit = Math.min(limit_new, within);
+	    return true;
+	}
+
+	for (int i=start; i < limit; ++i) {
+	    if (q[i].serial == serial) {
+		return true;
+	    }
+	}
+
+	return false;
+    }
+
     private void swap(int i, int j)
     {
 	if (i < q.length && j < q.length) {
@@ -231,7 +255,7 @@ class RevQueue {
 	int bot = 0;
 	int top = idx_new + 1;
 	while ((bot < new_at_once) && (top < q.length) && (q[top].grade < 2)) {
-	    if (q[top].skip) {
+	    if (q[top].isSkip()) {
 		++top;
 		continue;
 	    }
@@ -299,7 +323,7 @@ class RevQueue {
 
 	    // skip duplicates where the first instance was graded >= 2
 	    // and also inverse cards
-	    if (q[curr].grade < 2 && (!q[curr].skip)) {
+	    if (q[curr].grade < 2 && (!q[curr].isSkip())) {
 		return q[curr];
 	    }
 

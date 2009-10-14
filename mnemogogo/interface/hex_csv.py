@@ -26,6 +26,7 @@ from shutil import rmtree
 from time import time
 import codecs
 import re
+import sys
 
 class BasicExport(mnemogogo.Export):
 
@@ -45,11 +46,11 @@ class BasicExport(mnemogogo.Export):
 
 	self.img_path = join(self.sync_path, 'IMG')
 	if not exists(self.img_path):
-	    os.mkdir(self.img_path)
+	    mkdir(self.img_path)
 
 	self.snd_path = join(self.sync_path, 'SND')
 	if not exists(self.snd_path):
-	    os.mkdir(self.snd_path)
+	    mkdir(self.snd_path)
 
 	if not exists(self.img_path): mkdir(self.img_path)
 	if not exists(self.snd_path): mkdir(self.snd_path)
@@ -139,7 +140,12 @@ class BasicExport(mnemogogo.Export):
 
 class Import(mnemogogo.Import):
     def open(self):
-	self.statfile = open(join(self.sync_path, 'STATS.CSV'), 'r')
+	try:
+	    statpath = join(self.sync_path, 'STATS.CSV')
+	    self.statfile = open(statpath, 'r')
+	except IOError:
+	    self.error('Could not find: ' + statpath)
+
 	self.num_cards = int(self.statfile.readline())
 	self.idfile = open(join(self.sync_path, 'IDS'), 'r')
 	self.num_stats = len(self.learning_data)
@@ -166,15 +172,16 @@ class Import(mnemogogo.Import):
 	    try:
 		r = serialtoid_re.match(line)
 		line = serialtoid_re.sub(
-			'R ' + self.serial_to_id[r.groups('id')], line)
-
+			'R ' + self.serial_to_id[r.group('id')], line)
 		postlog.write(line)
-	    except e:
-		print >> sys.stderr, "ignoring log line: " + line
+	    except:
+	    	print >> sys.stderr, "ignoring log line: " + line
 
 	    line = prelog.readline()
 
 	prelog.close()
+	remove(prelog_path)
+
 	postlog.close()
 
     def read(self):

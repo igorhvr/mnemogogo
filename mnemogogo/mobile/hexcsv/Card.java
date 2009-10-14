@@ -39,12 +39,12 @@ public class Card
     public boolean unseen;
     public int inverse;
     public int category;
-    public boolean skip;
-    public String question;
-    public String answer;
-    public boolean overlay;
-    private CardList cardlookup;
 
+    private String question;
+    private String answer;
+    private boolean overlay;
+
+    public static CardList cardlookup;
     private static Random rand = new Random();
 
     private static int statLineLength = 62;
@@ -53,16 +53,16 @@ public class Card
     private static final int fourDigits = 12;
     private static final int eightDigits = 28;
 
+    private static final int skipSerial = -1;
+
     private static int initial_interval[] = {0, 0, 1, 3, 4, 5};
 
-    Card(CardList cardlist) {
-	cardlookup = cardlist;
+    Card() {
     }
 
-    Card(CardList cardlist, InputStreamReader in, int i)
+    Card(InputStreamReader in, int i)
 	throws IOException
     {
-	cardlookup = cardlist;
 	readCard(in, i);
     }
 
@@ -150,7 +150,7 @@ public class Card
 	r.append(" cat=");
 	r.append(category);
 	r.append(" skip=");
-	r.append(skip);
+	r.append(isSkip());
 
 	return r.toString();
     }
@@ -256,7 +256,6 @@ public class Card
 	unseen = (hexLong() == 1);
 	category = (int)hexLong();
 	inverse = (int)hexLong();
-	skip = false;
     }
 
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x
@@ -286,9 +285,54 @@ public class Card
 	if (cardlookup != null) {
 	    Card inverse_card = cardlookup.getCard(inverse);
 	    if (inverse_card != null) {
-		inverse_card.skip = true;
+		inverse_card.setSkip();
 	    }
 	}
+    }
+
+    public String getQuestion()
+    {
+	if (question == null) {
+	    try {
+		cardlookup.loadCardData();
+	    } catch (IOException e) {}
+	}
+	return question;
+    }
+
+    public void setQuestion(String question)
+    {
+	this.question = question;
+    }
+
+    public String getAnswer()
+    {
+	return answer;
+    }
+
+    public void setAnswer(String answer)
+    {
+	this.answer = answer;
+    }
+
+    public boolean getOverlay()
+    {
+	return overlay;
+    }
+
+    public void setOverlay(boolean overlay)
+    {
+	this.overlay = overlay;
+    }
+
+    public boolean isSkip()
+    {
+	return (serial == skipSerial);
+    }
+
+    public void setSkip()
+    {
+	serial = skipSerial;
     }
 
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x (process_answer)
@@ -407,38 +451,43 @@ public class Card
 	unseen   = false;
 	
 	if (logfile != null) {
-	    StringBuffer r = new StringBuffer(100);
+	    try {
+		StringBuffer r = new StringBuffer(100);
 
-	    // NOTE: the <%d> must be replaced with the id.
-	    r.append("R <");
-	    r.append(Integer.toString(serial));
-	    r.append("> ");
-	    r.append(Integer.toString(grade));
-	    r.append(" ");
-	    r.append(Float.toString(feasiness()));
-	    r.append(" | ");
-	    r.append(Integer.toString(acq_reps));
-	    r.append(" ");
-	    r.append(Integer.toString(ret_reps));
-	    r.append(" ");
-	    r.append(Integer.toString(lapses));
-	    r.append(" ");
-	    r.append(Integer.toString(acq_reps_since_lapse));
-	    r.append(" ");
-	    r.append(Integer.toString(ret_reps_since_lapse));
-	    r.append(" | ");
-	    r.append(Long.toString(scheduled_interval));
-	    r.append(" ");
-	    r.append(Long.toString(actual_interval));
-	    r.append(" | ");
-	    r.append(Float.toString(new_interval));
-	    r.append(" ");
-	    r.append(Integer.toString(noise));
-	    r.append(" | ");
-	    r.append(Float.toString(thinking_time_msecs / 100.0f));
-	    r.append("\n");
+		// NOTE: the <%d> must be replaced with the id.
+		r.append("R <");
+		r.append(Integer.toString(serial));
+		r.append("> ");
+		r.append(Integer.toString(grade));
+		r.append(" ");
+		r.append(Float.toString(feasiness()));
+		r.append(" | ");
+		r.append(Integer.toString(acq_reps));
+		r.append(" ");
+		r.append(Integer.toString(ret_reps));
+		r.append(" ");
+		r.append(Integer.toString(lapses));
+		r.append(" ");
+		r.append(Integer.toString(acq_reps_since_lapse));
+		r.append(" ");
+		r.append(Integer.toString(ret_reps_since_lapse));
+		r.append(" | ");
+		r.append(Long.toString(scheduled_interval));
+		r.append(" ");
+		r.append(Long.toString(actual_interval));
+		r.append(" | ");
+		r.append(Float.toString(new_interval));
+		r.append(" ");
+		r.append(Integer.toString(noise));
+		r.append(" | ");
+		r.append(Float.toString(thinking_time_msecs / 100.0f));
+		r.append("\n");
 
-	    logfile.write(r.toString(), 0, r.length());
+		logfile.write(r.toString(), 0, r.length());
+		logfile.flush();
+	    } catch (Exception e) {
+		logfile = null;
+	    }
 	}
     }
 

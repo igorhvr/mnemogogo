@@ -16,7 +16,8 @@ package mnemogogo.mobile.hexcsv;
 
 public interface Progress
 {
-    public void startOperation(int length);
+    public void startOperation(int length, String msg);
     public void updateOperation(int delta);
+    public void stopOperation();
 }
 

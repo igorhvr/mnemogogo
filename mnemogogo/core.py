@@ -228,7 +228,6 @@ class Export(Job):
 	    im.save(tmpdst)
 	    (nwidth, nheight) = (width, height)
 	    while (os.path.getsize(tmpdst) > self.img_max_size):
-
 		(owidth, oheight) = (nwidth, nheight)
 		scale = 0.7
 		while ((nwidth == owidth or nheight == oheight)
@@ -238,7 +237,7 @@ class Export(Job):
 		    scale = scale - .1
 
 		if nwidth > 0 and nheight > 0:
-		    im.resize((nwidth, nheight), Image.ANTIALIAS)
+		    im = im.resize((nwidth, nheight), Image.ANTIALIAS)
 		    im.save(tmpdst)
 		else:
 		    break;

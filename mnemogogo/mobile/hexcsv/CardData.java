@@ -23,7 +23,7 @@ import javax.microedition.io.file.FileConnection;
 
 class CardData
 {
-    static int bufferLen = 1024;
+    static int bufferLen = 10;
     byte[] buffer = new byte[bufferLen];
     int pos;
     Progress progress;
@@ -33,6 +33,8 @@ class CardData
     {
 	progress = p;
 	load(is, carddb);
+	bufferLen = 10;
+	buffer = new byte[bufferLen];
     }
 
     boolean readByte(DataInputStream src)
@@ -62,7 +64,6 @@ class CardData
 	    ++len;
 	}
 
-	progress.updateOperation(len);
 	return value;
     }
 
@@ -116,12 +117,14 @@ class CardData
 		if (carddb.cardDataNeeded(i)) {
 		    qcard = readString(src);
 		    acard = readString(src);
+		    carddb.setCardData(i, qcard, acard, overlay != 0);
 		} else {
 		    skipString(src);
 		    skipString(src);
 		}
-		carddb.setCardData(i, qcard, acard, overlay != 0);
-		progress.updateOperation(1);
+		if (i % 10 == 0) {
+		    progress.updateOperation(10);
+		}
 	    }
 	} catch (EOFException e) { }
 
