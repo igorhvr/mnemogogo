@@ -47,6 +47,7 @@ public class Card
     private String question;
     private String answer;
     private boolean overlay;
+    private boolean skip = false;
 
     public static CardList cardlookup;
     private static Random rand = new Random();
@@ -56,8 +57,6 @@ public class Card
     private static int pos;
     private static final int fourDigits = 12;
     private static final int eightDigits = 28;
-
-    private static final int skipSerial = -1;
 
     private static int initial_interval[] = {0, 0, 1, 3, 4, 5};
 
@@ -331,12 +330,12 @@ public class Card
 
     public boolean isSkip()
     {
-	return (serial == skipSerial);
+	return skip;
     }
 
     public void setSkip()
     {
-	serial = skipSerial;
+	skip = true;
     }
 
     // Adapted directly from Peter Bienstman's Mnemosyne 1.x (process_answer)

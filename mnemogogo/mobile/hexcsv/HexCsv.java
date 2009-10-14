@@ -116,6 +116,10 @@ public class HexCsv
 	}
     }
 
+    public Card getCard() {
+	return q.getCard();
+    }
+
     public Card getCard(int serial) {
 	if (0 <= serial && serial < cards.length) {
 	    return cards[serial];
@@ -278,10 +282,6 @@ public class HexCsv
 
     public int numScheduled() {
 	return q.numScheduled();
-    }
-
-    public Card getCard() {
-	return q.getCard();
     }
 
     public void updateFutureSchedule(Card card) {
