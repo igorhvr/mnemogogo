@@ -5,6 +5,7 @@
 * Fix a timezone bug in the calculation of days left.
 * Fix a bug in resizing images below a maximum size.
 * Lazier loading of card text.
+* Switch to license to GPL2.
 
 20090905 mnemogogo-0.9.4
 * Randomize the choice of new cards.
