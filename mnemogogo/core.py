@@ -36,6 +36,17 @@ except ImportError:
 
 interface_classes = []
 
+def phonejoin(paths):
+    if len(paths) == 0: return ""
+
+    r = paths[0]
+    for p in paths[1:]:
+	r = "/".join([r, p])
+	if ((len(r) > 0) and ((r[-1] == '/') or r[-1] == '\\')):
+	    r = r[0:-1]
+
+    return r
+
 class _RegisteredInterface(type):
     def __new__(meta, classname, bases, classdict):
 	newClass = type.__new__(meta, classname, bases, classdict)
@@ -151,7 +162,7 @@ class Export(Job):
 	dstpath = os.path.join(self.sync_path, dst_subdir)
 
 	for file in os.listdir(dstpath):
-	    if os.path.join(dst_subdir, file) not in list:
+	    if phonejoin([dst_subdir, file]) not in list:
 		try:
 		    os.remove(os.path.join(dstpath, file))
 		except:
@@ -198,7 +209,7 @@ class Export(Job):
 
 	if not hasImageModule:
 	    (src_base, src_ext) = os.path.splitext(src)
-	    dst_file = dst_name + '.' + src_ext.upper()
+	    dst_file = dst_name + src_ext.upper()
 	    dst = os.path.join(self.sync_path, dst_subdir, dst_file)
 	    shutil.copy(src, dst)
 	    return (True, dst_file)
@@ -268,7 +279,7 @@ class Export(Job):
 		    self.call_hooks(os.path.join(
 			self.sync_path, dst_subdir, dst), 'gogo_img')
 
-		self.imgs[src] = os.path.join(dst_subdir, dst)
+		self.imgs[src] = phonejoin([dst_subdir, dst])
 
 	return self.map_paths(self.re_img, self.re_img_split, text, self.imgs)
 
@@ -290,7 +301,7 @@ class Export(Job):
 
 		if moved:
 		    self.call_hooks(dst_path, 'gogo_snd')
-		self.snds[src_path] = os.path.join(dst_subdir, dst)
+		self.snds[src_path] = phonejoin([dst_subdir, dst])
 
 	return self.map_paths(self.re_snd, self.re_snd_split, text, self.snds)
 
