@@ -38,7 +38,7 @@ def log_info(msg):
 	print >> sys.stderr, msg
 
 class MnemoGoGoPlugin(Plugin):
-    version = "0.9.5"
+    version = "0.9.6"
     is_locked = False
     old_overlay = None
 
