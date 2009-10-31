@@ -227,7 +227,7 @@ class Import(mnemogogo.Import):
 	config = self.read_config()
 	return long(config['start_time'])
 
-# MnemoJoJo Exporter
+# Mnemojojo Exporter
 
 def make_map_color_re(name, rgb):
     return ((r'<font\s+color\s*=\s*"%s"\s*/?>' % name),
@@ -262,7 +262,7 @@ color_map = [
     ("black",	    "#000000"),
 ]
 
-class JoJoExport(BasicExport):
+class JojoExport(BasicExport):
     raw_conversions = [
 	    # ( regex ,	   replacement )
 	    (r'(<br>)', r'<br/>'),
@@ -318,18 +318,18 @@ class JoJoExport(BasicExport):
 	a = self.handle_sounds('SND', a)
 	return (q, a)
 
-class JoJoHexCsv128x128(mnemogogo.Interface):
+class JojoHexCsv128x128(mnemogogo.Interface):
     max_width = 128
     max_height = 128
     max_size = 64
     ext = 'PNG'
 
-    description = ('MnemoJoJo (%dx%d <%dk, %s)' %
+    description = ('Mnemojojo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
     version = '1.0.0'
 
     def start_export(self, sync_path):
-	e = JoJoExport(self, sync_path)
+	e = JojoExport(self, sync_path)
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = False
@@ -341,18 +341,18 @@ class JoJoHexCsv128x128(mnemogogo.Interface):
     def start_import(self, sync_path):
 	return Import(self, sync_path)
 
-class JoJoHexCsv128x160(mnemogogo.Interface):
+class JojoHexCsv128x160(mnemogogo.Interface):
     max_width = 128
     max_height = 160
     max_size = 64
     ext = 'PNG'
 
-    description = ('MnemoJoJo (%dx%d <%dk, %s)' %
+    description = ('Mnemojojo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
     version = '1.0.0'
 
     def start_export(self, sync_path):
-	e = JoJoExport(self, sync_path)
+	e = JojoExport(self, sync_path)
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = False
@@ -364,18 +364,18 @@ class JoJoHexCsv128x160(mnemogogo.Interface):
     def start_import(self, sync_path):
 	return Import(self, sync_path)
 
-class JoJoHexCsv240x300(mnemogogo.Interface):
+class JojoHexCsv240x300(mnemogogo.Interface):
     max_width = 240
     max_height = 300
     max_size = 64
     ext = 'PNG'
 
-    description = ('MnemoJoJo (%dx%d <%dk, %s)' %
+    description = ('Mnemojojo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
     version = '1.0.0'
 
     def start_export(self, sync_path):
-	e = JoJoExport(self, sync_path)
+	e = JojoExport(self, sync_path)
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = False
@@ -387,18 +387,18 @@ class JoJoHexCsv240x300(mnemogogo.Interface):
     def start_import(self, sync_path):
 	return Import(self, sync_path)
 
-class JoJoHexCsv640x480(mnemogogo.Interface):
+class JojoHexCsv640x480(mnemogogo.Interface):
     max_width = 640
     max_height = 480
     max_size = 64
     ext = 'PNG'
 
-    description = ('MnemoJoJo (%dx%d <%dk, %s)' %
+    description = ('Mnemojojo (%dx%d <%dk, %s)' %
 		    (max_width, max_height, max_size, ext))
     version = '1.0.0'
 
     def start_export(self, sync_path):
-	e = JoJoExport(self, sync_path)
+	e = JojoExport(self, sync_path)
 	e.img_max_width = self.max_width
 	e.img_max_height = self.max_height - 43 
 	e.img_to_landscape = False
@@ -406,62 +406,6 @@ class JoJoHexCsv640x480(mnemogogo.Interface):
 	e.img_to_ext = self.ext
 	e.name_with_numbers = False
 	return e
-
-    def start_import(self, sync_path):
-	return Import(self, sync_path)
-
-# Plain Text Exporter
-
-class TextExport(BasicExport):
-    raw_conversions = [
-	    # ( regex ,	   replacement )
-	    (r'(<br/?>)', r'\n'),
-	    (r'(<.*?>)', r''),
-	    (r'&nbsp;', r' '),
-	    (r'&lt;', r'<'),
-	    (r'&gt;', r'>'),
-	    (r'&amp;', r'&')
-	]
-    conversions = []
-
-    def convert(self, text):
-	text = self.remove_overlay(text)
-	if not self.conversions:
-	    for (mat, rep) in self.raw_conversions:
-		self.conversions.append((re.compile(mat, re.DOTALL), rep))
-
-	for (mat, rep) in self.conversions:
-	    text = mat.sub(rep, text)
-	return text;
-
-    def write_data(self, card_path, serial_num, q, a, cat, is_overlay):
-	cfile = codecs.open(join(card_path, 'Q%04x.txt' % serial_num),
-			    'w', encoding='UTF-8')
-	if is_overlay:
-	    cfile.write('answerbox: overlay;\n')
-	else:
-	    cfile.write('\n')
-	cfile.write(self.convert(q))
-	cfile.close()
-
-	cfile = codecs.open(join(card_path, 'A%04x.txt' % serial_num),
-			    'w', encoding='UTF-8')
-	cfile.write(self.convert(a))
-	cfile.close()
-
-    def do_images(self, serial_num, q, a):
-	return (q, a)
-
-    def do_sounds(self, serial_num, q, a):
-	return (q, a)
-
-class TextCsv(mnemogogo.Interface):
-
-    description = 'Text Only'
-    version = '1.0.0'
-
-    def start_export(self, sync_path):
-	return TextExport(self, sync_path)
 
     def start_import(self, sync_path):
 	return Import(self, sync_path)

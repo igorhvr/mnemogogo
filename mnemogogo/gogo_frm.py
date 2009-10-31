@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gogo_frm.ui'
 #
-# Created: Mon May 18 07:44:47 2009
+# Created: Mon Oct 26 08:47:41 2009
 #      by: The PyQt User Interface Compiler (pyuic) 3.17.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -11,12 +11,12 @@
 from qt import *
 
 
-class GoGoFrm(QDialog):
+class GogoFrm(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
         QDialog.__init__(self,parent,name,modal,fl)
 
         if not name:
-            self.setName("GoGoFrm")
+            self.setName("GogoFrm")
 
         self.setSizeGripEnabled(1)
 
@@ -172,7 +172,7 @@ class GoGoFrm(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("MnemoGoGo"))
+        self.setCaption(self.__tr("Mnemogogo"))
         self.doneButton.setText(self.__tr("&Done"))
         self.doneButton.setAccel(QKeySequence(self.__tr("Alt+D")))
         self.localLabel.setText(self.__tr("<p align=\"center\"><font size=\"+3\"><b>Local</b></font></p>"))
@@ -194,4 +194,4 @@ class GoGoFrm(QDialog):
 
 
     def __tr(self,s,c = None):
-        return qApp.translate("GoGoFrm",s,c)
+        return qApp.translate("GogoFrm",s,c)

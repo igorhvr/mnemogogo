@@ -17,6 +17,6 @@
 #
 
 from core import *
-from gogo_dlg import GoGoDlg
+from gogo_dlg import GogoDlg
 import lock_enabling
 

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python2.5
+#!/usr/bin/python
 
 import sys, re
 from os.path import exists

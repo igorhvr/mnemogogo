@@ -2,7 +2,7 @@
 #
 # mnemogogo.py <timbob@bigpond.com>
 #
-# MnemoGoGo: making mnemosyne mobile
+# Mnemogogo: making mnemosyne mobile
 #
 ##############################################################################
 
@@ -37,7 +37,7 @@ def log_info(msg):
     if debug:
 	print >> sys.stderr, msg
 
-class MnemoGoGoPlugin(Plugin):
+class MnemogogoPlugin(Plugin):
     version = "0.9.6"
     is_locked = False
     old_overlay = None
@@ -82,7 +82,7 @@ class MnemoGoGoPlugin(Plugin):
 	basedir = get_basedir()
 
 	if not exists(join(basedir, "plugins", "mnemogogo")):
-	    raise mnemogogo.MnemoGoGo(
+	    raise mnemogogo.Mnemogogo(
 		     "Incorrect installation. Missing "
 		   + join(basedir, "plugins", "mnemogogo")
 		   + " directory")
@@ -93,18 +93,18 @@ class MnemoGoGoPlugin(Plugin):
 	self.interfaces = mnemogogo.register_interfaces()
 
 	self.main_dlg = get_main_widget()
-	self.gogo_dlg = mnemogogo.GoGoDlg(self.main_dlg)
+	self.gogo_dlg = mnemogogo.GogoDlg(self.main_dlg)
 	self.gogo_dlg.setInterfaceList(self.interfaces)
 
 	# Add Menu Item
 	self.menu = self.main_dlg.Deck
 
-        self.menu_item = QAction(self.main_dlg, "menuMnemoGoGo")
+        self.menu_item = QAction(self.main_dlg, "menuMnemogogo")
 	self.menu_item.addTo(self.menu)
         self.main_dlg.connect(self.menu_item, SIGNAL("activated()"),
 			      self.open_dialog)
         self.menu_item.setText(QString.null)
-        self.menu_item.setMenuText(self.main_dlg.trUtf8("MnemoGoGo"))
+        self.menu_item.setMenuText(self.main_dlg.trUtf8("Mnemogogo"))
         self.menu_item.setToolTip(QString.null)
         self.menu_item.setStatusTip(self.main_dlg.trUtf8("."))
 
@@ -112,7 +112,7 @@ class MnemoGoGoPlugin(Plugin):
 	self.lock_msg_main = self.main_dlg.trUtf8(
 	    "Mobile reviewing is enabled.")
 	self.lock_msg_info = self.main_dlg.trUtf8(
-	    "Choose MnemoGoGo from the Deck menu for options.")
+	    "Choose Mnemogogo from the Deck menu for options.")
 
 	mnemogogo.lock_enabling.add(self.main_dlg.show_button)
 	mnemogogo.lock_enabling.add(self.main_dlg.grades)
@@ -164,6 +164,6 @@ class MnemoGoGoPlugin(Plugin):
 
 	return mnemosyne.core.preprocess(text)
 
-p = MnemoGoGoPlugin()
+p = MnemogogoPlugin()
 p.load()
 

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python2.5
+#!/usr/bin/python
 
 # Derived from the mnemosyne startup script by <Peter.Bienstman@UGent.be>
 

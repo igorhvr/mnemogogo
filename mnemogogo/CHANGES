@@ -1,3 +1,13 @@
+2009102? mnemogogo-0.9.7
+* Change names to `Mnemogogo' and `Mnemojojo' throughout.
+* Fix some problems with PIL under Windows
+  (thanks to B_Monkey)
+* Remove the plain text exporter.
+
+20091020 mnemogogo-0.9.6
+* Fix some problems with images under Windows
+  (thanks to B_Monkey)
+
 20091014 mnemogogo-0.9.5
 * MAJOR CHANGE: new export/import format
 * Handle a missing Python Image Library more gracefully
@@ -14,7 +24,7 @@
 
 20090604 mnemogogo-0.9.3
 * Fix an export problem on Windows that caused a
-  java.lang.NumberFormatException in MnemoGoGo
+  java.lang.NumberFormatException in Mnemogogo
 * Fix an export problem on Windows that put backslashes
   rather than slashes in html img paths.
 (Thanks to Johannes Charman for reporting and testing these bugs on Windows)
@@ -60,7 +70,7 @@
 
 20090508 mnemogogo-0.6.1
 * Add image scaling / png conversion.
-* Fix bugs in the MnemoGoGo import and export routines.
+* Fix bugs in the Mnemogogo import and export routines.
 
 20090507 mnemogogo-0.6.0
 * Fix many bugs.

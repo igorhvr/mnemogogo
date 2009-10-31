@@ -355,7 +355,7 @@ class Interface:
 ######################################################################
 # Implementation
 
-class MnemoGoGo(Exception):
+class Mnemogogo(Exception):
     pass
 
 interfaces = []
@@ -371,7 +371,7 @@ def register_interfaces():
         
 	try:
 	    __import__("mnemogogo.interface." + file[:-3])
-	except: raise MnemoGoGo('Error initialising interface: ' + file
+	except: raise Mnemogogo('Error initialising interface: ' + file
 				+ '\n' + traceback.format_exc())
 
     for iface in interface_classes:
@@ -379,7 +379,7 @@ def register_interfaces():
 	    obj = iface()
 	    name = iface.__name__
 	    desc = obj.description
-	except: raise MnemoGoGo('Error registering interface: ' + file
+	except: raise Mnemogogo('Error registering interface: ' + file
 				+ '\n' + traceback.format_exc())
 
 	interfaces.append({ 'name' : name,

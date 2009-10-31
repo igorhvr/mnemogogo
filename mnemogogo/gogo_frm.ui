@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>GoGoFrm</class>
+<class>GogoFrm</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>GoGoFrm</cstring>
+        <cstring>GogoFrm</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>MnemoGoGo</string>
+        <string>Mnemogogo</string>
     </property>
     <property name="sizeGripEnabled">
         <bool>true</bool>

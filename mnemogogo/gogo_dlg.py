@@ -18,24 +18,24 @@
 
 from qt import *
 from gogo_frm import *
-from core import do_export, do_import, MnemoGoGo, InterfaceError
+from core import do_export, do_import, Mnemogogo, InterfaceError
 from mnemosyne.core import *
 import traceback
 
-class GoGoDlg(GoGoFrm):
+class GogoDlg(GogoFrm):
     settings = {
 	    'extra_factor' : 1.00,
 	}
 
     def showWarning(self, msg):
 	status = QMessageBox.warning(None,
-	   self.trUtf8("MnemoGoGo"),
+	   self.trUtf8("Mnemogogo"),
 	   msg,
 	   self.trUtf8("&OK"))
 
     def showError(self, msg):
 	status = QMessageBox.critical(None,
-	   self.trUtf8("MnemoGoGo"), msg, self.trUtf8("&OK"))
+	   self.trUtf8("Mnemogogo"), msg, self.trUtf8("&OK"))
 
     def markInactive(self, frame, label):
 	frame.setPaletteBackgroundColor(QColor(124,124,124))
@@ -87,7 +87,7 @@ class GoGoDlg(GoGoFrm):
 	self.settings['sync_path'] = unicode(self.syncPath.text())
 
     def __init__(self, parent=None, name=None, modal=0, fl=0):
-	GoGoFrm.__init__(self, parent, name, modal, fl)
+	GogoFrm.__init__(self, parent, name, modal, fl)
 
 	self.main_dlg = parent
 
@@ -114,7 +114,7 @@ class GoGoDlg(GoGoFrm):
 	    self.setMobile()
 	except InterfaceError, e:
 	    self.showError(unicode(e))
-	except MnemoGoGo, e:
+	except Mnemogogo, e:
 	    self.showError(unicode(e))
 	except Exception:
 	    self.showError(traceback.format_exc())
@@ -133,7 +133,7 @@ class GoGoDlg(GoGoFrm):
 
 	except InterfaceError, e:
 	    self.showError(unicode(e))
-	except MnemoGoGo, e:
+	except Mnemogogo, e:
 	    self.showError(unicode(e))
 	except Exception:
 	    self.showError(traceback.format_exc())

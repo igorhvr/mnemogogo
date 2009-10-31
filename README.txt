@@ -1,4 +1,4 @@
-MnemoGoGo: Making Mnemosyne Mobile
+Mnemogogo: Making Mnemosyne Mobile
 Timothy Bourke <timbob@bigpond.com>
 
 YOU USE THIS SOFTWARE AT YOUR OWN RISK. BACKUP YOUR FILES.
