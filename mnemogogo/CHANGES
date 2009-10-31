@@ -5,6 +5,7 @@
 * Replace magic number `43' with `jojo_title_height_pixels'
 * Remove the plain text exporter.
 * Convert html entities to unicode during export.
+* Remove unneeded dependency on deprecated sets module.
 
 20091020 mnemogogo-0.9.6
 * Fix some problems with images under Windows

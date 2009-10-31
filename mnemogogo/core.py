@@ -25,7 +25,6 @@ import shutil
 import re
 import itertools
 import random
-from sets import Set
 import traceback
 
 try:
