@@ -1,3 +1,6 @@
+20091101 mnemogogo-0.9.8
+* Do not convert xml entities to unicode during export.
+
 20091031 mnemogogo-0.9.7
 * Change names to `Mnemogogo' and `Mnemojojo' throughout.
 * Fix some problems with PIL under Windows (thanks to B_Monkey)

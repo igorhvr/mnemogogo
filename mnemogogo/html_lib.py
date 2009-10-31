@@ -22,7 +22,7 @@ def htmltounicode(text):
 		    return unichr(int(text[2:-1]))
 	    except ValueError:
 		pass
-	else: # named entity
+	elif text[1:-1] not in ["lt", "amp", "gt", "quot", "apos"]: # named entity
 	    try:
 		text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
 	    except KeyError:
