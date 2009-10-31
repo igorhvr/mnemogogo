@@ -290,7 +290,8 @@ class JojoExport(BasicExport):
 
 	for (mat, rep) in self.conversions:
 	    text = mat.sub(rep, text)
-	return text;
+
+	return mnemogogo.htmltounicode(text);
 
     def write_data(self, cardfile, serial_num, q, a, cat, is_overlay):
 	q = self.convert(q)
@@ -331,7 +332,7 @@ class JojoHexCsv128x128(mnemogogo.Interface):
     def start_export(self, sync_path):
 	e = JojoExport(self, sync_path)
 	e.img_max_width = self.max_width
-	e.img_max_height = self.max_height - 43 
+	e.img_max_height = self.max_height - mnemogogo.jojo_title_height_pixels
 	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
@@ -354,7 +355,7 @@ class JojoHexCsv128x160(mnemogogo.Interface):
     def start_export(self, sync_path):
 	e = JojoExport(self, sync_path)
 	e.img_max_width = self.max_width
-	e.img_max_height = self.max_height - 43 
+	e.img_max_height = self.max_height - mnemogogo.jojo_title_height_pixels
 	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
@@ -377,7 +378,7 @@ class JojoHexCsv240x300(mnemogogo.Interface):
     def start_export(self, sync_path):
 	e = JojoExport(self, sync_path)
 	e.img_max_width = self.max_width
-	e.img_max_height = self.max_height - 43 
+	e.img_max_height = self.max_height - mnemogogo.jojo_title_height_pixels
 	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext
@@ -400,7 +401,7 @@ class JojoHexCsv640x480(mnemogogo.Interface):
     def start_export(self, sync_path):
 	e = JojoExport(self, sync_path)
 	e.img_max_width = self.max_width
-	e.img_max_height = self.max_height - 43 
+	e.img_max_height = self.max_height - mnemogogo.jojo_title_height_pixels
 	e.img_to_landscape = False
 	e.img_max_size = self.max_size * 1024;
 	e.img_to_ext = self.ext

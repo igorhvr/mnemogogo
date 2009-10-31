@@ -2,7 +2,9 @@
 * Change names to `Mnemogogo' and `Mnemojojo' throughout.
 * Fix some problems with PIL under Windows
   (thanks to B_Monkey)
+* Replace magic number `43' with `jojo_title_height_pixels'
 * Remove the plain text exporter.
+* Convert html entities to unicode during export.
 
 20091020 mnemogogo-0.9.6
 * Fix some problems with images under Windows
