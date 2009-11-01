@@ -82,7 +82,6 @@ learning_data_len = {
     }
 
 easiness_accuracy = 1000
-jojo_title_height_pixels = 43
 
 ######################################################################
 # Interfaces
