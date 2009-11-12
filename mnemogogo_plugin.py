@@ -104,9 +104,10 @@ class MnemogogoPlugin(Plugin):
         self.main_dlg.connect(self.menu_item, SIGNAL("activated()"),
 			      self.open_dialog)
         self.menu_item.setText(QString.null)
-        self.menu_item.setMenuText(self.main_dlg.trUtf8("Mnemogogo"))
+        self.menu_item.setMenuText(self.main_dlg.trUtf8("&Mnemogogo"))
         self.menu_item.setToolTip(QString.null)
         self.menu_item.setStatusTip(self.main_dlg.trUtf8("."))
+        self.menu_item.setAccel(self.main_dlg.trUtf8("Ctrl+M"))
 
 	# Implement locking
 	self.lock_msg_main = self.main_dlg.trUtf8(

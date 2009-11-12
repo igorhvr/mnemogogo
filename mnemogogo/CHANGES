@@ -1,17 +1,23 @@
+200911__ mnemogogo-0.9.9
+* Add keyboard shortcut to start Mnemogogo (suggested by Bernhard Blum).
+TODO:
+- error identified by Bernhard Blum
+
 20091101 mnemogogo-0.9.8
 * Do not convert xml entities to unicode during export.
 
 20091031 mnemogogo-0.9.7
 * Change names to `Mnemogogo' and `Mnemojojo' throughout.
-* Fix some problems with PIL under Windows (thanks to B_Monkey)
+* Fix some problems with PIL under Windows (thanks to Bernhard Blum).
 * Replace magic number `43' with `jojo_title_height_pixels'
 * Remove the plain text exporter.
-* Convert html entities to unicode during export.
+* Convert html entities to unicode during export
+  (problem identified by Bernhard Blum).
 * Remove unneeded dependency on deprecated sets module.
 
 20091020 mnemogogo-0.9.6
 * Fix some problems with images under Windows
-  (thanks to B_Monkey)
+  (thanks to Bernhard Blum)
 
 20091014 mnemogogo-0.9.5
 * MAJOR CHANGE: new export/import format
