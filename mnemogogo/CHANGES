@@ -1,7 +1,7 @@
 200911__ mnemogogo-0.9.9
 * Add keyboard shortcut to start Mnemogogo (suggested by Bernhard Blum).
-TODO:
-- error identified by Bernhard Blum
+* Try to fix QString + str error on invalid plugin under Windows
+  (reported by Bernhard Blum).
 
 20091101 mnemogogo-0.9.8
 * Do not convert xml entities to unicode during export.
