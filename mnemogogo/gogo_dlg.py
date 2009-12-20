@@ -172,10 +172,10 @@ class GogoDlg(GogoFrm):
 			self.name_to_desc[settings['interface']])
 	    except KeyError:
 		self.showWarning(
-		    self.trUtf8("The interface '")
-		    + self.trUtf8(settings['interface']) # avoid QString + str
-		    + self.trUtf8("' is not currently available. ")
-		    + self.trUtf8("Please select another."))
+		    self.trUtf8("".join(["The interface '",
+			settings['interface'],
+			"' is not currently available. ",
+			"Please select another."])))
 
 	if settings.has_key('n_days'):
 	    self.daysToExport.setValue(settings['n_days'])

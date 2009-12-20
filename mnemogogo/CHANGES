@@ -3,6 +3,8 @@
 * Fix a bug in start_date handling that caused shifted statistics at
   each import after changing timezone.
   (IMPORTANT: export format changes require Mnemojojo 0.9.6 or above)
+* Really fix QString + str error on invalid plugin under Windows
+  (patch from Bernhard Blum).
 
 20091113 mnemogogo-0.9.9
 * Add keyboard shortcut to start Mnemogogo (suggested by Bernhard Blum).

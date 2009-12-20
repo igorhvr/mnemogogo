@@ -33,7 +33,7 @@ from os.path import exists, join
 import mnemogogo
 
 class MnemogogoPlugin(Plugin):
-    version = "0.9.9"
+    version = "0.9.10"
     is_locked = False
     old_overlay = None
 
