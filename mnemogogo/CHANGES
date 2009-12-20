@@ -1,3 +1,8 @@
+20091220 mnemogogo-0.9.10
+* Warnings to Mnemosyne log.txt (not to stderr)
+* Fix a bug in start_date handling that caused shifted statistics at
+  each import after changing timezone.
+
 20091113 mnemogogo-0.9.9
 * Add keyboard shortcut to start Mnemogogo (suggested by Bernhard Blum).
 * Try to fix QString + str error on invalid plugin under Windows

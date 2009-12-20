@@ -32,11 +32,6 @@ from os.path import exists, join
 
 import mnemogogo
 
-debug = True
-def log_info(msg):
-    if debug:
-	print >> sys.stderr, msg
-
 class MnemogogoPlugin(Plugin):
     version = "0.9.9"
     is_locked = False
@@ -79,6 +74,8 @@ class MnemogogoPlugin(Plugin):
 	self.save_config()
 
     def load(self):
+	mnemogogo.log_info('version %s' % self.version)
+
 	basedir = get_basedir()
 
 	if not exists(join(basedir, "plugins", "mnemogogo")):

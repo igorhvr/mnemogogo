@@ -30,7 +30,7 @@ public class FindCardDir
 {
     public static String[] standard = { "cards/" };
 
-    public static boolean isCardDir(FileConnection fconn)
+    public static boolean isCardDir(FileConnection fconn, Vector subdirs)
     {
 	boolean hasStats = false;
 	boolean hasCategories = false;
@@ -61,6 +61,10 @@ public class FindCardDir
 		} else if (f.equals("CARDS")) {
 		    hasCards = true;
 		}
+
+		if ((subdirs != null) && (f.endsWith("/"))) {
+		    subdirs.addElement(f);
+		}
 	    }
 
 	} catch (IOException e) {
@@ -75,13 +79,13 @@ public class FindCardDir
 		&& hasCards);
     }
 
-    public static boolean isCardDir(String path) {
+    public static boolean isCardDir(String path, Vector subdirs) {
 	boolean r = false;
 
 	try {
 	    FileConnection fconn =
 		(FileConnection)Connector.open(path, Connector.READ);
-	    r = isCardDir(fconn);
+	    r = isCardDir(fconn, subdirs);
 	    fconn.close();
 	} catch (IOException e) {
 	} catch (SecurityException e) {
@@ -94,7 +98,7 @@ public class FindCardDir
 			      StringBuffer pathbuf, Vector found)
     {
 	try {
-	    if (isCardDir(fconn)) {
+	    if (isCardDir(fconn, null)) {
 		found.addElement(pathbuf.toString());
 		fconn.close();
 
@@ -170,7 +174,7 @@ public class FindCardDir
 		    int last = pathbuf.length();
 		    pathbuf.append(standard[i]);
 
-		    if (isCardDir(pathbuf.toString())) {
+		    if (isCardDir(pathbuf.toString(), null)) {
 			paths.addElement(pathbuf.toString());
 		    }
 

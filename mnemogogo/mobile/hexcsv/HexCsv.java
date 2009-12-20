@@ -59,9 +59,6 @@ public class HexCsv
 	throws IOException
     {
 	String v;
-	long start_time;
-	long adjusted_now;
-	int num_cards;
 
 	path_len = path.length();
 	pathbuf = new StringBuffer(path_len + 20);
@@ -74,7 +71,7 @@ public class HexCsv
 	v = config.getString("last_day");
 	days_left = daysLeft(Long.parseLong(v));
 
-	v = config.getString("start_time");
+	v = config.getString("start_days");
 	days_since_start = daysSinceStart(Long.parseLong(v));
 
 	truncatePathBuf();
@@ -138,21 +135,9 @@ public class HexCsv
 	in.close();
     }
 
-    private long daysSinceStart(long start_time)
+    private long nowInDays()
     {
-	Date now = new Date();
-	long adjusted_now = (now.getTime() / 1000) -
-				(config.dayStartsAt() * 3600);
-	return (adjusted_now - start_time) / 86400;
-    }
-
-    public int daysLeft() {
-	return days_left;
-    }
-
-    private int daysLeft(long last_day)
-    {
-	Date now = new Date();
+	Date now = new Date(); // UTC (millisecs since 01/01/1970, 00:00:00 GMT)
 
 	// hours since epoch in UTC
 	long hours = now.getTime() / 3600000;
@@ -169,7 +154,22 @@ public class HexCsv
 	// (not at UTC 0000)
 	// because 1900 + 8 - 3 = 0000
 
-	return (int)(last_day - ((hours + tzoff - config.dayStartsAt()) / 24));
+	return (hours + tzoff - config.dayStartsAt()) / 24;
+    }
+
+    private long daysSinceStart(long start_days)
+    {
+	long now_days = nowInDays();
+	return now_days - start_days;
+    }
+
+    public int daysLeft() {
+	return days_left;
+    }
+
+    private int daysLeft(long last_day)
+    {
+	return (int)(last_day - nowInDays());
     }
 
     private void readCards(StringBuffer path)

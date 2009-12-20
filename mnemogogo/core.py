@@ -132,7 +132,7 @@ class Export(Job):
 			re.IGNORECASE + re.MULTILINE + re.DOTALL)
 
     # implement in plugin
-    def open(self, start_time, num_days, num_cards):
+    def open(self, start_date, num_days, num_cards):
 	pass
 
     # implement in plugin
@@ -165,7 +165,7 @@ class Export(Job):
 		try:
 		    os.remove(os.path.join(dstpath, file))
 		except:
-		    print >> sys.stderr, "Could not remove: %s" % file
+		    log_warning ("Could not remove: %s" % file)
 
     def tidy_images(self, dst_subdir):
 	self.tidy_files(dst_subdir, self.imgs.values())
@@ -327,8 +327,8 @@ class Import(Job):
 	return None
 
     # implement in plugin
-    def get_start_time(self):
-	raise Exception('The plugin does not implement get_start_time!')
+    def get_start_date(self):
+	raise Exception('The plugin does not implement get_start_date!')
 
 class Interface:
     __metaclass__ = _RegisteredInterface
@@ -465,8 +465,7 @@ def eliminate_duplicate_ids():
     for item in items:
 	if checked[item.id]:
 	    newid = get_fresh_id(item.id, checked)
-	    print >> sys.stderr, ("Fixing duplicate id: %s -> %s",
-				  item.id, newid)
+	    log_info ("Fixing duplicate id: %s -> %s" % (item.id, newid))
 	    item.id = newid
 	checked[item.id] = True
 
@@ -519,7 +518,7 @@ def do_export(interface, num_days, sync_path, progress_bar=None, extra = 1.00):
     total = len(cards)
     current = 0
 
-    exporter.open(long(time_of_start.time), num_days, len(cards))
+    exporter.open(time_of_start.date, num_days, len(cards))
     exporter.id_to_serial = dict(zip((i.id for i in cards),
 				 range(0, len(cards))))
     exporter.write_config(config)
@@ -539,21 +538,28 @@ def do_export(interface, num_days, sync_path, progress_bar=None, extra = 1.00):
 def adjust_start_date(import_start_date):
 
     time_of_start = mnemosyne.core.get_time_of_start()
-    cur_start_date = time_of_start.time
+    db_start_date = time_of_start.date
+    offset = (import_start_date - db_start_date).days
 
-    imp_time_of_start = mnemosyne.core.StartTime(import_start_date)
-    imp_start_date = imp_time_of_start.time
+    if offset < 0:
+	log_warning(
+	    "database time_of_start is later than import time_of_start!")
 
-    offset = abs(long(round((cur_start_date - imp_start_date)
-			    / 60. / 60. / 24.)))
-
-    if cur_start_date > imp_start_date:
-	time_of_start = mnemosyne.core.StartTime(imp_start_date)
-	items = mnemosyne.core.get_items()
-	for item in items:
-	    item.last_rep += offset
-	    item.next_rep += offset
-	return None
+	# The database time_of_start should only ever be pushed back earlier
+	# into time (by an import with learning data).
+	#
+	# The reason we can't have:
+	#	t = time.mktime(import_start_date.timetuple())
+	#	new_time_of_start = mnemosyne.core.StartTime(t)
+	#	mnemosyne.core.set_time_of_start(new_time_of_start)
+	#	items = mnemosyne.core.get_items()
+	#	offset = abs(offset)
+	#	for item in items:
+	#	    item.last_rep += offset
+	#	    item.next_rep += offset
+	#	return 0
+	#
+	# is because there is no mnemosyne.core.set_time_of_start() function.
 
     return offset
 
@@ -561,19 +567,18 @@ def do_import(interface, sync_path, progress_bar=None):
     importer = interface.start_import(sync_path)
     importer.progress_bar = progress_bar
 
-    offset = adjust_start_date(importer.get_start_time())
+    offset = adjust_start_date(importer.get_start_date())
 
     new_stats = []
     for (id, stats) in importer:
 	card = mnemosyne.core.get_item_by_id(id)
 	if card is not None:
-	    if offset is not None:
+	    if offset != 0:
 		stats['last_rep'] += offset
 		stats['next_rep'] += offset
 	    new_stats.append((card, stats))
 	else:
-	    print >> sys.stderr, (
-		"Quietly ignoring card with missing id: %s" % id)
+	    log_warning("Quietly ignoring card with missing id: %s" % id)
 
 	if (progress_bar):
 	    progress_bar.setProgress(importer.percentage_complete)
@@ -599,4 +604,13 @@ def do_import(interface, sync_path, progress_bar=None):
 
 	log.close()
 	os.remove(logpath)
+
+def log_info(msg):
+    mnemosyne.core.logger.info("mnemogogo: " + msg)
+
+def log_warning(msg):
+    mnemosyne.core.logger.warning("mnemogogo: " + msg)
+
+def log_error(msg):
+    mnemosyne.core.logger.error("mnemogogo: " + msg)
 

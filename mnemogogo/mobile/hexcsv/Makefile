@@ -1,6 +1,6 @@
 .SUFFIXES: .java .class
 
-WTKPATH=/usr/local/sun-wtk
+WTKPATH=/opt/WTK2.5.2
 CLASSPATH=../../..
 JAVAC=javac -bootclasspath \
       $(WTKPATH)/lib/cldcapi11.jar:$(WTKPATH)/lib/midpapi20.jar:$(WTKPATH)/lib/jsr75.jar \

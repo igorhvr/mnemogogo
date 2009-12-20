@@ -27,7 +27,9 @@ import mnemogogo
 from os.path import exists, join, splitext
 from os import mkdir, listdir, remove, tempnam
 from shutil import rmtree
-from time import time
+import time
+import calendar
+import datetime
 import codecs
 import re
 import sys
@@ -40,7 +42,7 @@ class BasicExport(mnemogogo.Export):
     def write_data(self, cardfile, serial_num, q, a, cat, is_overlay):
 	pass
 
-    def open(self, start_time, num_days, num_cards):
+    def open(self, start_date, num_days, num_cards):
 	if not exists(self.sync_path): mkdir(self.sync_path)
 	self.num_cards = num_cards
 
@@ -59,9 +61,15 @@ class BasicExport(mnemogogo.Export):
 	if not exists(self.img_path): mkdir(self.img_path)
 	if not exists(self.snd_path): mkdir(self.snd_path)
 
-	self.extra_config['start_time'] = str(start_time);
+	# database time_of_start:
+	#   start_date is used only for comparison on import
+	#   start_days is used in Mnemojojo for calculations
+	#	       (it is start_date in days since the epoch)
+	self.extra_config['start_date'] = start_date.isoformat()
+	self.extra_config['start_days'] = int(
+	    calendar.timegm(start_date.timetuple()) / 86400)
 
-	last_day = int(time() / 86400) + num_days;
+	last_day = int(time.time() / 86400) + num_days;
 	self.extra_config['last_day'] = str(last_day);
 
 	sfile = open(join(self.sync_path, 'PRELOG'), 'wb')
@@ -179,7 +187,7 @@ class Import(mnemogogo.Import):
 			'R ' + self.serial_to_id[r.group('id')], line)
 		postlog.write(line)
 	    except:
-	    	print >> sys.stderr, "ignoring log line: " + line
+		mnemogogo.log_warning("ignoring log line: " + line)
 
 	    line = prelog.readline()
 
@@ -223,9 +231,10 @@ class Import(mnemogogo.Import):
 	cfile.close()
 	return config
 
-    def get_start_time(self):
+    def get_start_date(self):
 	config = self.read_config()
-	return long(config['start_time'])
+	[year, month, day] = config['start_date'].split('-')
+	return datetime.date(int(year), int(month), int(day))
 
 # Mnemojojo Exporter
 
