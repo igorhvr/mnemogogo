@@ -39,8 +39,7 @@ public class FindCardDir
 
 	try {
 
-	    if (!fconn.exists() || !fconn.isDirectory() ||
-		!(fconn.canRead() && fconn.canWrite()))
+	    if (!fconn.exists() || !fconn.isDirectory() || !fconn.canRead())
 	    {
 		return false;
 	    }
@@ -73,7 +72,8 @@ public class FindCardDir
 	    return false;
 	}
 
-	return (hasStats
+	return (fconn.canWrite()
+		&& hasStats
 		&& hasCategories
 		&& hasConfig
 		&& hasCards);
