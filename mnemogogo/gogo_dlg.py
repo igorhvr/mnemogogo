@@ -105,6 +105,10 @@ class GogoDlg(GogoFrm):
     def doExport(self):
 	self.writeSettings()
 	try:
+	    if self.settings['sync_path'] == '':
+		self.showError(u"A synchronization path must be set first!")
+		return
+
 	    do_export(
 		self.name_to_object[self.settings['interface']],
 		self.settings['n_days'],

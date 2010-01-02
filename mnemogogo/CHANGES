@@ -1,3 +1,10 @@
+20100102 mnemogogo-0.9.11
+* Add more meaningful exception messages for when problems occur
+  in parsing CONFIG.
+* Fix a minor problem in the tracking of future schedules.
+* Provide a better error message for when the synchronization path
+  is not set at all.
+
 20091220 mnemogogo-0.9.10
 * Fix a bug in start_date handling that caused shifted statistics at
   each import after changing timezone (thanks to Mackan Svensson for
