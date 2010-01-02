@@ -54,7 +54,7 @@ class RevQueue {
 	limit_new = 0;
 	days_since_start = days;
 
-	if (days_left > 1) {
+	if (days_left >= 1) {
 	    futureSchedule = new int[days_left]; // 0 = in 1 day, ...
 	} else {
 	    futureSchedule = null;
