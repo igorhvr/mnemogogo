@@ -56,10 +56,8 @@ public class HexCsv
     private int path_len;
 
     public HexCsv(String path, Progress prog)
-	throws IOException
+	throws Exception, IOException
     {
-	String v;
-
 	path_len = path.length();
 	pathbuf = new StringBuffer(path_len + 20);
 	pathbuf.append(path);
@@ -68,11 +66,10 @@ public class HexCsv
 
 	readConfig(pathbuf);
 
-	v = config.getString("last_day");
-	days_left = daysLeft(Long.parseLong(v));
-
-	v = config.getString("start_days");
-	days_since_start = daysSinceStart(Long.parseLong(v));
+	days_left = daysLeft(config.lastDay());
+	System.out.print("days_left="); // XXX
+	System.out.println(days_left); // XXX
+	days_since_start = daysSinceStart(config.startDay());
 
 	truncatePathBuf();
 	readCards(pathbuf);

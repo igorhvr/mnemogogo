@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.io.EOFException;
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.lang.Exception;
 
 public class Config extends Hashtable/*<String, String>*/
 {
-    Config() {
+    Config()
+    {
 	setDefaults();
     }
 
@@ -38,32 +40,76 @@ public class Config extends Hashtable/*<String, String>*/
 	readConfig(in);
     }
 
-    private void setDefaults() {
+    private void setDefaults()
+    {
 	put("grade_0_items_at_once", "10");
 	put("sorting", "1");
 	put("logging", "1");
 	put("day_starts_at", "3");
     }
 
-    public int grade0ItemsAtOnce() {
-	return Integer.parseInt((String)get("grade_0_items_at_once"));
+    public int grade0ItemsAtOnce()
+    {
+	String v = getString("grade_0_items_at_once");
+	int i = Integer.parseInt(v);
+	return i;
     }
 
-    public int dayStartsAt() {
-	return Integer.parseInt((String)get("day_starts_at"));
+    public int dayStartsAt()
+    {
+	String v = getString("day_starts_at");
+	int i = Integer.parseInt(v);
+	return i;
     }
 
-    public String getString(String key) {
+    public long startDay()
+	throws Exception
+    {
+	String v = getString("start_days");
+	if (v == null) {
+	    throw new Exception("CONFIG does not contain a start_days field!");
+	}
+
+	long l;
+	try {
+	    l = Long.parseLong(v);
+	} catch (NumberFormatException e) {
+	    throw new Exception("CONFIG/start_days is not a number!");
+	}
+	return l;
+    }
+
+    public long lastDay()
+	throws Exception
+    {
+	String v = getString("last_day");
+	if (v == null) {
+	    throw new Exception("CONFIG does not contain a last_day field!");
+	}
+
+	long l;
+	try {
+	    l = Long.parseLong(v);
+	} catch (NumberFormatException e) {
+	    throw new Exception("CONFIG/last_day is not a number!");
+	}
+	return l;
+    }
+
+    public String getString(String key)
+    {
 	return (String)get(key);
     }
 
-    public boolean logging() {
-	String s = (String)get("logging");
+    public boolean logging()
+    {
+	String s = getString("logging");
 	return (!s.equals("0"));
     }
 
-    public boolean sorting() {
-	String s = (String)get("sorting");
+    public boolean sorting()
+    {
+	String s = getString("sorting");
 	return (!s.equals("0"));
     }
 
