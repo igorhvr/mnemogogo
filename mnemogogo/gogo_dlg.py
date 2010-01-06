@@ -109,6 +109,11 @@ class GogoDlg(GogoFrm):
 		self.showError(u"A synchronization path must be set first!")
 		return
 
+	    if not os.path.exists(self.settings['sync_path']):
+		self.showError(u"The synchronization path ('%s') is not valid!"
+				% self.settings['sync_path'])
+		return
+
 	    do_export(
 		self.name_to_object[self.settings['interface']],
 		self.settings['n_days'],
