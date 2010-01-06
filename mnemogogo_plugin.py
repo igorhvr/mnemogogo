@@ -30,7 +30,11 @@ from qt import *
 import sys
 from os.path import exists, join
 
-import mnemogogo
+try:
+    import mnemogogo
+    mnemogogo_imported = True
+except:
+    mnemogogo_imported = False
 
 class MnemogogoPlugin(Plugin):
     version = "0.9.10"
@@ -73,23 +77,41 @@ class MnemogogoPlugin(Plugin):
 	self.main_dlg.updateDialog()
 	self.save_config()
 
-    def load(self):
-	mnemogogo.log_info('version %s' % self.version)
+    def show_error(self, msg):
+	QMessageBox.critical(None, 
+	    self.main_dlg.trUtf8("Mnemogogo"),
+	    self.main_dlg.trUtf8(msg),
+	    self.main_dlg.trUtf8("&OK"), "", "", 0, -1)
 
+    def load(self):
 	basedir = get_basedir()
+	self.main_dlg = get_main_widget()
 
 	if not exists(join(basedir, "plugins", "mnemogogo")):
-	    raise mnemogogo.Mnemogogo(
-		     "Incorrect installation. Missing "
-		   + join(basedir, "plugins", "mnemogogo")
-		   + " directory")
+	    self.show_error("Incorrect installation. Missing "
+	        + join(basedir, "plugins", "mnemogogo")
+	        + " directory")
+	    return
+
+	if not mnemogogo_imported:
+	    self.show_error("Incorrect installation."
+		+ " The mnemogogo module could not be imported.")
+	    return
+	
+	try:
+	    time_of_start = mnemosyne.core.get_time_of_start()
+	except AttributeError:
+	    self.show_error(
+		"Mnemogogo requires Mnemosyne version 1.2.2 or above.")
+	    return
+
+	mnemogogo.log_info('version %s' % self.version)
 	
 	# Load configuration
 	self.load_config()
 	
 	self.interfaces = mnemogogo.register_interfaces()
 
-	self.main_dlg = get_main_widget()
 	self.gogo_dlg = mnemogogo.GogoDlg(self.main_dlg)
 	self.gogo_dlg.setInterfaceList(self.interfaces)
 
