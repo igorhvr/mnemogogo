@@ -468,3 +468,26 @@ class JojoHexCsv480x800(mnemogogo.Interface):
     def start_import(self, sync_path):
 	return Import(self, sync_path)
 
+class JojoHexCsv480x854(mnemogogo.Interface):
+    max_width = 480
+    max_height = 854
+    max_size = 96
+    ext = 'PNG'
+
+    description = ('Mnemojojo (%dx%d <%dk, %s)' %
+		    (max_width, max_height, max_size, ext))
+    version = '1.0.0'
+
+    def start_export(self, sync_path):
+	e = JojoExport(self, sync_path)
+	e.img_max_width = self.max_width
+	e.img_max_height = self.max_height - title_height_pixels
+	e.img_to_landscape = False
+	e.img_max_size = self.max_size * 1024;
+	e.img_to_ext = self.ext
+	e.name_with_numbers = False
+	return e
+
+    def start_import(self, sync_path):
+	return Import(self, sync_path)
+
