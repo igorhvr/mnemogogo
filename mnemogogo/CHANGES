@@ -5,6 +5,7 @@
 * Provide a better error message for when the synchronization path
   is not set at all.
 * Improve Mnemogogo error messages at startup and during export.
+* No longer lock the preview window in remote mode.
 
 20091220 mnemogogo-0.9.10
 * Fix a bug in start_date handling that caused shifted statistics at

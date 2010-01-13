@@ -175,7 +175,11 @@ class MnemogogoPlugin(Plugin):
 	self.main_dlg.grades.removeLocking()
 
     def check_lock(self, text, card):
-	if not self.is_locked: return text
+	try: dlg_name = sys._getframe(2).f_locals['self'].__class__.__name__
+	except: dlg_name = 'MainDlg'
+
+	if (not self.is_locked) or (dlg_name == 'PreviewItemDlg'):
+	    return text
 
 	text = "<b><font color=\"red\">%s</font></b>" % self.lock_msg_main
 	text += "<br><br><img src=\"plugins/mnemogogo/locked.png\">"
