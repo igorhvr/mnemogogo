@@ -85,6 +85,9 @@ class GogoDlg(GogoFrm):
 	self.settings['interface'] = self.getInterface()
 	self.settings['n_days'] = self.daysToExport.value()
 	self.settings['sync_path'] = unicode(self.syncPath.text())
+	self.settings['max_width'] = self.maxWidth.value()
+	self.settings['max_height'] = self.maxHeight.value()
+	self.settings['max_size'] = self.maxSize.value()
 
     def __init__(self, parent=None, name=None, modal=0, fl=0):
 	GogoFrm.__init__(self, parent, name, modal, fl)
@@ -119,7 +122,11 @@ class GogoDlg(GogoFrm):
 		self.settings['n_days'],
 		self.settings['sync_path'],
 		self.progressBar,
-		self.settings['extra_factor'])
+		self.settings['extra_factor'],
+		self.settings['max_width'],
+		self.settings['max_height'],
+		self.settings['max_size']
+		)
 	    self.setMobile()
 	except InterfaceError, e:
 	    self.showError(unicode(e))
@@ -194,6 +201,15 @@ class GogoDlg(GogoFrm):
 	
 	if settings.has_key('extra_factor'):
 	    self.settings['extra_factor'] = settings['extra_factor']
+	
+	if settings.has_key('max_width'):
+	    self.maxWidth.setValue(settings['max_width'])
+
+	if settings.has_key('max_height'):
+	    self.maxHeight.setValue(settings['max_height'])
+
+	if settings.has_key('max_size'):
+	    self.maxSize.setValue(settings['max_size'])
 
     def apply(self):
 	self.writeSettings()

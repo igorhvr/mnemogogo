@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'gogo_frm.ui'
 #
-# Created: Mon Oct 26 08:47:41 2009
-#      by: The PyQt User Interface Compiler (pyuic) 3.17.3
+# Created: Tue Jan 19 20:13:25 2010
+#      by: The PyQt User Interface Compiler (pyuic) 3.18.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -110,49 +110,74 @@ class GogoFrm(QDialog):
         self.tabWidget.insertTab(self.synchronizeTab,QString.fromLatin1(""))
 
         self.optionsTab = QWidget(self.tabWidget,"optionsTab")
-        optionsTabLayout = QGridLayout(self.optionsTab,1,1,11,6,"optionsTabLayout")
 
         self.textLabel2 = QLabel(self.optionsTab,"textLabel2")
-
-        optionsTabLayout.addMultiCellWidget(self.textLabel2,0,0,0,1)
+        self.textLabel2.setGeometry(QRect(11,11,175,24))
 
         self.textLabel4 = QLabel(self.optionsTab,"textLabel4")
-
-        optionsTabLayout.addMultiCellWidget(self.textLabel4,2,2,0,1)
+        self.textLabel4.setGeometry(QRect(11,80,175,24))
 
         self.interfaceList = QComboBox(0,self.optionsTab,"interfaceList")
-
-        optionsTabLayout.addMultiCellWidget(self.interfaceList,2,2,2,4)
-
-        self.daysToExport = QSpinBox(self.optionsTab,"daysToExport")
-
-        optionsTabLayout.addWidget(self.daysToExport,0,2)
-
-        self.textLabel3 = QLabel(self.optionsTab,"textLabel3")
-
-        optionsTabLayout.addMultiCellWidget(self.textLabel3,1,1,0,1)
+        self.interfaceList.setGeometry(QRect(192,80,343,24))
 
         self.browseButton = QPushButton(self.optionsTab,"browseButton")
-
-        optionsTabLayout.addWidget(self.browseButton,1,4)
-
-        self.syncPath = QLineEdit(self.optionsTab,"syncPath")
-
-        optionsTabLayout.addMultiCellWidget(self.syncPath,1,1,2,3)
-        spacer28 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        optionsTabLayout.addItem(spacer28,0,3)
+        self.browseButton.setGeometry(QRect(449,41,86,33))
 
         self.forceLocalButton = QPushButton(self.optionsTab,"forceLocalButton")
-
-        optionsTabLayout.addWidget(self.forceLocalButton,5,0)
+        self.forceLocalButton.setGeometry(QRect(11,235,119,33))
 
         self.forceMobileButton = QPushButton(self.optionsTab,"forceMobileButton")
+        self.forceMobileButton.setGeometry(QRect(11,196,119,33))
 
-        optionsTabLayout.addWidget(self.forceMobileButton,4,0)
-        spacer23 = QSpacerItem(420,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        optionsTabLayout.addMultiCell(spacer23,4,5,1,4)
-        spacer21 = QSpacerItem(20,110,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        optionsTabLayout.addItem(spacer21,3,0)
+        self.syncPath = QLineEdit(self.optionsTab,"syncPath")
+        self.syncPath.setGeometry(QRect(192,45,251,24))
+
+        self.daysToExport = QSpinBox(self.optionsTab,"daysToExport")
+        self.daysToExport.setGeometry(QRect(192,11,46,24))
+
+        self.textLabel3 = QLabel(self.optionsTab,"textLabel3")
+        self.textLabel3.setGeometry(QRect(11,41,175,33))
+
+        self.imageProperties = QButtonGroup(self.optionsTab,"imageProperties")
+        self.imageProperties.setGeometry(QRect(270,130,176,118))
+        self.imageProperties.setColumnLayout(0,Qt.Vertical)
+        self.imageProperties.layout().setSpacing(6)
+        self.imageProperties.layout().setMargin(11)
+        imagePropertiesLayout = QGridLayout(self.imageProperties.layout())
+        imagePropertiesLayout.setAlignment(Qt.AlignTop)
+
+        self.maxWidth = QSpinBox(self.imageProperties,"maxWidth")
+        self.maxWidth.setMaxValue(1024)
+        self.maxWidth.setMinValue(32)
+        self.maxWidth.setValue(240)
+
+        imagePropertiesLayout.addWidget(self.maxWidth,0,1)
+
+        self.maxHeight = QSpinBox(self.imageProperties,"maxHeight")
+        self.maxHeight.setMaxValue(1024)
+        self.maxHeight.setMinValue(32)
+        self.maxHeight.setValue(300)
+
+        imagePropertiesLayout.addWidget(self.maxHeight,1,1)
+
+        self.maxSize = QSpinBox(self.imageProperties,"maxSize")
+        self.maxSize.setMaxValue(256)
+        self.maxSize.setMinValue(16)
+        self.maxSize.setValue(64)
+
+        imagePropertiesLayout.addWidget(self.maxSize,2,1)
+
+        self.maxSize_label = QLabel(self.imageProperties,"maxSize_label")
+
+        imagePropertiesLayout.addWidget(self.maxSize_label,2,0)
+
+        self.maxHeight_label = QLabel(self.imageProperties,"maxHeight_label")
+
+        imagePropertiesLayout.addWidget(self.maxHeight_label,1,0)
+
+        self.maxWidth_label = QLabel(self.imageProperties,"maxWidth_label")
+
+        imagePropertiesLayout.addWidget(self.maxWidth_label,0,0)
         self.tabWidget.insertTab(self.optionsTab,QString.fromLatin1(""))
 
         self.languageChange()
@@ -185,11 +210,15 @@ class GogoFrm(QDialog):
         self.tabWidget.changeTab(self.synchronizeTab,self.__tr("Synchronize"))
         self.textLabel2.setText(self.__tr("Number of days to export:"))
         self.textLabel4.setText(self.__tr("Interface:"))
-        self.textLabel3.setText(self.__tr("Synchronization path:"))
         self.browseButton.setText(self.__tr("&Browse"))
         self.browseButton.setAccel(QKeySequence(self.__tr("Alt+B")))
         self.forceLocalButton.setText(self.__tr("Force to Local"))
         self.forceMobileButton.setText(self.__tr("Force to Mobile"))
+        self.textLabel3.setText(self.__tr("Synchronization path:"))
+        self.imageProperties.setTitle(self.__tr("Exported image limits"))
+        self.maxSize_label.setText(self.__tr("Size (Kb):"))
+        self.maxHeight_label.setText(self.__tr("Height:"))
+        self.maxWidth_label.setText(self.__tr("Width:"))
         self.tabWidget.changeTab(self.optionsTab,self.__tr("Options"))
 
 

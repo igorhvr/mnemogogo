@@ -6,6 +6,9 @@
   is not set at all.
 * Improve Mnemogogo error messages at startup and during export.
 * No longer lock the preview window in remote mode.
+* Add maximum image parameters to the config panel and simplify the
+  list of interfaces: just one entry for Mnemojojo and a new entry for
+  Mnemododo.
 
 20091220 mnemogogo-0.9.10
 * Fix a bug in start_date handling that caused shifted statistics at

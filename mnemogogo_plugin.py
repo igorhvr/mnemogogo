@@ -47,6 +47,9 @@ class MnemogogoPlugin(Plugin):
 	'n_days'	: 7,
 	'mode'		: 'local',
 	'extra_factor'	: 1.00,
+	'max_width'	: 240,
+	'max_height'	: 300,
+	'max_size'	: 64,
     }
 
     def description(self):

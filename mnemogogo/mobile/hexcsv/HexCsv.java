@@ -67,8 +67,6 @@ public class HexCsv
 	readConfig(pathbuf);
 
 	days_left = daysLeft(config.lastDay());
-	System.out.print("days_left="); // XXX
-	System.out.println(days_left); // XXX
 	days_since_start = daysSinceStart(config.startDay());
 
 	truncatePathBuf();

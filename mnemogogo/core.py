@@ -132,7 +132,7 @@ class Export(Job):
 			re.IGNORECASE + re.MULTILINE + re.DOTALL)
 
     # implement in plugin
-    def open(self, start_date, num_days, num_cards):
+    def open(self, start_date, num_days, num_cards, params):
 	pass
 
     # implement in plugin
@@ -495,7 +495,8 @@ def process(card, which):
 	    text = f(text, card)
     return text
 
-def do_export(interface, num_days, sync_path, progress_bar=None, extra = 1.00):
+def do_export(interface, num_days, sync_path, progress_bar=None,
+	      extra = 1.00, max_width = 240, max_height = 300, max_size = 64):
     basedir = mnemosyne.core.get_basedir()
 
     eliminate_duplicate_ids()
@@ -510,6 +511,12 @@ def do_export(interface, num_days, sync_path, progress_bar=None, extra = 1.00):
 		: "%d" % mnemosyne.core.get_config('upload_logs'),
 	}
 
+    params = {
+	    'max_width' : max_width,
+	    'max_height' : max_height,
+	    'max_size' : max_size,
+	}
+
     cards = list(cards_for_ndays(num_days, extra))
     cards.sort(key=mnemosyne.core.Item.sort_key_interval)
     time_of_start = mnemosyne.core.get_time_of_start()
@@ -518,7 +525,7 @@ def do_export(interface, num_days, sync_path, progress_bar=None, extra = 1.00):
     total = len(cards)
     current = 0
 
-    exporter.open(time_of_start.date, num_days, len(cards))
+    exporter.open(time_of_start.date, num_days, len(cards), params)
     exporter.id_to_serial = dict(zip((i.id for i in cards),
 				 range(0, len(cards))))
     exporter.write_config(config)

@@ -565,128 +565,306 @@
             <attribute name="title">
                 <string>Options</string>
             </attribute>
-            <grid>
+            <widget class="QLabel">
                 <property name="name">
-                    <cstring>unnamed</cstring>
+                    <cstring>textLabel2</cstring>
                 </property>
-                <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
+                <property name="geometry">
+                    <rect>
+                        <x>11</x>
+                        <y>11</y>
+                        <width>175</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Number of days to export:</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel4</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>11</x>
+                        <y>80</y>
+                        <width>175</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Interface:</string>
+                </property>
+            </widget>
+            <widget class="QComboBox">
+                <property name="name">
+                    <cstring>interfaceList</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>192</x>
+                        <y>80</y>
+                        <width>343</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>browseButton</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>449</x>
+                        <y>41</y>
+                        <width>86</width>
+                        <height>33</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>&amp;Browse</string>
+                </property>
+                <property name="accel">
+                    <string>Alt+B</string>
+                </property>
+            </widget>
+            <spacer>
+                <property name="name">
+                    <cstring>spacer28</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>40</width>
+                        <height>20</height>
+                    </size>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>244</x>
+                        <y>13</y>
+                        <width>199</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+            </spacer>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>forceLocalButton</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>11</x>
+                        <y>235</y>
+                        <width>119</width>
+                        <height>33</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Force to Local</string>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>forceMobileButton</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>11</x>
+                        <y>196</y>
+                        <width>119</width>
+                        <height>33</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Force to Mobile</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>syncPath</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>192</x>
+                        <y>45</y>
+                        <width>251</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QSpinBox">
+                <property name="name">
+                    <cstring>daysToExport</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>192</x>
+                        <y>11</y>
+                        <width>46</width>
+                        <height>24</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel3</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>11</x>
+                        <y>41</y>
+                        <width>175</width>
+                        <height>33</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Synchronization path:</string>
+                </property>
+            </widget>
+            <widget class="QButtonGroup">
+                <property name="name">
+                    <cstring>imageProperties</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>270</x>
+                        <y>130</y>
+                        <width>176</width>
+                        <height>118</height>
+                    </rect>
+                </property>
+                <property name="title">
+                    <string>Exported image limits</string>
+                </property>
+                <grid>
                     <property name="name">
-                        <cstring>textLabel2</cstring>
+                        <cstring>unnamed</cstring>
                     </property>
-                    <property name="text">
-                        <string>Number of days to export:</string>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="2" column="0" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>textLabel4</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Interface:</string>
-                    </property>
-                </widget>
-                <widget class="QComboBox" row="2" column="2" rowspan="1" colspan="3">
-                    <property name="name">
-                        <cstring>interfaceList</cstring>
-                    </property>
-                </widget>
-                <widget class="QSpinBox" row="0" column="2">
-                    <property name="name">
-                        <cstring>daysToExport</cstring>
-                    </property>
-                </widget>
-                <widget class="QLabel" row="1" column="0" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>textLabel3</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Synchronization path:</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="1" column="4">
-                    <property name="name">
-                        <cstring>browseButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Browse</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+B</string>
-                    </property>
-                </widget>
-                <widget class="QLineEdit" row="1" column="2" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>syncPath</cstring>
-                    </property>
-                </widget>
-                <spacer row="0" column="3">
-                    <property name="name">
-                        <cstring>spacer28</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QPushButton" row="5" column="0">
-                    <property name="name">
-                        <cstring>forceLocalButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Force to Local</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton" row="4" column="0">
-                    <property name="name">
-                        <cstring>forceMobileButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Force to Mobile</string>
-                    </property>
-                </widget>
-                <spacer row="4" column="1" rowspan="2" colspan="4">
-                    <property name="name">
-                        <cstring>spacer23</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>420</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <spacer row="3" column="0">
-                    <property name="name">
-                        <cstring>spacer21</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Vertical</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>110</height>
-                        </size>
-                    </property>
-                </spacer>
-            </grid>
+                    <widget class="QSpinBox" row="0" column="1">
+                        <property name="name">
+                            <cstring>maxWidth</cstring>
+                        </property>
+                        <property name="maxValue">
+                            <number>1024</number>
+                        </property>
+                        <property name="minValue">
+                            <number>32</number>
+                        </property>
+                        <property name="value">
+                            <number>240</number>
+                        </property>
+                    </widget>
+                    <widget class="QSpinBox" row="1" column="1">
+                        <property name="name">
+                            <cstring>maxHeight</cstring>
+                        </property>
+                        <property name="maxValue">
+                            <number>1024</number>
+                        </property>
+                        <property name="minValue">
+                            <number>32</number>
+                        </property>
+                        <property name="value">
+                            <number>300</number>
+                        </property>
+                    </widget>
+                    <widget class="QSpinBox" row="2" column="1">
+                        <property name="name">
+                            <cstring>maxSize</cstring>
+                        </property>
+                        <property name="maxValue">
+                            <number>256</number>
+                        </property>
+                        <property name="minValue">
+                            <number>16</number>
+                        </property>
+                        <property name="value">
+                            <number>64</number>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="2" column="0">
+                        <property name="name">
+                            <cstring>maxSize_label</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Size (Kb):</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="1" column="0">
+                        <property name="name">
+                            <cstring>maxHeight_label</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Height:</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>maxWidth_label</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Width:</string>
+                        </property>
+                    </widget>
+                </grid>
+            </widget>
+            <spacer>
+                <property name="name">
+                    <cstring>spacer23</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>130</width>
+                        <height>20</height>
+                    </size>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>136</x>
+                        <y>222</y>
+                        <width>130</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+            </spacer>
+            <spacer>
+                <property name="name">
+                    <cstring>spacer23_2</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>90</width>
+                        <height>20</height>
+                    </size>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>450</x>
+                        <y>220</y>
+                        <width>90</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+            </spacer>
         </widget>
     </widget>
 </widget>
