@@ -18,7 +18,6 @@
 
 package mnemogogo.mobile.hexcsv;
 
-import java.lang.*;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.EOFException;
@@ -33,106 +32,106 @@ class CardData
     Progress progress;
 
     public CardData(DataInputStream is, Progress p, CardDataSet carddb)
-	throws IOException
+        throws IOException
     {
-	progress = p;
-	load(is, carddb);
-	bufferLen = 10;
-	buffer = new byte[bufferLen];
+        progress = p;
+        load(is, carddb);
+        bufferLen = 10;
+        buffer = new byte[bufferLen];
     }
 
     boolean readByte(DataInputStream src)
-	throws IOException
+        throws IOException
     {
-	int b = src.read();
+        int b = src.read();
 
-	if (b == -1) {
-	    return false;
-	} else {
-	    // assumes buffer is big enough
-	    buffer[pos++] = (byte)b;
-	}
+        if (b == -1) {
+            return false;
+        } else {
+            // assumes buffer is big enough
+            buffer[pos++] = (byte)b;
+        }
 
-	return true;
+        return true;
     }
 
     int readDecimal(DataInputStream src)
-	throws IOException
+        throws IOException
     {
-	int value = 0;
-	int len = 0;
-	pos = 0;
-	while (readByte(src) && (char)buffer[0] != '\n') {
-	    pos = 0;
-	    value = (value * 10) + Character.digit((char)buffer[0], 10);
-	    ++len;
-	}
+        int value = 0;
+        int len = 0;
+        pos = 0;
+        while (readByte(src) && (char)buffer[0] != '\n') {
+            pos = 0;
+            value = (value * 10) + Character.digit((char)buffer[0], 10);
+            ++len;
+        }
 
-	return value;
+        return value;
     }
 
     String readString(DataInputStream src)
-	throws IOException
+        throws IOException
     {
-	int len = readDecimal(src);
+        int len = readDecimal(src);
 
-	if (bufferLen < len) {
-	    bufferLen = len;
-	    buffer = new byte[bufferLen];
-	}
+        if (bufferLen < len) {
+            bufferLen = len;
+            buffer = new byte[bufferLen];
+        }
 
-	pos = 0;
-	while (readByte(src) && pos < len) {}
+        pos = 0;
+        while (readByte(src) && pos < len) {}
 
-	if (pos == 0) {
-	    throw new EOFException();
-	}
+        if (pos == 0) {
+            throw new EOFException();
+        }
 
-	String r = new String(buffer, 0, pos, "UTF-8");
+        String r = new String(buffer, 0, pos, "UTF-8");
 
-	// Strip of the trailing new line
-	pos = 0;
-	readByte(src);
+        // Strip of the trailing new line
+        pos = 0;
+        readByte(src);
 
-	return r;
+        return r;
     }
 
     void skipString(DataInputStream src)
-	throws IOException
+        throws IOException
     {
-	int len = readDecimal(src) + 1;	// + \n
+        int len = readDecimal(src) + 1; // + \n
 
-	while (len > 0) {
-	    len -= src.skip(len);
-	}
+        while (len > 0) {
+            len -= src.skip(len);
+        }
     }
 
     private void load(DataInputStream src, CardDataSet carddb)
-	throws IOException
+        throws IOException
     {
-	int num_cards = readDecimal(src);
-	int overlay;
-	String qcard = null;
-	String acard = null;
+        int num_cards = readDecimal(src);
+        int overlay;
+        String qcard = null;
+        String acard = null;
 
-	try {
-	    for (int i = 0; i < num_cards; ++i) {
-		overlay = readDecimal(src);
-		if (carddb.cardDataNeeded(i)) {
-		    qcard = readString(src);
-		    acard = readString(src);
-		    carddb.setCardData(i, qcard, acard, overlay != 0);
-		} else {
-		    skipString(src);
-		    skipString(src);
-		}
-		if (i % 10 == 0) {
-		    progress.updateOperation(10);
-		}
-	    }
-	} catch (EOFException e) { }
+        try {
+            for (int i = 0; i < num_cards; ++i) {
+                overlay = readDecimal(src);
+                if (carddb.cardDataNeeded(i)) {
+                    qcard = readString(src);
+                    acard = readString(src);
+                    carddb.setCardData(i, qcard, acard, overlay != 0);
+                } else {
+                    skipString(src);
+                    skipString(src);
+                }
+                if (i % 10 == 0) {
+                    progress.updateOperation(10);
+                }
+            }
+        } catch (EOFException e) { }
 
-	src.close();
+        src.close();
     }
 }
 

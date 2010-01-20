@@ -20,7 +20,7 @@ package mnemogogo.mobile.hexcsv;
 
 interface CardDataSet {
     void setCardData(int serial, String question, String answer,
-		     boolean overlay);
+                     boolean overlay);
 
     boolean cardDataNeeded(int serial);
 }

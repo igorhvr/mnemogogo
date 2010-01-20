@@ -18,7 +18,6 @@
 
 package mnemogogo.mobile.hexcsv;
 
-import java.lang.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Enumeration;
@@ -32,75 +31,75 @@ public class Debug
     public static PrintStream logFile = null;
 
     public static void open() {
-	StringBuffer path = new StringBuffer("file://");
-	Enumeration roots = FileSystemRegistry.listRoots();
+        StringBuffer path = new StringBuffer("file://");
+        Enumeration roots = FileSystemRegistry.listRoots();
 
-	while (roots.hasMoreElements()) {
-	    try {
-		path.delete(7, path.length());
-		path.append("/");
-		path.append((String)roots.nextElement());
-		path.append("mnemogogo.log");
+        while (roots.hasMoreElements()) {
+            try {
+                path.delete(7, path.length());
+                path.append("/");
+                path.append((String)roots.nextElement());
+                path.append("mnemogogo.log");
 
-		FileConnection fconn = (FileConnection)Connector.open(path.toString());
-		if (!fconn.exists()) {
-		    fconn.create();
-		}
-		logFile = new PrintStream(fconn.openOutputStream());
+                FileConnection fconn = (FileConnection)Connector.open(path.toString());
+                if (!fconn.exists()) {
+                    fconn.create();
+                }
+                logFile = new PrintStream(fconn.openOutputStream());
 
-		if (logFile != null) {
-		    break;
-		}
-	    } catch (SecurityException e) {
-	    } catch (IOException e) { }
-	}
+                if (logFile != null) {
+                    break;
+                }
+            } catch (SecurityException e) {
+            } catch (IOException e) { }
+        }
 
-	open = true;
+        open = true;
     }
 
     public static void log(String msg) {
-	if (!open) open();
+        if (!open) open();
 
-	if (logFile != null) {
-	    logFile.print(msg);
-	    logFile.flush();
-	}
+        if (logFile != null) {
+            logFile.print(msg);
+            logFile.flush();
+        }
     }
 
     public static void logln(String msg) {
-	if (!open) open();
+        if (!open) open();
 
-	if (logFile != null) {
-	    logFile.print(msg);
-	    logFile.print("\n");
-	    logFile.flush();
-	}
+        if (logFile != null) {
+            logFile.print(msg);
+            logFile.print("\n");
+            logFile.flush();
+        }
     }
 
     public static void log(int msg) {
-	if (!open) open();
+        if (!open) open();
 
-	if (logFile != null) {
-	    logFile.print(msg);
-	    logFile.flush();
-	}
+        if (logFile != null) {
+            logFile.print(msg);
+            logFile.flush();
+        }
     }
 
     public static void log(long msg) {
-	if (!open) open();
+        if (!open) open();
 
-	if (logFile != null) {
-	    logFile.print(msg);
-	    logFile.flush();
-	}
+        if (logFile != null) {
+            logFile.print(msg);
+            logFile.flush();
+        }
     }
 
     public static void stopLog() {
-	if (logFile != null) {
-	    logFile.close();
-	    logFile = null;
-	    open = false;
-	}
+        if (logFile != null) {
+            logFile.close();
+            logFile = null;
+            open = false;
+        }
     }
 }
 
