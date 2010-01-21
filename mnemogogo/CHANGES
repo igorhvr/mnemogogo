@@ -9,6 +9,11 @@
 * Add maximum image parameters to the config panel and simplify the
   list of interfaces: just one entry for Mnemojojo and a new entry for
   Mnemododo.
+* Image manipulation now uses qt library functions and there is no longer a
+  dependency on the Python Imaging Library (PIL)
+* Fix a subtle bug in the initialization of Job and Export classes
+  (it only affected repeated exports during a single Mnemosyne session in a
+   minor way).
 
 20091220 mnemogogo-0.9.10
 * Fix a bug in start_date handling that caused shifted statistics at

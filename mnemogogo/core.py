@@ -26,12 +26,7 @@ import re
 import itertools
 import random
 import traceback
-
-try:
-    from PIL import Image  # Python Imaging Library
-    hasImageModule = True
-except ImportError:
-    hasImageModule = False
+from qt import *
 
 interface_classes = []
 
@@ -92,11 +87,11 @@ class InterfaceError(Exception):
 class Job:
     learning_data = learning_data
     learning_data_len = learning_data_len
-    percentage_complete = 0
 
     def __init__(self, interface, sync_path):
 	self.interface = interface
 	self.sync_path = sync_path
+	self.percentage_complete = 0
 
     # implement in plugin
     def close(self):
@@ -107,18 +102,6 @@ class Job:
 	raise InterfaceError(title + msg)
 
 class Export(Job):
-    categories = []
-    imgs = {}
-    img_cnt = 0
-    snds = {}
-    snd_cnt = 0
-    name_with_numbers = True
-
-    img_max_width = None
-    img_max_height = None
-    img_to_landscape = False
-    img_to_ext = None
-
     re_img_split = re.compile(r'(<img.*?>)')
     re_img = re.compile( r'(?P<all>(?P<before><img\s+[^>]?)'
 			+ 'src\s*=\s*"(?P<path>[^"]*)"'
@@ -130,6 +113,21 @@ class Export(Job):
 			+ 'src\s*=\s*"(?P<path>[^"]*)"'
 			+ '(?P<after>[^>]*/?>))',
 			re.IGNORECASE + re.MULTILINE + re.DOTALL)
+
+    def __init__(self, interface, sync_path):
+	Job.__init__(self, interface, sync_path)
+
+	self.categories = []
+	self.imgs = {}
+	self.img_cnt = 0
+	self.snds = {}
+	self.snd_cnt = 0
+	self.name_with_numbers = True
+
+	self.img_max_width = None
+	self.img_max_height = None
+	self.img_to_landscape = False
+	self.img_to_ext = None
 
     # implement in plugin
     def open(self, start_date, num_days, num_cards, params):
@@ -206,21 +204,15 @@ class Export(Job):
 		(os.path.getmtime(src) < os.path.getmtime(dst))):
 	    return (False, dst_file)
 
-	if not hasImageModule:
-	    (src_base, src_ext) = os.path.splitext(src)
-	    dst_file = dst_name + src_ext.upper()
-	    dst = os.path.join(self.sync_path, dst_subdir, dst_file)
-	    shutil.copy(src, dst)
-	    return (True, dst_file)
-
-	im = Image.open(src)
-	(width, height) = im.size
+	im = QImage(src)
+	(width, height) = (im.width(), im.height())
 
 	if (self.img_to_landscape and self.img_max_width
 		and float(width) > (height * 1.2)
 		and width > self.img_max_width):
-	    im = im.transpose(Image.ROTATE_90)
-	    (width, height) = im.size
+	    matrix = QWMatrix()
+	    im = im.xForm(matrix.rotate(90))
+	    (width, height) = (im.width(), im.height())
 	
 	(wratio, hratio) = (1.0, 1.0)
 	if self.img_max_width and width > self.img_max_width:
@@ -231,19 +223,19 @@ class Export(Job):
 	
 	ratio = max(wratio, hratio)
 	if ratio != 1.0:
-	    im = im.resize((int(width / ratio), int(height / ratio)),
-			   Image.ANTIALIAS)
+	    im = im.smoothScale(int(width / ratio), int(height / ratio))
+	    (width, height) = (im.width(), im.height())
 	
 	if self.img_max_size:
 	    tmpdstdir = os.tempnam()
 	    os.mkdir(tmpdstdir)
 	    tmpdst = os.path.join(tmpdstdir, '_gogo_scaling.png')
 
-	    im.save(tmpdst)
+	    im.save(tmpdst, 'PNG')
 	    (nwidth, nheight) = (width, height)
 	    while (os.path.getsize(tmpdst) > self.img_max_size):
 		(owidth, oheight) = (nwidth, nheight)
-		scale = 0.7
+		scale = 0.9
 		while ((nwidth == owidth or nheight == oheight)
 		       and scale > 0.0):
 		    (nwidth, nheight) = (int(nwidth * scale),
@@ -251,13 +243,13 @@ class Export(Job):
 		    scale = scale - .1
 
 		if nwidth > 0 and nheight > 0:
-		    im = im.resize((nwidth, nheight), Image.ANTIALIAS)
-		    im.save(tmpdst)
+		    im = im.smoothScale(nwidth, nheight)
+		    im.save(tmpdst, 'PNG')
 		else:
 		    break;
 	    shutil.rmtree(tmpdstdir)
 
-	im.save(dst)
+	im.save(dst, dst_ext.upper())
 	return (True, dst_file)
 
     def handle_images(self, dst_subdir, text):

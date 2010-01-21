@@ -33,8 +33,9 @@ from os.path import exists, join
 try:
     import mnemogogo
     mnemogogo_imported = True
-except:
+except Exception, e:
     mnemogogo_imported = False
+    mnemogogo_imported_error = str(e)
 
 class MnemogogoPlugin(Plugin):
     version = "0.9.10"
@@ -98,7 +99,8 @@ class MnemogogoPlugin(Plugin):
 
 	if not mnemogogo_imported:
 	    self.show_error("Incorrect installation."
-		+ " The mnemogogo module could not be imported.")
+		+ " The mnemogogo module could not be imported.\n\n("
+		+ mnemogogo_imported_error + ")")
 	    return
 	
 	try:
