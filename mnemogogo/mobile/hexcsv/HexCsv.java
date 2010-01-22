@@ -21,15 +21,14 @@ package mnemogogo.mobile.hexcsv;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.DataInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.TimeZone;
-import javax.microedition.io.Connector;
-import java.io.OutputStream;
-import javax.microedition.io.file.FileConnection; /*JSR-75*/
 
-public class HexCsv
+abstract class HexCsv
     implements CardList, CardDataSet
 {
     private Card cards[];
@@ -79,14 +78,7 @@ public class HexCsv
             pathbuf.append("PRELOG");
 
             try {
-                FileConnection file =
-                    (FileConnection)Connector.open(pathbuf.toString(),
-                                                   Connector.READ_WRITE);
-                if (!file.exists()) {
-                    file.create();
-                }
-
-                OutputStream outs = file.openOutputStream(file.fileSize() + 1);
+                OutputStream outs = openAppend(pathbuf.toString());
                 logfile = new OutputStreamWriter(outs, ascii);
             } catch (Exception e) {
                 logfile = null;
@@ -123,8 +115,7 @@ public class HexCsv
         throws IOException
     {
         InputStreamReader in = new InputStreamReader(
-                Connector.openInputStream(path.append("CONFIG").toString()),
-                ascii);
+            openIn(path.append("CONFIG").toString()), ascii);
         config = new Config(in);
         in.close();
     }
@@ -170,8 +161,7 @@ public class HexCsv
         throws IOException
     {
         InputStreamReader in = new InputStreamReader(
-            Connector.openInputStream(path.append("STATS.CSV").toString()),
-            ascii);
+            openIn(path.append("STATS.CSV").toString()), ascii);
 
         int ncards = StatIO.readInt(in);
         progress.startOperation(ncards * 3, readingStatsText);
@@ -197,8 +187,7 @@ public class HexCsv
         throws IOException
     {
         OutputStreamWriter out = new OutputStreamWriter(
-            Connector.openOutputStream(path.append("STATS.CSV").toString()),
-            ascii);
+            openOut(path.append("STATS.CSV").toString()), ascii);
 
         StatIO.writeInt(out, cards.length, "\n");
 
@@ -219,10 +208,10 @@ public class HexCsv
         throws IOException
     {
         InputStreamReader in = new InputStreamReader(
-            Connector.openInputStream(path.append("CATS").toString()), utf8);
+            openIn(path.append("CATS").toString()), utf8);
 
         int n = StatIO.readInt(in);
-        int bytesize = StatIO.readInt(in);
+        StatIO.readInt(in); // skip the size in bytes
 
         categories = new String[n];
         for (int i=0; i < n; ++i) {
@@ -250,11 +239,11 @@ public class HexCsv
     private void readCardText(StringBuffer path)
         throws IOException
     {
-        DataInputStream is = Connector.openDataInputStream(
-            path.append("CARDS").toString());
+        DataInputStream is = openDataIn(path.append("CARDS").toString());
 
-        CardData carddata = new CardData(is, progress, this);
-
+        // the new object is not needed, rather just that its constructor
+        // updates this object.
+        new CardData(is, progress, this);
         is.close();
     }
 
@@ -306,5 +295,14 @@ public class HexCsv
             logfile = null;
         }
     }
+
+    abstract protected OutputStream openAppend(String path)
+        throws IOException;
+    abstract protected OutputStream openOut(String path)
+        throws IOException;
+    abstract protected InputStream openIn(String path)
+        throws IOException;
+    abstract protected DataInputStream openDataIn(String path)
+        throws IOException;
 }
 

@@ -26,7 +26,8 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 import java.lang.Exception;
 
-public class Config extends Hashtable/*<String, String>*/
+public class Config
+    extends Hashtable/*<String, String>*/
 {
     Config()
     {
