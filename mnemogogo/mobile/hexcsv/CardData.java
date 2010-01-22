@@ -21,8 +21,6 @@ package mnemogogo.mobile.hexcsv;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.EOFException;
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 
 class CardData
 {
