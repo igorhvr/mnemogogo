@@ -48,7 +48,10 @@ class BasicExport(mnemogogo.Export):
 	self.num_cards = num_cards
 
 	self.cardfile_path = join(self.sync_path, 'CARDS')
-	self.cardfile = open(self.cardfile_path, 'wb')
+	try:
+	    self.cardfile = open(self.cardfile_path, 'wb')
+	except Exception, e:
+	    self.error("Export failed!\n\n(" + str(e) + ")")
 	self.cardfile.write(str(num_cards) + '\n')
 
 	self.img_path = join(self.sync_path, 'IMG')
