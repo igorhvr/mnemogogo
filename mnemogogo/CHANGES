@@ -14,6 +14,7 @@
 * Fix a subtle bug in the initialization of Job and Export classes
   (it only affected repeated exports during a single Mnemosyne session in a
    minor way).
+* Adapt the mnemogogo/mobile/hexcsv library for Android.
 
 20091220 mnemogogo-0.9.10
 * Fix a bug in start_date handling that caused shifted statistics at
