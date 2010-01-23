@@ -25,7 +25,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
-public class FindCardDir
+public class FindCardDirJ2ME
 {
     public static String[] standard = { "cards/" };
 

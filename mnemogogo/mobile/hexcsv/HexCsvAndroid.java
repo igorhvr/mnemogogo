@@ -30,7 +30,7 @@ public class HexCsvAndroid
     extends HexCsv
 {
 
-    public HexCsvJ2ME(String path, Progress prog)
+    public HexCsvAndroid(String path, Progress prog)
         throws Exception, IOException
     {
         super(path, prog);

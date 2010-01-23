@@ -27,8 +27,10 @@ import java.util.Enumeration;
 import java.lang.Exception;
 
 public class Config
-    extends Hashtable/*<String, String>*/
 {
+    Hashtable/*Android:<String, String>:*/ data =
+        new Hashtable/*Android:<String, String>:*/();
+
     Config()
     {
         setDefaults();
@@ -43,10 +45,10 @@ public class Config
 
     private void setDefaults()
     {
-        put("grade_0_items_at_once", "10");
-        put("sorting", "1");
-        put("logging", "1");
-        put("day_starts_at", "3");
+        data.put("grade_0_items_at_once", "10");
+        data.put("sorting", "1");
+        data.put("logging", "1");
+        data.put("day_starts_at", "3");
     }
 
     public int grade0ItemsAtOnce()
@@ -99,7 +101,7 @@ public class Config
 
     public String getString(String key)
     {
-        return (String)get(key);
+        return (String)data.get(key);
     }
 
     public boolean logging()
@@ -119,14 +121,14 @@ public class Config
     {
         StringBuffer line = new StringBuffer(100);
 
-        Enumeration/*<String>*/ e = elements();
+        Enumeration/*Android:<String>:*/ e = data.elements();
         while (e.hasMoreElements()) {
             String key = (String)e.nextElement(); 
             line.delete(0, line.length());
 
             line.append(key);
             line.append("=");
-            line.append(get(key));
+            line.append(data.get(key));
             line.append("\n");
 
             out.write(line.toString(), 0, line.length());
@@ -162,7 +164,7 @@ public class Config
 
             String name = namebuf.toString();
             String value = valuebuf.toString();
-            put(name, value);
+            data.put(name, value);
 
         } } catch (EOFException e) {}
     }
