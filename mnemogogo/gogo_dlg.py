@@ -19,6 +19,7 @@
 from qt import *
 from gogo_frm import *
 from core import do_export, do_import, Mnemogogo, InterfaceError
+from core import clear_log_status, check_log_status
 from mnemosyne.core import *
 import traceback
 
@@ -117,6 +118,7 @@ class GogoDlg(GogoFrm):
 				% self.settings['sync_path'])
 		return
 
+	    clear_log_status()
 	    do_export(
 		self.name_to_object[self.settings['interface']],
 		self.settings['n_days'],
@@ -128,6 +130,11 @@ class GogoDlg(GogoFrm):
 		self.settings['max_size']
 		)
 	    self.setMobile()
+	    if check_log_status ():
+		self.showWarning(
+		    u"Messages were written to log.txt in the "
+		    + u"Mnemosyne home directory.")
+
 	except InterfaceError, e:
 	    self.showError(unicode(e))
 	except Mnemogogo, e:
@@ -138,6 +145,7 @@ class GogoDlg(GogoFrm):
     def doImport(self):
 	self.writeSettings()
 	try:
+	    clear_log_status()
 	    do_import(
 		self.name_to_object[self.settings['interface']],
 		self.settings['sync_path'],
@@ -146,6 +154,10 @@ class GogoDlg(GogoFrm):
 	    rebuild_revision_queue(False)
 	    self.main_dlg.newQuestion()
 	    self.main_dlg.updateDialog()
+	    if check_log_status ():
+		self.showWarning(
+		    u"Messages were written to log.txt in the "
+		    + u"Mnemosyne home directory.")
 
 	except InterfaceError, e:
 	    self.showError(unicode(e))

@@ -15,6 +15,7 @@
   (it only affected repeated exports during a single Mnemosyne session in a
    minor way).
 * Adapt the mnemogogo/mobile/hexcsv library for Android.
+* Warn when errors are logged to log.txt.
 
 20091220 mnemogogo-0.9.10
 * Fix a bug in start_date handling that caused shifted statistics at

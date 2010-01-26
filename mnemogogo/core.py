@@ -30,6 +30,8 @@ from qt import *
 
 interface_classes = []
 
+read_log_file = False
+
 def phonejoin(paths):
     if len(paths) == 0: return ""
 
@@ -541,7 +543,7 @@ def adjust_start_date(import_start_date):
     offset = (import_start_date - db_start_date).days
 
     if offset < 0:
-	log_warning(
+	log_error(
 	    "database time_of_start is later than import time_of_start!")
 
 	# The database time_of_start should only ever be pushed back earlier
@@ -577,7 +579,7 @@ def do_import(interface, sync_path, progress_bar=None):
 		stats['next_rep'] += offset
 	    new_stats.append((card, stats))
 	else:
-	    log_warning("Quietly ignoring card with missing id: %s" % id)
+	    log_error("Quietly ignoring card with missing id: %s" % id)
 
 	if (progress_bar):
 	    progress_bar.setProgress(importer.percentage_complete)
@@ -611,5 +613,15 @@ def log_warning(msg):
     mnemosyne.core.logger.warning("mnemogogo: " + msg)
 
 def log_error(msg):
+    global read_log_file
+    read_log_file = True
     mnemosyne.core.logger.error("mnemogogo: " + msg)
+
+def check_log_status():
+    global read_log_file
+    return read_log_file
+
+def clear_log_status():
+    global read_log_file
+    read_log_file = False
 
