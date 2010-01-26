@@ -46,9 +46,9 @@ abstract class HexCsv
     public static final String ascii = "US-ASCII";
     public static final String utf8 = "UTF-8";
 
-    public static final String readingStatsText = "Loading statistics...";
-    public static final String writingStatsText = "Writing statistics...";
-    public static final String loadingCardsText = "Loading cards...";
+    public static final String readingStatsText = "Loading statistics";
+    public static final String writingStatsText = "Writing statistics";
+    public static final String loadingCardsText = "Loading cards";
 
     private StringBuffer pathbuf;
     private int path_len;
