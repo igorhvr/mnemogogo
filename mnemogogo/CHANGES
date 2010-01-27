@@ -1,4 +1,5 @@
-20100124 mnemogogo-0.9.11
+20100124 mnemogogo-1.0.0
+* PRODUCTION RELEASE
 * Add more meaningful exception messages for when problems occur
   in parsing CONFIG.
 * Fix a minor problem in the tracking of future schedules.
