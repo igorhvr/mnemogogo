@@ -9,3 +9,6 @@ clean:
 	-@rm ../mnemogogo_plugin.pyo
 	-@rm interface/*.pyc interface/*.pyo
 
+cleanall:
+	-@rm *.jar
+
