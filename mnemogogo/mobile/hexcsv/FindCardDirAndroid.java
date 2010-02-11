@@ -18,14 +18,16 @@
 
 package mnemogogo.mobile.hexcsv;
 
-import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Vector;
 import java.io.File;
 
 public class FindCardDirAndroid
 {
     public static String[] standard = { "cards/" };
+    
+    private static final String[] skip_files = { "LOST.DIR", ".thumbnails" };
+    private static final String[] skip_paths = { "/etc", "/system",
+    	"/sys", "/cache", "/sbin", "/proc", "/d", "/dev" };
 
     public static boolean isCardDir(File file)
     {
@@ -68,10 +70,29 @@ public class FindCardDirAndroid
                 && hasConfig
                 && hasCards);
     }
+    
+    private static boolean skipFile(File f)
+    {
+    	String name = f.getName();
+    	for (String g : skip_files) {
+    		if (name.equals(g)) {
+    			return true;
+    		}
+    	}
+    	
+    	String path = f.getAbsolutePath();
+    	for (String g : skip_paths) {
+    		if (path.equals(g)) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
 
     private static void doDir(File dir, Vector<String> found)
-    {
-        try {
+    {   		
+        try {       	
             if (isCardDir(dir)) {
                 found.addElement(dir.getPath());
 
@@ -80,7 +101,7 @@ public class FindCardDirAndroid
                 for (String sf : subfiles) {
                     File subdir = new File(dir, sf);
 
-                    if (subdir.isDirectory() && subdir.canRead()) {
+                    if (subdir.isDirectory() && subdir.canRead() && !skipFile(subdir)) {
                         doDir(subdir, found);
                     }
                 }
@@ -92,26 +113,26 @@ public class FindCardDirAndroid
     }
 
 
-    public static String[] list() {
+    public static Vector<String> list() {
         Vector<String> paths = new Vector<String>();
 
         try {
             File[] roots = File.listRoots();
             for (File root : roots) {
-                doDir(root, paths);
+            	String s = root.toString();
+            	int bidx = s.indexOf(0);
+            	if (bidx != -1) {
+            		// work around an Android bug
+            		// http://www.mail-archive.com/android-developers@googlegroups.com/msg42592.html
+            		s = s.substring(0, bidx);
+            	}
+            	doDir(new File(s), paths);
             }
         } catch (SecurityException e) {
             return null;
         }
 
-        if (paths.isEmpty()) {
-            return null;
-        }
-
-        String r[] = new String[paths.size()];
-        paths.copyInto(r);
-
-        return r;
+        return paths;
     }
 
 }

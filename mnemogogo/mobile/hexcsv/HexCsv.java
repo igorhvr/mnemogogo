@@ -188,7 +188,9 @@ abstract class HexCsv
 
         StatIO.writeInt(out, cards.length, "\n");
 
-        progress.startOperation(cards.length, writingStatsText);
+        if (progress != null) {
+            progress.startOperation(cards.length, writingStatsText);
+        }
         for (int i=0; i < cards.length; ++i) {
             cards[i].writeCard(out);
 
@@ -196,8 +198,11 @@ abstract class HexCsv
                 progress.updateOperation(10);
             }
         }
-        progress.stopOperation();
+        if (progress != null) {
+            progress.stopOperation();
+        }
 
+        out.flush();
         out.close();
     }
 
