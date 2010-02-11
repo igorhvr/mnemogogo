@@ -238,6 +238,10 @@ abstract class HexCsv
                 && q.isScheduledSoon(serial, cards_to_load));
     }
 
+    public void setProgress(Progress new_progress) {
+        progress = new_progress;
+    }
+
     private void readCardText(StringBuffer path)
         throws IOException
     {
