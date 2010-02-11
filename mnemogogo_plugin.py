@@ -38,7 +38,7 @@ except Exception, e:
     mnemogogo_imported_error = str(e)
 
 class MnemogogoPlugin(Plugin):
-    version = "0.9.11"
+    version = "1.0.1"
     is_locked = False
     old_overlay = None
 
