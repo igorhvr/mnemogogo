@@ -482,7 +482,7 @@ public class Card
                 r.append(" ");
                 r.append(Integer.toString(noise));
                 r.append(" | ");
-                r.append(Float.toString(thinking_time_msecs / 100.0f));
+                r.append(Float.toString(thinking_time_msecs / 1000.0f));
                 r.append("\n");
 
                 logfile.write(r.toString(), 0, r.length());
