@@ -3,6 +3,7 @@
 * Remove encoding requests to support IBM Java VM on Palm.
 * Add backupStats() functionality to mobile/hexcsv.
 * Fix a bug in the logging of thinking time.
+* Remove unnecessary newlines from stats logging into Mnemosyne.
 
 20100124 mnemogogo-1.0.0
 * PRODUCTION RELEASE
