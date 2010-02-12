@@ -1,6 +1,7 @@
-20100211 mnemogogo-1.0.1
+20100212 mnemogogo-1.0.1
 * Bugfixes to Android client library.
 * Remove encoding requests to support IBM Java VM on Palm.
+* Add backupStats() functionality to mobile/hexcsv.
 
 20100124 mnemogogo-1.0.0
 * PRODUCTION RELEASE

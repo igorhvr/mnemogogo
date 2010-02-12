@@ -180,11 +180,11 @@ abstract class HexCsv
         q.buildRevisionQueue(cards);
     }
 
-    public void writeCards(StringBuffer path, Progress progress)
+    public void writeCards(StringBuffer path, String name, Progress progress)
         throws IOException
     {
         OutputStreamWriter out = new OutputStreamWriter(
-            openOut(path.append("STATS.CSV").toString()));
+            openOut(path.append(name).toString()));
 
         StatIO.writeInt(out, cards.length, "\n");
 
@@ -204,6 +204,18 @@ abstract class HexCsv
 
         out.flush();
         out.close();
+    }
+
+    public void writeCards(StringBuffer path, Progress progress)
+        throws IOException
+    {
+        writeCards(path, "STATS.CSV", progress);
+    }
+
+    public void backupCards(StringBuffer path, Progress progress)
+        throws IOException
+    {
+        writeCards(path, "STATS.BKP", progress);
     }
 
     private void readCategories(StringBuffer path)
