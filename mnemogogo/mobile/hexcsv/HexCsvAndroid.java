@@ -29,11 +29,10 @@ import java.io.IOException;
 public class HexCsvAndroid
     extends HexCsv
 {
-
     public HexCsvAndroid(String path, Progress prog)
         throws Exception, IOException
     {
-        super(path, prog);
+        super(path, prog, false);
     }
 
     protected OutputStream openAppend(String path)

@@ -28,11 +28,10 @@ import javax.microedition.io.file.FileConnection; /*JSR-75*/
 public class HexCsvJ2ME
     extends HexCsv
 {
-
     public HexCsvJ2ME(String path, Progress prog)
         throws Exception, IOException
     {
-        super(path, prog);
+        super(path, prog, true);
     }
 
     protected OutputStream openAppend(String path)
