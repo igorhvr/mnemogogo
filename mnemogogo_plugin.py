@@ -27,7 +27,7 @@
 from mnemosyne.core import *
 from mnemosyne.pyqt_ui.plugin import get_main_widget
 from qt import *
-import sys
+import sys, copy
 from os.path import exists, join
 
 try:
@@ -38,11 +38,12 @@ except Exception, e:
     mnemogogo_imported_error = str(e)
 
 class MnemogogoPlugin(Plugin):
-    version = "1.0.1"
+    version = "1.1.0"
     is_locked = False
     old_overlay = None
+    config_key = "mnemogogo"
 
-    settings = {
+    default_settings = {
 	'sync_path'	: '',
 	'interface'	: None,
 	'n_days'	: 7,
@@ -57,16 +58,20 @@ class MnemogogoPlugin(Plugin):
 	return ("Making mnemosyne mobile (v" + version + ")")
 
     def load_config(self):
-	try: config = get_config("mnemogogo")
+	self.config_key = mnemogogo.get_config_key()
+
+	try:
+	    config = get_config(self.config_key)
 	except KeyError:
 	    config = {}
-	    set_config("mnemogogo", {})
+	    set_config(self.config_key, {})
 	
+	self.settings = copy.copy(self.default_settings)
 	for k in self.settings.keys():
 	    if config.has_key(k): self.settings[k] = config[k]
 	
     def save_config(self):
-	set_config("mnemogogo", self.settings)
+	set_config(self.config_key, copy.copy(self.settings))
 
     def open_dialog(self):
 	self.gogo_dlg.configure(self.settings)
@@ -112,9 +117,6 @@ class MnemogogoPlugin(Plugin):
 
 	mnemogogo.log_info('version %s' % self.version)
 	
-	# Load configuration
-	self.load_config()
-	
 	self.interfaces = mnemogogo.register_interfaces()
 
 	self.gogo_dlg = mnemogogo.GogoDlg(self.main_dlg)
@@ -144,9 +146,7 @@ class MnemogogoPlugin(Plugin):
 
 	register_function_hook("filter_q", self.check_lock)
 	register_function_hook("filter_a", self.check_lock)
-
-	if self.settings['mode'] == 'mobile':
-	    self.lock()
+	register_function_hook("after_load", self.after_load)
 
     def lock(self):
 	self.is_locked = True
@@ -165,7 +165,9 @@ class MnemogogoPlugin(Plugin):
 	self.is_locked = False
 	self.main_dlg.show_button.unlockAndRestore()
 	self.main_dlg.grades.unlockAndRestore()
-	self.main_dlg.style['answerbox'] = self.old_overlay
+	try:
+	    self.main_dlg.style['answerbox'] = self.old_overlay
+	except: pass
 	self.main_dlg.question.show()
 	self.main_dlg.question_label.show()
 	self.main_dlg.answer.show()
@@ -176,6 +178,7 @@ class MnemogogoPlugin(Plugin):
 	self.unlock()
 	unregister_function_hook("filter_q", self.check_lock)
 	unregister_function_hook("filter_a", self.check_lock)
+	unregister_function_hook("after_load", self.after_load)
 	self.main_dlg.show_button.removeLocking()
 	self.main_dlg.grades.removeLocking()
 
@@ -192,6 +195,13 @@ class MnemogogoPlugin(Plugin):
 	text += "<card style=\"answerbox: overlay\"/>"
 
 	return mnemosyne.core.preprocess(text)
+
+    def after_load(self):
+	self.load_config()
+	if self.settings['mode'] == 'mobile':
+	    self.lock()
+	else:
+	    self.unlock()
 
 p = MnemogogoPlugin()
 p.load()

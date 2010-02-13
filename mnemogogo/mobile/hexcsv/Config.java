@@ -139,7 +139,7 @@ public class Config
         throws IOException
     {
         StringBuffer namebuf = new StringBuffer(30);
-        StringBuffer valuebuf = new StringBuffer(10);
+        StringBuffer valuebuf = new StringBuffer(50);
         StringBuffer curr = namebuf;
         int c;
 

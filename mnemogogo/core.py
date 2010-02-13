@@ -31,6 +31,7 @@ from qt import *
 interface_classes = []
 
 read_log_file = False
+max_config_size = 50
 
 def phonejoin(paths):
     if len(paths) == 0: return ""
@@ -503,6 +504,8 @@ def do_export(interface, num_days, sync_path, progress_bar=None,
 		: mnemosyne.core.get_config('grade_0_items_at_once'),
 	    'logging'
 		: "%d" % mnemosyne.core.get_config('upload_logs'),
+	    'database'
+		: get_database()[-max_config_size:],
 	}
 
     params = {
@@ -568,7 +571,18 @@ def do_import(interface, sync_path, progress_bar=None):
     importer = interface.start_import(sync_path)
     importer.progress_bar = progress_bar
 
-    offset = adjust_start_date(importer.get_start_date())
+    import_config = importer.read_config()
+    if (import_config.has_key('database')):
+	curr_database = get_database()[-max_config_size:]
+	load_database = import_config['database']
+	if load_database != curr_database:
+	    raise Mnemogogo("These cards were exported from '"
+		    + load_database
+		    + "', but the current database is '"
+		    + curr_database
+		    + "'!")
+ 
+    offset = adjust_start_date(importer.get_start_date(import_config))
 
     new_stats = []
     for (id, stats) in importer:
@@ -605,6 +619,24 @@ def do_import(interface, sync_path, progress_bar=None):
 
 	log.close()
 	os.remove(logpath)
+
+def get_database():
+    try:
+	mempath =  mnemosyne.core.get_config("path")
+    except KeyError:
+	mempath = "default.mem"
+
+    return mempath[:-4]
+
+def get_config_key():
+    mempath = get_database()
+
+    if mempath == "default":
+	config_key = "mnemogogo"
+    else:
+	config_key = "mnemogogo:" + mempath
+
+    return config_key
 
 def log_info(msg):
     mnemosyne.core.logger.info("mnemogogo: " + msg)

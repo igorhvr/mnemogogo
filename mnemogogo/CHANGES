@@ -1,9 +1,11 @@
-20100212 mnemogogo-1.0.1
+20100213 mnemogogo-1.1.0
 * Bugfixes to Android client library.
 * Remove encoding requests to support IBM Java VM on Palm.
 * Add backupStats() functionality to mobile/hexcsv.
 * Fix a bug in the logging of thinking time.
 * Remove unnecessary newlines from stats logging into Mnemosyne.
+* Support for different database files in the same card directory
+  (thanks to Kristófer Hannesson for detecting and reporting this problem).
 
 20100124 mnemogogo-1.0.0
 * PRODUCTION RELEASE

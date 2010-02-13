@@ -112,11 +112,11 @@ class BasicExport(mnemogogo.Export):
     
     def write_config(self, config):
 	cfile = open(join(self.sync_path, 'CONFIG'), 'wb')
-	for c in config.iteritems():
-	    cfile.write("%s=%s\n" % c)
+	for (n, v) in config.iteritems():
+	    cfile.write("%s=%s\n" % (str(n)[:30], str(v)[:50]))
 
-	for c in self.extra_config.iteritems():
-	    cfile.write("%s=%s\n" % c)
+	for (n, v) in self.extra_config.iteritems():
+	    cfile.write("%s=%s\n" % (str(n)[:30], str(v)[:50]))
 
 	cfile.close()
 
@@ -239,8 +239,9 @@ class Import(mnemogogo.Import):
 	cfile.close()
 	return config
 
-    def get_start_date(self):
-	config = self.read_config()
+    def get_start_date(self, config=None):
+	if (config is None):
+	    config = self.read_config()
 	[year, month, day] = config['start_date'].split('-')
 	return datetime.date(int(year), int(month), int(day))
 
