@@ -247,10 +247,19 @@ public class Card
 
         serial = i;
         grade = (int)hexLong(); 
+        if (grade < 0 || grade > 5) {
+            throw new IOException("invalid grade value");
+        }
         easiness = (int)hexLong();
+        if (easiness < 0) {
+            throw new IOException("invalid easiness value");
+        }
         acq_reps = (int)hexLong();
         ret_reps = (int)hexLong();
         lapses = (int)hexLong();
+        if (lapses < 0) {
+            throw new IOException("invalid lapses value");
+        }
         acq_reps_since_lapse = (int)hexLong();
         ret_reps_since_lapse = (int)hexLong();
         last_rep = hexLong();
