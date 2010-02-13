@@ -43,6 +43,9 @@ abstract class HexCsv
 
     public int cards_to_load = 50;
 
+    public static final String ascii = "US-ASCII";
+    public static final String utf8 = "UTF-8";
+
     public static final String readingStatsText = "Loading statistics";
     public static final String writingStatsText = "Writing statistics";
     public static final String loadingCardsText = "Loading cards";
@@ -76,7 +79,11 @@ abstract class HexCsv
 
             try {
                 OutputStream outs = openAppend(pathbuf.toString());
-                logfile = new OutputStreamWriter(outs);
+                try {
+                    logfile = new OutputStreamWriter(outs, ascii);
+                } catch (UnsupportedEncodingException e) {
+                    logfile = new OutputStreamWriter(outs);
+                }
             } catch (Exception e) {
                 logfile = null;
             }
@@ -111,8 +118,14 @@ abstract class HexCsv
     private void readConfig(StringBuffer path)
         throws IOException
     {
-        InputStreamReader in = new InputStreamReader(
-            openIn(path.append("CONFIG").toString()));
+        InputStreamReader in;
+
+        try {
+            in = new InputStreamReader(openIn(path.append("CONFIG").toString(), ascii));
+        } catch (UnsupportedEncodingException e) {
+            in = new InputStreamReader(openIn(path.append("CONFIG").toString()));
+        }
+
         config = new Config(in);
         in.close();
     }
@@ -157,8 +170,13 @@ abstract class HexCsv
     private void readCards(StringBuffer path)
         throws IOException
     {
-        InputStreamReader in = new InputStreamReader(
-            openIn(path.append("STATS.CSV").toString()));
+        InputStreamReader in;
+
+        try {
+            in = new InputStreamReader(openIn(path.append("STATS.CSV").toString(), ascii));
+        } catch (UnsupportedEncodingException e) {
+            in = new InputStreamReader(openIn(path.append("STATS.CSV").toString()));
+        }
 
         int ncards = StatIO.readInt(in);
         progress.startOperation(ncards * 3, readingStatsText);
@@ -183,8 +201,13 @@ abstract class HexCsv
     public void writeCards(StringBuffer path, String name, Progress progress)
         throws IOException
     {
-        OutputStreamWriter out = new OutputStreamWriter(
-            openOut(path.append(name).toString()));
+        OutputStreamWriter out;
+
+        try {
+            out = new OutputStreamWriter(openOut(path.append(name).toString(), ascii));
+        } catch (UnsupportedEncodingException e) {
+            out = new OutputStreamWriter(openOut(path.append(name).toString()));
+        }
 
         StatIO.writeInt(out, cards.length, "\n");
 
@@ -221,8 +244,13 @@ abstract class HexCsv
     private void readCategories(StringBuffer path)
         throws IOException
     {
-        InputStreamReader in = new InputStreamReader(
-            openIn(path.append("CATS").toString()));
+        InputStreamReader in;
+
+        try {
+            in = new InputStreamReader(openIn(path.append("CATS").toString(), utf8));
+        } catch (UnsupportedEncodingException e) {
+            in = new InputStreamReader(openIn(path.append("CATS").toString()));
+        }
 
         int n = StatIO.readInt(in);
         StatIO.readInt(in); // skip the size in bytes
