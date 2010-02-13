@@ -239,26 +239,60 @@ public class Card
         return v;
     }
 
+    private int readLine(InputStreamReader in)
+        throws IOException
+    {
+        int total = 0;
+        int last = 0;
+        
+        while (total < statLineLength) {
+            last = in.read(buffer, total, statLineLength - total);
+            if (last == -1) {
+                break;
+            }
+            total += last;
+        }
+        
+        return total;
+    }
+    
     public void readCard(InputStreamReader in, int i)
         throws IOException
     {
-        in.read(buffer, 0, statLineLength);
+        int bytesRead = readLine(in);
+        if (bytesRead != statLineLength ) {
+            throw new IOException("no stats for card ("
+                    + Integer.toString(bytesRead)
+                    + "/"
+                    + Integer.toString(statLineLength)
+                    + " for #"
+                    + Integer.toString(i) + ")");
+        }
         pos = 0;
 
         serial = i;
         grade = (int)hexLong(); 
         if (grade < 0 || grade > 5) {
-            throw new IOException("invalid grade value");
+            throw new IOException("invalid grade value ("
+                    + Integer.toString(grade)
+                    + ", at #"
+                    + Integer.toString(i) + ")");
         }
         easiness = (int)hexLong();
         if (easiness < 0) {
-            throw new IOException("invalid easiness value");
+            throw new IOException("invalid easiness value ("
+                    + Integer.toString(easiness)
+                    + ", at #"
+                    + Integer.toString(i) + ")");
         }
         acq_reps = (int)hexLong();
         ret_reps = (int)hexLong();
         lapses = (int)hexLong();
         if (lapses < 0) {
-            throw new IOException("invalid lapses value");
+            throw new IOException("invalid lapses value ("
+                    + Integer.toString(lapses)
+                    + ", at #"
+                    + Integer.toString(i) + ")");
         }
         acq_reps_since_lapse = (int)hexLong();
         ret_reps_since_lapse = (int)hexLong();

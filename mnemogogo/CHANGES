@@ -4,6 +4,8 @@
 * Add backupStats() functionality to mobile/hexcsv.
 * Fix a bug in the logging of thinking time.
 * Remove unnecessary newlines from stats logging into Mnemosyne.
+* Add checks for data corruption in readCard.
+* Fix a read corruption bug in readCard (particularly under Android).
 * Support for different database files in the same card directory
   (thanks to Kristófer Hannesson for detecting and reporting this problem).
 
