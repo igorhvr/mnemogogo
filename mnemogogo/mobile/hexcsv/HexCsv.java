@@ -122,7 +122,7 @@ abstract class HexCsv
         InputStreamReader in;
 
         try {
-            in = new InputStreamReader(openIn(path.append("CONFIG").toString(), ascii));
+            in = new InputStreamReader(openIn(path.append("CONFIG").toString()), ascii);
         } catch (UnsupportedEncodingException e) {
             in = new InputStreamReader(openIn(path.append("CONFIG").toString()));
         }
@@ -174,7 +174,7 @@ abstract class HexCsv
         InputStreamReader in;
 
         try {
-            in = new InputStreamReader(openIn(path.append("STATS.CSV").toString(), ascii));
+            in = new InputStreamReader(openIn(path.append("STATS.CSV").toString()), ascii);
         } catch (UnsupportedEncodingException e) {
             in = new InputStreamReader(openIn(path.append("STATS.CSV").toString()));
         }
@@ -205,7 +205,7 @@ abstract class HexCsv
         OutputStreamWriter out;
 
         try {
-            out = new OutputStreamWriter(openOut(path.append(name).toString(), ascii));
+            out = new OutputStreamWriter(openOut(path.append(name).toString()), ascii);
         } catch (UnsupportedEncodingException e) {
             out = new OutputStreamWriter(openOut(path.append(name).toString()));
         }
@@ -248,7 +248,7 @@ abstract class HexCsv
         InputStreamReader in;
 
         try {
-            in = new InputStreamReader(openIn(path.append("CATS").toString(), utf8));
+            in = new InputStreamReader(openIn(path.append("CATS").toString()), utf8);
         } catch (UnsupportedEncodingException e) {
             in = new InputStreamReader(openIn(path.append("CATS").toString()));
         }
