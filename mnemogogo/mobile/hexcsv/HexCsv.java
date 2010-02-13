@@ -24,6 +24,7 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.TimeZone;
