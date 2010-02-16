@@ -123,8 +123,8 @@ class CardData
                     skipString(src);
                     skipString(src);
                 }
-                if (i % 10 == 0) {
-                    progress.updateOperation(10);
+                if (i % 100 == 0) {
+                    progress.updateOperation(100);
                 }
             }
         } catch (EOFException e) { }
