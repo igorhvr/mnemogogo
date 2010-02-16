@@ -451,7 +451,9 @@ public class Card
                     easiness -= 140;
                 } else if (new_grade == 5) {
                     easiness += 100;
-                } else if (easiness < 1300) {
+                }
+                
+                if (easiness < 1300) {
                     easiness = 1300;
                 }
             }

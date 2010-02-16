@@ -8,6 +8,9 @@
 * Fix a read corruption bug in readCard (particularly under Android).
 * Support for different database files in the same card directory
   (thanks to Kristófer Hannesson for detecting and reporting this problem).
+* Fix a porting bug in card grading whereby card easiness could drop below
+  1.3. Any cards affected by this bug will be corrected when they are next
+  reviewed using the updated library.
 
 20100124 mnemogogo-1.0.0
 * PRODUCTION RELEASE
