@@ -127,16 +127,17 @@ abstract class HexCsv
     private void readConfig(StringBuffer path)
         throws IOException
     {
+        InputStream is = openIn(path.append("CONFIG").toString());
         InputStreamReader in;
 
         if (specify_encoding) {
             try {
-                in = new InputStreamReader(openIn(path.append("CONFIG").toString()), ascii);
+                in = new InputStreamReader(is, ascii);
             } catch (UnsupportedEncodingException e) {
-                in = new InputStreamReader(openIn(path.append("CONFIG").toString()));
+                in = new InputStreamReader(is);
             }
         } else {
-            in = new InputStreamReader(openIn(path.append("CONFIG").toString()));
+            in = new InputStreamReader(is);
         }
 
         config = new Config(in);
@@ -183,16 +184,17 @@ abstract class HexCsv
     private void readCards(StringBuffer path)
         throws IOException
     {
+        InputStream is = openIn(path.append("STATS.CSV").toString());
         InputStreamReader in;
 
         if (specify_encoding) {
             try {
-                in = new InputStreamReader(openIn(path.append("STATS.CSV").toString()), ascii);
+                in = new InputStreamReader(is, ascii);
             } catch (UnsupportedEncodingException e) {
-                in = new InputStreamReader(openIn(path.append("STATS.CSV").toString()));
+                in = new InputStreamReader(is);
             }
         } else {
-            in = new InputStreamReader(openIn(path.append("STATS.CSV").toString()));
+            in = new InputStreamReader(is);
         }
 
         int ncards = StatIO.readInt(in);
@@ -218,16 +220,17 @@ abstract class HexCsv
     public void writeCards(StringBuffer path, String name, Progress progress)
         throws IOException
     {
+        OutputStream os = openOut(path.append(name).toString());
         OutputStreamWriter out;
 
         if (specify_encoding) {
             try {
-                out = new OutputStreamWriter(openOut(path.append(name).toString()), ascii);
+                out = new OutputStreamWriter(os, ascii);
             } catch (UnsupportedEncodingException e) {
-                out = new OutputStreamWriter(openOut(path.append(name).toString()));
+                out = new OutputStreamWriter(os);
             }
         } else {
-            out = new OutputStreamWriter(openOut(path.append(name).toString()));
+            out = new OutputStreamWriter(os);
         }
 
         StatIO.writeInt(out, cards.length, "\n");
@@ -265,16 +268,17 @@ abstract class HexCsv
     private void readCategories(StringBuffer path)
         throws IOException
     {
+        InputStream is = openIn(path.append("CATS").toString());
         InputStreamReader in;
 
         if (specify_encoding) {
             try {
-                in = new InputStreamReader(openIn(path.append("CATS").toString()), utf8);
+                in = new InputStreamReader(is, utf8);
             } catch (UnsupportedEncodingException e) {
-                in = new InputStreamReader(openIn(path.append("CATS").toString()));
+                in = new InputStreamReader(is);
             }
         } else {
-            in = new InputStreamReader(openIn(path.append("CATS").toString()));
+            in = new InputStreamReader(is);
         }
 
         int n = StatIO.readInt(in);

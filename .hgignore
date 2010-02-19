@@ -1,4 +1,6 @@
 
 ^mnemogogo/mnemogogo-j2me-.*.jar$
+^mnemogogo/mnemogogo-j2me-.*-src.tar.gz$
 ^mnemogogo/mnemogogo-android-.*.jar$
+^mnemogogo/mnemogogo-android-.*-src.tar.gz$
 
