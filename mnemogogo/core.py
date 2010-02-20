@@ -289,13 +289,14 @@ class Export(Job):
 		    name = src_root.encode('punycode').upper()
 		self.snd_cnt += 1
 
-		dst = name + '.' + src_ext
+		dst = name + src_ext
 		dst_path = os.path.join(self.sync_path, dst_subdir, dst)
-		shutil.copy(src_path, dst_path)
+		shutil.copy(src, dst_path)
+		moved = True
 
 		if moved:
 		    self.call_hooks(dst_path, 'gogo_snd')
-		self.snds[src_path] = phonejoin([dst_subdir, dst])
+		self.snds[src] = phonejoin([dst_subdir, dst])
 
 	return self.map_paths(self.re_snd, self.re_snd_split, text, self.snds)
 

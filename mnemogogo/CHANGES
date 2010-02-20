@@ -1,3 +1,7 @@
+20100220 mnemogogo-1.1.1
+* Fix a bug in the export of sounds.
+  (Thanks to Tom Nazarenko for report.)
+
 20100220 mnemogogo-1.1.0
 * Bugfixes to Android client library.
 * Remove encoding requests to support IBM Java VM on Palm.
