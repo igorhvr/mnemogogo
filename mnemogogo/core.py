@@ -611,9 +611,9 @@ def do_import(interface, sync_path, progress_bar=None):
 	log = open(logpath)
 
 	mnemosyne.core.logger.info('mnemogogo: starting log import')
+	line = log.readline()
 	while line != '':
-	    line = log.readline().rstrip('\n')
-	    mnemosyne.core.logger.info(line)
+	    mnemosyne.core.logger.info(line.rstrip('\n'))
 	    line = log.readline()
 	mnemosyne.core.logger.info('mnemogogo: finished log import')
 
