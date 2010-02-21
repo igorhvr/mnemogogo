@@ -20,6 +20,7 @@ package mnemogogo.mobile.hexcsv;
 
 import java.util.Vector;
 import java.io.File;
+import java.io.IOException;
 
 public class FindCardDirAndroid
 {
@@ -27,14 +28,40 @@ public class FindCardDirAndroid
     
     private static final String[] skip_files = { "LOST.DIR", ".thumbnails" };
     private static final String[] skip_paths = { "/etc", "/system",
-    	"/sys", "/cache", "/sbin", "/proc", "/d", "/dev" };
+        "/sys", "/cache", "/sbin", "/proc", "/d", "/dev" };
 
-    public static boolean isCardDir(File file)
+    private static boolean hasAllFiles(String[] subfiles)
     {
         boolean hasStats = false;
         boolean hasCategories = false;
         boolean hasConfig = false;
         boolean hasCards = false;
+
+        for (String sf : subfiles) {
+
+            if (sf.equals("STATS.CSV")) {
+                hasStats = true;
+
+            } else if (sf.equals("CATS")) {
+                hasCategories = true;
+
+            } else if (sf.equals("CONFIG")) {
+                hasConfig = true;
+
+            } else if (sf.equals("CARDS")) {
+                hasCards = true;
+            }
+        }
+
+        return (   hasStats
+                && hasCategories
+                && hasConfig
+                && hasCards);
+    }
+
+    public static boolean isCardDir(File file)
+    {
+        String[] subfiles;
 
         try {
 
@@ -43,56 +70,59 @@ public class FindCardDirAndroid
                 return false;
             }
 
-            String[] subfiles = file.list();
-            for (String sf : subfiles) {
-
-                if (sf.equals("STATS.CSV")) {
-                    hasStats = true;
-
-                } else if (sf.equals("CATS")) {
-                    hasCategories = true;
-
-                } else if (sf.equals("CONFIG")) {
-                    hasConfig = true;
-
-                } else if (sf.equals("CARDS")) {
-                    hasCards = true;
-                }
-            }
+            subfiles = file.list();
 
         } catch (SecurityException e) {
             return false;
         }
 
-        return (file.canWrite()
-                && hasStats
-                && hasCategories
-                && hasConfig
-                && hasCards);
+        return (file.canWrite() && hasAllFiles(subfiles));
     }
-    
+
+    public static boolean isCardDir(String path)
+    {
+        if ((HexCsvAndroid.context != null)
+            && path.startsWith(HexCsvAndroid.demo_prefix))
+        {
+            String subpath = path.substring(HexCsvAndroid.demo_prefix.length());
+            
+            if (subpath.endsWith(File.separator)) {
+                subpath = subpath.substring(0, subpath.length() - 1);
+            }
+            
+            try {
+                return hasAllFiles(
+                        HexCsvAndroid.context.getAssets().list(subpath));
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        return isCardDir(new File(path));
+    }
+
     private static boolean skipFile(File f)
     {
-    	String name = f.getName();
-    	for (String g : skip_files) {
-    		if (name.equals(g)) {
-    			return true;
-    		}
-    	}
-    	
-    	String path = f.getAbsolutePath();
-    	for (String g : skip_paths) {
-    		if (path.equals(g)) {
-    			return true;
-    		}
-    	}
-    	
-    	return false;
+        String name = f.getName();
+        for (String g : skip_files) {
+                if (name.equals(g)) {
+                        return true;
+                }
+        }
+        
+        String path = f.getAbsolutePath();
+        for (String g : skip_paths) {
+                if (path.equals(g)) {
+                        return true;
+                }
+        }
+        
+        return false;
     }
 
     private static void doDir(File dir, Vector<String> found)
-    {   		
-        try {       	
+    {                   
+        try {           
             if (isCardDir(dir)) {
                 found.addElement(dir.getPath());
 
@@ -113,20 +143,36 @@ public class FindCardDirAndroid
     }
 
 
-    public static Vector<String> list() {
+    public static Vector<String> list(boolean check_filesystem) {
         Vector<String> paths = new Vector<String>();
 
         try {
-            File[] roots = File.listRoots();
-            for (File root : roots) {
-            	String s = root.toString();
-            	int bidx = s.indexOf(0);
-            	if (bidx != -1) {
-            		// work around an Android bug
-            		// http://www.mail-archive.com/android-developers@googlegroups.com/msg42592.html
-            		s = s.substring(0, bidx);
-            	}
-            	doDir(new File(s), paths);
+            if (check_filesystem) {
+                // Check on the filesystem
+                File[] roots = File.listRoots();
+                for (File root : roots) {
+                    String s = root.toString();
+                    int bidx = s.indexOf(0);
+                    if (bidx != -1) {
+                            // work around an Android bug
+                            // http://www.mail-archive.com/android-developers@googlegroups.com/msg42592.html
+                            s = s.substring(0, bidx);
+                    }
+                    doDir(new File(s), paths);
+                }
+            }
+
+            // Check in assets
+            if (HexCsvAndroid.context != null) {
+                try {
+                    for (String demo : HexCsvAndroid.context.getAssets().list(""))
+                    {
+                        String path = new File("/android_asset", demo).getPath();
+                        if (isCardDir(path)) {
+                            paths.addElement(path);
+                        }
+                    }
+                } catch (IOException e) { }
             }
         } catch (SecurityException e) {
             return null;

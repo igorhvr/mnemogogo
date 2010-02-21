@@ -178,6 +178,9 @@ abstract class HexCsv
 
     private int daysLeft(long last_day)
     {
+        if (last_day < 0) {
+            return (int)-last_day;
+        }
         return (int)(last_day - nowInDays());
     }
 
