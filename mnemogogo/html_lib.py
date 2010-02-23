@@ -3,7 +3,11 @@
 # http://effbot.org/zone/re-sub.htm#unescape-html
 #
 
-import re, htmlentitydefs
+import re
+try:
+    from html.entities import name2codepoint  # >= Python 3.0
+except:
+    from htmlentitydefs import name2codepoint # <  Python 3.0
 
 ##
 # Removes HTML or XML character references and entities from a text string.
@@ -24,7 +28,7 @@ def htmltounicode(text):
 		pass
 	elif text[1:-1] not in ["lt", "amp", "gt", "quot", "apos"]: # named entity
 	    try:
-		text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+		text = unichr(name2codepoint[text[1:-1]])
 	    except KeyError:
 		pass
 	return text # leave as is

@@ -1,5 +1,6 @@
-201002__ mnemogogo-1.1.2
+20100223 mnemogogo-1.1.2
 * Add support for Android demos.
+* Fix error: `No module named htmlentitydefs'.
 
 20100220 mnemogogo-1.1.1
 * Fix a bug in the export of sounds.
