@@ -24,11 +24,37 @@ import java.io.IOException;
 
 public class FindCardDirAndroid
 {
-    public static String[] standard = { "cards/" };
+    public static Logger logger = null;
     
     private static final String[] skip_files = { "LOST.DIR", ".thumbnails" };
     private static final String[] skip_paths = { "/etc", "/system",
         "/sys", "/cache", "/sbin", "/proc", "/d", "/dev" };
+
+    private static void logInfo(String msg)
+    {
+        if (logger != null) {
+            logger.log(logger.INFO, "FIND", msg);
+        }
+    }
+
+    private static void logInfo(String msg1, String msg2)
+    {
+        if (logger != null) {
+            logger.log(logger.INFO, "FIND", msg1 + msg2);
+        }
+    }
+
+    private static void logStatus(boolean exists,
+                                  boolean isdir,
+                                  boolean canread)
+    {
+        if (logger != null) {
+            logger.log(logger.INFO, "FIND", "---"
+                    + (exists ? "exists," : "doesnotexist,")
+                    + (isdir ? "isdir," : "isnotdir,")
+                    + (canread ? "canread," : "cannotread,"));
+        }
+    }
 
     private static boolean hasAllFiles(String[] subfiles)
     {
@@ -40,15 +66,19 @@ public class FindCardDirAndroid
         for (String sf : subfiles) {
 
             if (sf.equals("STATS.CSV")) {
+                logInfo("---found: STATS.CSV");
                 hasStats = true;
 
             } else if (sf.equals("CATS")) {
+                logInfo("---found: CATS");
                 hasCategories = true;
 
             } else if (sf.equals("CONFIG")) {
+                logInfo("---found: CONFIG");
                 hasConfig = true;
 
             } else if (sf.equals("CARDS")) {
+                logInfo("---found: CARDS");
                 hasCards = true;
             }
         }
@@ -59,13 +89,24 @@ public class FindCardDirAndroid
                 && hasCards);
     }
 
+    private static boolean canWrite(File file)
+    {
+        boolean r = file.canWrite();
+        logInfo("---canwrite=", r ? "true" : "false");
+        return r;
+    }
+
     public static boolean isCardDir(File file)
     {
         String[] subfiles;
 
         try {
+            boolean exists = file.exists();
+            boolean isdir = file.isDirectory();
+            boolean canread = file.canRead();
 
-            if (!file.exists() || !file.isDirectory() || !file.canRead())
+            logStatus(exists, isdir, canread);
+            if (!exists || !isdir || !canread)
             {
                 return false;
             }
@@ -73,10 +114,11 @@ public class FindCardDirAndroid
             subfiles = file.list();
 
         } catch (SecurityException e) {
+            logInfo("---!isCardDir:SecurityException:", e.toString());
             return false;
         }
 
-        return (file.canWrite() && hasAllFiles(subfiles));
+        return (hasAllFiles(subfiles) && canWrite(file));
     }
 
     public static boolean isCardDir(String path)
@@ -94,6 +136,7 @@ public class FindCardDirAndroid
                 return hasAllFiles(
                         HexCsvAndroid.context.getAssets().list(subpath));
             } catch (IOException e) {
+                logInfo("---!isCardDir:IOException:", e.toString());
                 return false;
             }
         }
@@ -121,9 +164,11 @@ public class FindCardDirAndroid
     }
 
     private static void doDir(File dir, Vector<String> found)
-    {                   
+    {
+        logInfo("--doDir: ", dir.getPath());
         try {           
             if (isCardDir(dir)) {
+                logInfo("---found!");
                 found.addElement(dir.getPath());
 
             } else {
@@ -137,6 +182,7 @@ public class FindCardDirAndroid
                 }
             }
         } catch (SecurityException e) {
+            logInfo("---!SecurityException:", e.toString());
         }
 
         return;
@@ -146,6 +192,7 @@ public class FindCardDirAndroid
     public static Vector<String> list(boolean check_filesystem) {
         Vector<String> paths = new Vector<String>();
 
+        logInfo("FindCardDirAndroid.list: starting...");
         try {
             if (check_filesystem) {
                 // Check on the filesystem
@@ -158,6 +205,7 @@ public class FindCardDirAndroid
                             // http://www.mail-archive.com/android-developers@googlegroups.com/msg42592.html
                             s = s.substring(0, bidx);
                     }
+                    logInfo("-root=", s);
                     doDir(new File(s), paths);
                 }
             }
@@ -178,6 +226,7 @@ public class FindCardDirAndroid
             return null;
         }
 
+        logInfo("FindCardDirAndroid.list: done.");
         return paths;
     }
 
