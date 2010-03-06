@@ -116,6 +116,10 @@ class MnemogogoPlugin(Plugin):
 	    return
 
 	mnemogogo.log_info('version %s' % self.version)
+
+	if not mnemogogo.htmltounicode_working:
+	    mnemogogo.log_warning(
+		'Neither html.entities nor htmlentitydefs could be imported.')
 	
 	self.interfaces = mnemogogo.register_interfaces()
 

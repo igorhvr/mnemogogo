@@ -18,6 +18,6 @@
 
 from core import *
 from gogo_dlg import GogoDlg
-from html_lib import htmltounicode
+from html_lib import htmltounicode, htmltounicode_working
 import lock_enabling
 
