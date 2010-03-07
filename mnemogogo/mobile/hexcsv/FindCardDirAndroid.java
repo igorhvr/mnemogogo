@@ -33,14 +33,14 @@ public class FindCardDirAndroid
     private static void logInfo(String msg)
     {
         if (logger != null) {
-            logger.log(logger.INFO, "FIND", msg);
+            logger.log(Logger.INFO, "FIND", msg);
         }
     }
 
     private static void logInfo(String msg1, String msg2)
     {
         if (logger != null) {
-            logger.log(logger.INFO, "FIND", msg1 + msg2);
+            logger.log(Logger.INFO, "FIND", msg1 + msg2);
         }
     }
 
@@ -49,10 +49,10 @@ public class FindCardDirAndroid
                                   boolean canread)
     {
         if (logger != null) {
-            logger.log(logger.INFO, "FIND", "---"
+            logger.log(Logger.INFO, "FIND", "---"
                     + (exists ? "exists," : "doesnotexist,")
                     + (isdir ? "isdir," : "isnotdir,")
-                    + (canread ? "canread," : "cannotread,"));
+                    + (canread ? "canread" : "cannotread"));
         }
     }
 
