@@ -28,7 +28,7 @@ public class FindCardDirAndroid
     
     private static final String[] skip_files = { "LOST.DIR", ".thumbnails" };
     private static final String[] skip_paths = { "/etc", "/system",
-        "/sys", "/cache", "/sbin", "/proc", "/d", "/dev" };
+        "/sys", "/cache", "/sbin", "/proc", "/d", "/dev", "/sdcard/andnav2" };
 
     private static void logInfo(String msg)
     {
@@ -189,14 +189,14 @@ public class FindCardDirAndroid
     }
 
 
-    public static Vector<String> list(boolean check_filesystem) {
+    public static Vector<String> list(boolean check_filesystem, File[] roots)
+    {
         Vector<String> paths = new Vector<String>();
 
         logInfo("FindCardDirAndroid.list: starting...");
         try {
             if (check_filesystem) {
                 // Check on the filesystem
-                File[] roots = File.listRoots();
                 for (File root : roots) {
                     String s = root.toString();
                     int bidx = s.indexOf(0);
@@ -230,5 +230,19 @@ public class FindCardDirAndroid
         return paths;
     }
 
+    public static Vector<String> list(boolean check_filesystem, String[] paths)
+    {
+        File[] roots = new File[paths.length];
+        for (int i = 0; i < roots.length; ++i) {
+            roots[i] = new File(paths[i]);
+        }
+
+        return list(check_filesystem, roots);
+    }
+
+    public static Vector<String> list(boolean check_filesystem)
+    {
+        return list(check_filesystem, File.listRoots());
+    }
 }
 
