@@ -189,13 +189,13 @@ public class FindCardDirAndroid
     }
 
 
-    public static Vector<String> list(boolean check_filesystem, File[] roots)
+    protected static Vector<String> list(File[] roots)
     {
         Vector<String> paths = new Vector<String>();
 
         logInfo("FindCardDirAndroid.list: starting...");
         try {
-            if (check_filesystem) {
+            if (roots != null) {
                 // Check on the filesystem
                 for (File root : roots) {
                     String s = root.toString();
@@ -230,19 +230,27 @@ public class FindCardDirAndroid
         return paths;
     }
 
-    public static Vector<String> list(boolean check_filesystem, String[] paths)
+    public static Vector<String> list(String[] paths)
     {
+        if (paths == null) {
+            return list((File[])null);
+        }
+
         File[] roots = new File[paths.length];
         for (int i = 0; i < roots.length; ++i) {
             roots[i] = new File(paths[i]);
         }
 
-        return list(check_filesystem, roots);
+        return list(roots);
     }
 
     public static Vector<String> list(boolean check_filesystem)
     {
-        return list(check_filesystem, File.listRoots());
+        if (check_filesystem) {
+            return list(File.listRoots());
+        } else {
+            return list((File[])null);
+        }
     }
 }
 
