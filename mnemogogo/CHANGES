@@ -1,6 +1,8 @@
 201004__ mnemogogo-1.1.4
 * Library support for limited filesystem search on Android
   (thanks to Jean-Baptiste Rouquier for suggestion).
+* Support the 'learn ahead' feature
+  (thanks to Jean-Baptiste Rouquier for suggestion).
 
 20100322 mnemogogo-1.1.3
 * Add logging support to phone library.

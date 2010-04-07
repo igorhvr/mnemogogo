@@ -106,6 +106,10 @@ public class Card
         return (grade < 2);
     }
 
+    public boolean qualifiesForLearnAhead(long days_since_start) {
+        return (grade >= 2) && (days_since_start < next_rep);
+    }
+
     public long sortKeyInterval() {
         return (next_rep - last_rep);
     }
@@ -397,7 +401,7 @@ public class Card
         // Calculate scheduled and actual interval, taking care of corner
         // case when learning ahead on the same day.
         
-        scheduled_interval = next_rep   - last_rep;
+        scheduled_interval = next_rep - last_rep;
         actual_interval    = days_since_start - last_rep;
 
         if (actual_interval == 0) {

@@ -217,7 +217,17 @@ abstract class HexCsv
         in.close();
 
         q = new RevQueue(ncards, days_since_start, config, progress, days_left);
-        q.buildRevisionQueue(cards);
+        q.buildRevisionQueue(cards, false);
+    }
+
+    public void learnAhead()
+    {
+        q.buildRevisionQueue(cards, true);
+    }
+
+    public boolean canLearnAhead()
+    {
+        return q.canLearnAhead(cards);
     }
 
     public void writeCards(StringBuffer path, String name, Progress progress)
@@ -306,7 +316,9 @@ abstract class HexCsv
     public boolean cardDataNeeded(int serial)
     {
         return ((cards[serial].isDueForRetentionRep(days_since_start)
-                            || cards[serial].isDueForAcquisitionRep())
+                 || cards[serial].isDueForAcquisitionRep()
+                 || (q.isLearningAhead()
+                     && cards[serial].qualifiesForLearnAhead(days_since_start)))
                 && q.isScheduledSoon(serial, cards_to_load));
     }
 
@@ -345,12 +357,16 @@ abstract class HexCsv
         return q.numScheduled();
     }
 
-    public void updateFutureSchedule(Card card) {
-        q.updateFutureSchedule(card);
+    public void addToFutureSchedule(Card card) {
+        q.addToFutureSchedule(card);
+    }
+
+    public void removeFromFutureSchedule(Card card) {
+        q.removeFromFutureSchedule(card);
     }
 
     public int[] getFutureSchedule() {
-        return q.futureSchedule;
+        return q.getFutureSchedule();
     }
 
     public String toString() {

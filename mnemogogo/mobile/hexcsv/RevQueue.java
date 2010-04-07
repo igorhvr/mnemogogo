@@ -32,13 +32,16 @@ class RevQueue {
     int idx_new;
     int new_at_once;
 
+    boolean learn_ahead = false;
+
     int curr = -1;
     Random rand = new Random();
 
     long days_since_start = 0;
     Config config;
 
-    public int[] futureSchedule; // 0 = in 1 day, ...
+    protected int[] futureSchedule; // 0 = in 1 day, ...
+    public static int maxFutureSchedule = 7;
 
     Progress progress;
 
@@ -54,7 +57,8 @@ class RevQueue {
         days_since_start = days;
 
         if (days_left >= 1) {
-            futureSchedule = new int[days_left]; // 0 = in 1 day, ...
+            futureSchedule = new int[Math.min(days_left, maxFutureSchedule)];
+            // 0 = in 1 day, ...
         } else {
             futureSchedule = null;
         }
@@ -199,30 +203,64 @@ class RevQueue {
         hd = clusterUnseen(hd, q.length);
     }
 
-    public void updateFutureSchedule(Card card)
+    private void updateFutureSchedule(Card card, int delta)
     {
         int next_rep = card.daysUntilNextRep(days_since_start) - 1;
         if ((futureSchedule != null)
             && (0 <= next_rep) && (next_rep < futureSchedule.length))
         {
-            ++futureSchedule[next_rep];
+            futureSchedule[next_rep] += delta;
         }
     }
 
-    // Adapted directly from Peter Bienstman's Mnemosyne 1.x
-    public void buildRevisionQueue(Card[] cards)
+    public void addToFutureSchedule(Card card) {
+        updateFutureSchedule(card, 1);
+    }
+
+    public void removeFromFutureSchedule(Card card) {
+        updateFutureSchedule(card, -1);
+    }
+
+    private void clearFutureSchedule()
     {
+        if (futureSchedule != null) {
+            for (int i = 0; i < futureSchedule.length; ++i) {
+                futureSchedule[i] = 0;
+            }
+        }
+    }
+
+    public int[] getFutureSchedule()
+    {
+        return futureSchedule;
+    }
+
+    // Adapted directly from Peter Bienstman's Mnemosyne 1.x
+    // learn_ahead should only be set when:
+    //      no cards are isDueForRetentionRep
+    //      nor for isDueForAcquisitionRep
+    public void buildRevisionQueue(Card[] cards, boolean learn_ahead)
+    {
+        // reinitialize state
+        limit_new = 0;
+        curr = -1;
+
         // form two queues:
         //          cards scheduled for today upward from 0
         //          wrong and unmemorised cards downward from revqueue.size
         
+        this.learn_ahead = learn_ahead;
         num_scheduled = 0;
         idx_new = q.length - 1;
+        clearFutureSchedule();
         
         for (int i=0; i < cards.length; ++i) {
-            updateFutureSchedule(cards[i]);
+            addToFutureSchedule(cards[i]);
 
-            if (cards[i].isDueForRetentionRep(days_since_start)) {
+            if (cards[i].isDueForRetentionRep(days_since_start)
+                || (learn_ahead
+                    && cards[i].qualifiesForLearnAhead(days_since_start)))
+            {
                 q[num_scheduled++] = cards[i];
 
             } else if (cards[i].isDueForAcquisitionRep()) {
@@ -235,7 +273,7 @@ class RevQueue {
         }
 
         if (num_scheduled > 0) {
-            if (config.sorting()) {
+            if (config.sorting() || learn_ahead) {
                 sortScheduled();
             } else {
                 shuffle(0, num_scheduled);
@@ -243,6 +281,22 @@ class RevQueue {
         } else {
             rebuildNewQueue();
         }
+    }
+
+    public boolean isLearningAhead()
+    {
+        return learn_ahead;
+    }
+
+    public boolean canLearnAhead(Card[] cards)
+    {
+        for (int i=0; i < cards.length; ++i) {
+            if (cards[i].qualifiesForLearnAhead(days_since_start)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void rebuildNewQueue()
@@ -292,7 +346,7 @@ class RevQueue {
 
     public int numScheduled()
     {
-        if (num_scheduled > 0) {
+        if (!learn_ahead && num_scheduled > 0) {
             return (num_scheduled - curr);
         }
 
