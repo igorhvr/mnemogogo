@@ -282,6 +282,8 @@ class Export(Job):
 	return self.map_paths(self.re_img, self.re_img_split, text, self.imgs)
 
     def handle_sounds(self, dst_subdir, text):
+	ntext = []
+
 	for r in self.re_snd.finditer(text):
 	    src = r.group('path')
 
@@ -301,8 +303,11 @@ class Export(Job):
 		if moved:
 		    self.call_hooks(dst_path, 'gogo_snd')
 		self.snds[src] = phonejoin([dst_subdir, dst])
-
-	return self.map_paths(self.re_snd, self.re_snd_split, text, self.snds)
+	    
+	    ntext.append('<sound src="%s" />' % self.snds[src])
+	
+	ntext.append(self.re_snd_split.sub('', text))
+	return '\n'.join(ntext)
 
 class Import(Job):
     def __iter__(self):

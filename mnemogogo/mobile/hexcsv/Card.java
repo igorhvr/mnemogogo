@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Random;
+import java.util.Vector;
 
 public class Card
 {
@@ -57,7 +58,9 @@ public class Card
     private static final int fourDigits = 12;
     private static final int eightDigits = 28;
 
-    private static int initial_interval[] = {0, 0, 1, 3, 4, 5};
+    private static final int initial_interval[] = {0, 0, 1, 3, 4, 5};
+    private static final String sound_prefix = "<sound src=\"";
+    private static final int sound_prefix_offset = sound_prefix.length();
 
     Card() {
     }
@@ -339,14 +342,73 @@ public class Card
         }
     }
 
-    public String getQuestion()
+    private String[] getSounds(String text)
+    {
+        if (text == null) {
+            return (new String[0]);
+        }
+
+        Vector sounds = new Vector(3, 2);
+
+        int pos = 0;
+        while (text.startsWith(sound_prefix, pos)) {
+            pos += sound_prefix_offset;
+
+            int npos = text.indexOf('"', pos);
+            if (npos != -1) {
+                sounds.addElement(text.substring(pos, npos));
+            }
+
+            pos = text.indexOf('\n', pos);
+            if (pos == -1) {
+                break;
+            }
+            ++pos;
+        }
+
+        String[] r = new String[sounds.size()];
+        sounds.copyInto(r);
+        return r;
+    }
+
+    private String skipPreamble(String text)
+    {
+        if (text == null) {
+            return null;
+        }
+
+        int pos = 0;
+        while (text.startsWith(sound_prefix, pos)) {
+            pos = text.indexOf('\n', pos);
+            if (pos == -1) {
+                return text;
+            }
+
+            ++pos;
+        }
+
+        return text.substring(pos);
+    }
+
+    private void ensureQuestionText()
     {
         if (question == null) {
             try {
                 cardlookup.loadCardData();
             } catch (IOException e) {}
         }
-        return question;
+    }
+
+    public String getQuestion()
+    {
+        ensureQuestionText();
+        return skipPreamble(question);
+    }
+
+    public String[] getQuestionSounds()
+    {
+        ensureQuestionText();
+        return getSounds(question);
     }
 
     public void setQuestion(String question)
@@ -356,7 +418,14 @@ public class Card
 
     public String getAnswer()
     {
-        return answer;
+        ensureQuestionText();
+        return skipPreamble(answer);
+    }
+
+    public String[] getAnswerSounds()
+    {
+        ensureQuestionText();
+        return getSounds(answer);
     }
 
     public void setAnswer(String answer)
