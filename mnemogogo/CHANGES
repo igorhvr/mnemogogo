@@ -1,4 +1,4 @@
-201004__ mnemogogo-1.1.4
+20100410 mnemogogo-1.1.4
 * Library support for limited filesystem search on Android
   (thanks to Jean-Baptiste Rouquier for suggestion).
 * Support the 'learn ahead' feature
