@@ -342,9 +342,14 @@ public class Card
         }
     }
 
+    private boolean hasSounds(String text)
+    {
+        return (text != null && text.startsWith(sound_prefix));
+    }
+
     private String[] getSounds(String text)
     {
-        if (text == null) {
+        if (!hasSounds(text)) {
             return (new String[0]);
         }
 
@@ -411,6 +416,12 @@ public class Card
         return getSounds(question);
     }
 
+    public boolean hasQuestionSounds()
+    {
+        ensureQuestionText();
+        return hasSounds(question);
+    }
+
     public void setQuestion(String question)
     {
         this.question = question;
@@ -426,6 +437,12 @@ public class Card
     {
         ensureQuestionText();
         return getSounds(answer);
+    }
+
+    public boolean hasAnswerSounds()
+    {
+        ensureQuestionText();
+        return hasSounds(answer);
     }
 
     public void setAnswer(String answer)
