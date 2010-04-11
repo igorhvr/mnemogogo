@@ -1,3 +1,6 @@
+201005__ mnemogogo-1.1.5
+* Integrate debugging support for FindCardDir on J2ME.
+
 20100410 mnemogogo-1.1.4
 * Library support for limited filesystem search on Android
   (thanks to Jean-Baptiste Rouquier for suggestion).

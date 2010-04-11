@@ -28,6 +28,49 @@ import javax.microedition.io.file.FileSystemRegistry;
 public class FindCardDirJ2ME
 {
     public static String[] standard = { "cards/" };
+    public static boolean debug = true;
+
+    private static void logInfo(String msg)
+    {
+        if (debug) {
+            Debug.logln(msg);
+        }
+    }
+
+    private static void logInfo(String msg1, String msg2)
+    {
+        if (debug) {
+            Debug.log(msg1);
+            Debug.logln(msg2);
+        }
+    }
+
+    private static void logInfo(String msg1, StringBuffer msg2)
+    {
+        if (debug) {
+            Debug.log(msg1);
+            Debug.logln(msg2.toString());
+        }
+    }
+
+    private static void logStatus(boolean exists,
+                                  boolean isdir,
+                                  boolean canread)
+    {
+        if (debug) {
+            Debug.log("---");
+            Debug.log(exists ? "exists," : "doesnotexist,");
+            Debug.log(isdir ? "isdir," : "isnotdir,");
+            Debug.logln(canread ? "canread" : "cannotread");
+        }
+    }
+
+    private static boolean canWrite(FileConnection fconn)
+    {
+        boolean r = fconn.canWrite();
+        logInfo("---canwrite=", r ? "true" : "false");
+        return r;
+    }
 
     public static boolean isCardDir(FileConnection fconn, Vector subdirs)
     {
@@ -38,8 +81,21 @@ public class FindCardDirJ2ME
 
         try {
 
-            if (!fconn.exists() || !fconn.isDirectory() || !fconn.canRead())
+            if (!fconn.exists())
             {
+                logInfo("---does not exist");
+                return false;
+            }
+
+            if (!fconn.isDirectory())
+            {
+                logInfo("---is not a directory");
+                return false;
+            }
+
+            if (!fconn.canRead())
+            {
+                logInfo("---cannot read");
                 return false;
             }
 
@@ -48,15 +104,19 @@ public class FindCardDirJ2ME
                 String f = (String)e.nextElement();
 
                 if (f.equals("STATS.CSV")) {
+                    logInfo("---found: STATS.CSV");
                     hasStats = true;
 
                 } else if (f.equals("CATS")) {
+                    logInfo("---found: CATS");
                     hasCategories = true;
 
                 } else if (f.equals("CONFIG")) {
+                    logInfo("---found: CONFIG");
                     hasConfig = true;
 
                 } else if (f.equals("CARDS")) {
+                    logInfo("---found: CARDS");
                     hasCards = true;
                 }
 
@@ -66,16 +126,18 @@ public class FindCardDirJ2ME
             }
 
         } catch (IOException e) {
+            logInfo("---!isCardDir-conn:IOException:", e.toString());
             return false;
         } catch (SecurityException e) {
+            logInfo("---!isCardDir-conn:SecurityException:", e.toString());
             return false;
         }
 
-        return (fconn.canWrite()
-                && hasStats
+        return (hasStats
                 && hasCategories
                 && hasConfig
-                && hasCards);
+                && hasCards
+                && canWrite(fconn));
     }
 
     public static boolean isCardDir(String path, Vector subdirs) {
@@ -87,7 +149,9 @@ public class FindCardDirJ2ME
             r = isCardDir(fconn, subdirs);
             fconn.close();
         } catch (IOException e) {
+            logInfo("---!isCardDir-str:IOException:", e.toString());
         } catch (SecurityException e) {
+            logInfo("---!isCardDir-str:SecurityException:", e.toString());
         }
 
         return r;
@@ -96,8 +160,10 @@ public class FindCardDirJ2ME
     private static void doDir(FileConnection fconn,
                               StringBuffer pathbuf, Vector found)
     {
+        logInfo("--doDir: ", pathbuf);
         try {
             if (isCardDir(fconn, null)) {
+                logInfo("---found!");
                 found.addElement(pathbuf.toString());
                 fconn.close();
 
@@ -120,17 +186,21 @@ public class FindCardDirJ2ME
                 }
             }
         } catch (IOException e) {
+            logInfo("---!IOException:", e.toString());
         } catch (SecurityException e) {
+            logInfo("---!SecurityException:", e.toString());
         }
 
         return;
     }
 
 
-    public static String[] list() {
+    public static String[] list()
+    {
         Vector paths = new Vector();
         StringBuffer pathbuf = new StringBuffer("file://");
 
+        logInfo("FindCardDirJ2ME.list: starting...");
         Enumeration roots = FileSystemRegistry.listRoots();
         while (roots.hasMoreElements()) {
             try {
@@ -144,17 +214,21 @@ public class FindCardDirJ2ME
                 doDir(root, pathbuf, paths);
                 root.close();
             } catch (IOException e) {
+                logInfo("!list:IOException:", e.toString());
             } catch (SecurityException e) {
+                logInfo("!list:SecurityException:", e.toString());
             }
         }
 
         if (paths.isEmpty()) {
+            logInfo("FindCardDirJ2ME.list: done (none found).");
             return null;
         }
 
         String r[] = new String[paths.size()];
         paths.copyInto(r);
 
+        logInfo("FindCardDirJ2ME.list: done (some found).");
         return r;
     }
 
@@ -162,6 +236,7 @@ public class FindCardDirJ2ME
         Vector paths = new Vector();
         StringBuffer pathbuf = new StringBuffer("file://");
 
+        logInfo("FindCardDirJ2ME.checkStandard: starting...");
         Enumeration roots = FileSystemRegistry.listRoots();
         while (roots.hasMoreElements()) {
             try {
@@ -173,6 +248,7 @@ public class FindCardDirJ2ME
                     int last = pathbuf.length();
                     pathbuf.append(standard[i]);
 
+                    logInfo("--doDir: ", pathbuf);
                     if (isCardDir(pathbuf.toString(), null)) {
                         paths.addElement(pathbuf.toString());
                     }
@@ -180,16 +256,20 @@ public class FindCardDirJ2ME
                     pathbuf.delete(last, pathbuf.length());
                 }
 
-            } catch (SecurityException e) { }
+            } catch (SecurityException e) {
+                logInfo("!checkStandard:SecurityException:", e.toString());
+            }
         }
 
         if (paths.isEmpty()) {
+            logInfo("FindCardDirJ2ME.checkStandard: done (none found).");
             return null;
         }
 
         String r[] = new String[paths.size()];
         paths.copyInto(r);
 
+        logInfo("FindCardDirJ2ME.checkStandard: done (some found).");
         return r;
     }
 }
