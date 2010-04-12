@@ -1,4 +1,4 @@
-20100412 mnemogogo-1.1.5
+201004__ mnemogogo-1.1.5
 * Integrate debugging support for FindCardDir on J2ME.
 * Fix a source of possible exceptions in FindCardDir on Android.
 
