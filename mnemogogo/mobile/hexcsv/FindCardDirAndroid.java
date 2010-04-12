@@ -173,6 +173,10 @@ public class FindCardDirAndroid
 
             } else {
                 String[] subfiles = dir.list();
+                if (subfiles == null) {
+                    logInfo("---dir.list() is null!");
+                    return;
+                }
                 for (String sf : subfiles) {
                     File subdir = new File(dir, sf);
 
