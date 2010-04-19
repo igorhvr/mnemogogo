@@ -28,7 +28,7 @@ import javax.microedition.io.file.FileSystemRegistry;
 public class FindCardDirJ2ME
 {
     public static String[] standard = { "cards/" };
-    public static boolean debug = true;
+    public static boolean debug = false;
 
     private static void logInfo(String msg)
     {
@@ -50,18 +50,6 @@ public class FindCardDirJ2ME
         if (debug) {
             Debug.log(msg1);
             Debug.logln(msg2.toString());
-        }
-    }
-
-    private static void logStatus(boolean exists,
-                                  boolean isdir,
-                                  boolean canread)
-    {
-        if (debug) {
-            Debug.log("---");
-            Debug.log(exists ? "exists," : "doesnotexist,");
-            Debug.log(isdir ? "isdir," : "isnotdir,");
-            Debug.logln(canread ? "canread" : "cannotread");
         }
     }
 
