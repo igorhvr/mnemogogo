@@ -1,6 +1,8 @@
-201004__ mnemogogo-1.1.5
+20100427 mnemogogo-1.1.5
 * Integrate debugging support for FindCardDir on J2ME.
 * Fix a source of possible exceptions in FindCardDir on Android.
+* No longer crash if a sound file is missing
+  (Thanks to Dandelo for the report.)
 
 20100410 mnemogogo-1.1.4
 * Library support for limited filesystem search on Android

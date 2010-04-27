@@ -297,14 +297,14 @@ class Export(Job):
 
 		dst = name + src_ext
 		dst_path = os.path.join(self.sync_path, dst_subdir, dst)
-		shutil.copy(src, dst_path)
-		moved = True
-
-		if moved:
+		try:
+		    shutil.copy(src, dst_path)
+		    self.snds[src] = phonejoin([dst_subdir, dst])
 		    self.call_hooks(dst_path, 'gogo_snd')
-		self.snds[src] = phonejoin([dst_subdir, dst])
-	    
-	    ntext.append('<sound src="%s" />' % self.snds[src])
+		    ntext.append('<sound src="%s" />' % self.snds[src])
+
+		except IOError as e:
+		    log_warning("sound file not found: %s" % src)
 	
 	ntext.append(self.re_snd_split.sub('', text))
 	return '\n'.join(ntext)
