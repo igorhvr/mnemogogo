@@ -303,7 +303,7 @@ class Export(Job):
 		    self.call_hooks(dst_path, 'gogo_snd')
 		    ntext.append('<sound src="%s" />' % self.snds[src])
 
-		except IOError as e:
+		except IOError:
 		    log_warning("sound file not found: %s" % src)
 	
 	ntext.append(self.re_snd_split.sub('', text))
