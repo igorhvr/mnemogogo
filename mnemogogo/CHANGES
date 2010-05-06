@@ -1,3 +1,7 @@
+20100506 mnemogogo-1.1.7
+* Remove some excess <br/> tags from card text to fix table display under
+  Android (thanks to Matt Kimsal for the report).
+
 20100429 mnemogogo-1.1.6
 * Fix the invalid syntax error on line 306 of core.
   (affects some versions of Python).

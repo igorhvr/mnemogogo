@@ -284,6 +284,7 @@ class JojoExport(BasicExport):
     raw_conversions = [
 	    # ( regex ,	   replacement )
 	    (r'(<br>)', r'<br/>'),
+	    (r'(</?\s*(table|td|tr)\s*>)( *<br/>)+', r'\1'),
 	    (r'</font>', r'</span>'),
 	    (r'(<img[^>]*[^/])>', r'\1/>'),
 	]
