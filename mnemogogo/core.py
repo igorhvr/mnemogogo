@@ -268,7 +268,7 @@ class Export(Job):
 		if self.name_with_numbers:
 		    name = '%08X' % self.img_cnt
 		else:
-		    name = src_root.encode('punycode').upper()
+		    name = src_root.encode('punycode').upper().replace(' ', '_')
 		self.img_cnt += 1
 
 		(moved, dst) = self.convert_img(src, dst_subdir, name,
@@ -292,7 +292,7 @@ class Export(Job):
 		if self.name_with_numbers:
 		    name = '%08X' % self.snd_cnt
 		else:
-		    name = src_root.encode('punycode').upper()
+		    name = src_root.encode('punycode').upper().replace(' ', '_')
 		self.snd_cnt += 1
 
 		dst = name + src_ext

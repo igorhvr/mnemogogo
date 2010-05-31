@@ -1,3 +1,7 @@
+20100531 mnemogogo-1.1.8
+* Handle spaces in image and sound filenames
+  (thanks to dandelo for the bug report).
+
 20100506 mnemogogo-1.1.7
 * Remove some excess <br/> tags from card text to fix table display under
   Android (thanks to Matt Kimsal for the report).
