@@ -255,16 +255,18 @@ class RevQueue {
         clearFutureSchedule();
         
         for (int i=0; i < cards.length; ++i) {
-            addToFutureSchedule(cards[i]);
+            if (!cards[i].isSkip()) {
+                addToFutureSchedule(cards[i]);
 
-            if (cards[i].isDueForRetentionRep(days_since_start)
-                || (learn_ahead
-                    && cards[i].qualifiesForLearnAhead(days_since_start)))
-            {
-                q[num_scheduled++] = cards[i];
-
-            } else if (cards[i].isDueForAcquisitionRep()) {
-                q[idx_new--] = cards[i];
+                if (cards[i].isDueForRetentionRep(days_since_start)
+                    || (learn_ahead
+                        && cards[i].qualifiesForLearnAhead(days_since_start)))
+                {
+                    q[num_scheduled++] = cards[i];
+    
+                } else if (cards[i].isDueForAcquisitionRep()) {
+                    q[idx_new--] = cards[i];
+                }
             }
 
             if (i % 10 == 0 && progress != null) {

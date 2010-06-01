@@ -78,13 +78,13 @@ abstract class HexCsv
         days_since_start = daysSinceStart(config.startDay());
 
         truncatePathBuf();
-        readCards(pathbuf);
-
-        truncatePathBuf();
         readCategories(pathbuf);
 
         truncatePathBuf();
         readCategorySkips(pathbuf);
+
+        truncatePathBuf();
+        readCards(pathbuf);
 
         if (config.logging()) {
             truncatePathBuf();
@@ -246,6 +246,11 @@ abstract class HexCsv
         q.buildRevisionQueue(cards, false);
     }
 
+    public void rebuildQueue()
+    {
+        q.buildRevisionQueue(cards, false);
+    }
+    
     public void learnAhead()
     {
         q.buildRevisionQueue(cards, true);
