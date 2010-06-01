@@ -39,10 +39,12 @@ abstract class HexCsv
     private Progress progress;
 
     private boolean specify_encoding;
+    private boolean allow_skip_categories;
 
     public long days_since_start;
     public OutputStreamWriter logfile;
     public String categories[];
+    public boolean skip_categories[];
 
     public int cards_to_load = 50;
 
@@ -56,10 +58,13 @@ abstract class HexCsv
     private StringBuffer pathbuf;
     private int path_len;
 
-    public HexCsv(String path, Progress prog, boolean specify_encoding)
+    public HexCsv(String path, Progress prog,
+                  boolean specify_encoding,
+                  boolean allow_skip_categories)
         throws Exception, IOException
     {
         this.specify_encoding = specify_encoding;
+        this.allow_skip_categories = allow_skip_categories;
 
         path_len = path.length();
         pathbuf = new StringBuffer(path_len + 20);
@@ -77,6 +82,9 @@ abstract class HexCsv
 
         truncatePathBuf();
         readCategories(pathbuf);
+
+        truncatePathBuf();
+        readCategorySkips(pathbuf);
 
         if (config.logging()) {
             truncatePathBuf();
@@ -110,6 +118,24 @@ abstract class HexCsv
         } else {
             return null;
         }
+    }
+
+    public boolean skipCategory(int n) {
+        if (0 <= n && n < categories.length) {
+            return skip_categories[n];
+        } else {
+            return false;
+        }
+    }
+
+    public void setSkipCategory(int n, boolean skip) {
+        if (0 <= n && n < categories.length) {
+            skip_categories[n] = skip;
+        }
+    }
+
+    public int numCategories() {
+        return categories.length;
     }
 
     public Card getCard() {
@@ -276,6 +302,80 @@ abstract class HexCsv
         throws IOException
     {
         writeCards(path, "STATS.BKP", progress);
+    }
+
+    private void readCategorySkips(StringBuffer path)
+    {
+        int n = categories.length;
+
+        skip_categories = new boolean[n];
+        for(int i=0; i < n; ++i) {
+            skip_categories[i] = false;
+        }
+
+        if (!allow_skip_categories) {
+            return;
+        }
+
+        try {
+            InputStream is = openIn(path.append("SKIPCATS").toString());
+            InputStreamReader in;
+
+            if (specify_encoding) {
+                try {
+                    in = new InputStreamReader(is, utf8);
+                } catch (UnsupportedEncodingException e) {
+                    in = new InputStreamReader(is);
+                }
+            } else {
+                in = new InputStreamReader(is);
+            }
+
+            String cat = StatIO.readLine(in);
+            while (!cat.equals("")) {
+                for (int i=0; i < n; ++i) {
+                    if (cat.equals(categories[i])) {
+                        skip_categories[i] = true;
+                        break;
+                    }
+                }
+                cat = StatIO.readLine(in);
+            }
+
+            in.close();
+        } catch (Exception e) { }
+    }
+
+    public void writeCategorySkips(StringBuffer path)
+    {
+        if (!allow_skip_categories) {
+            return;
+        }
+
+        try {
+            OutputStream os = openOut(path.append("SKIPCATS").toString());
+            OutputStreamWriter out;
+
+            if (specify_encoding) {
+                try {
+                    out = new OutputStreamWriter(os, utf8);
+                } catch (UnsupportedEncodingException e) {
+                    out = new OutputStreamWriter(os);
+                }
+            } else {
+                out = new OutputStreamWriter(os);
+            }
+
+            for (int i=0; i < categories.length; ++i) {
+                if (skip_categories[i]) {
+                    out.write(categories[i]);
+                    out.write('\n');
+                }
+            }
+
+            out.flush();
+            out.close();
+        } catch (Exception e) { }
     }
 
     private void readCategories(StringBuffer path)

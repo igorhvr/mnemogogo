@@ -31,7 +31,7 @@ public class HexCsvJ2ME
     public HexCsvJ2ME(String path, Progress prog)
         throws Exception, IOException
     {
-        super(path, prog, true);
+        super(path, prog, true, false);
     }
 
     protected OutputStream openAppend(String path)

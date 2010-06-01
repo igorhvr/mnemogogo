@@ -462,7 +462,7 @@ public class Card
 
     public boolean isSkip()
     {
-        return skip;
+        return (skip || cardlookup.skipCategory(category));
     }
 
     public void setSkip()

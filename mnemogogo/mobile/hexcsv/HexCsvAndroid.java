@@ -37,7 +37,7 @@ public class HexCsvAndroid
     public HexCsvAndroid(String path, Progress prog)
         throws Exception, IOException
     {
-        super(path, prog, false);
+        super(path, prog, false, true);
     }
 
     protected OutputStream openAppend(String path)
