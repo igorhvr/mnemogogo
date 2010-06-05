@@ -89,6 +89,8 @@ class BasicExport(mnemogogo.Export):
 	self.idfile = open(join(self.sync_path, 'IDS'), 'wb')
 	self.serial_num = 0
 
+	self.add_active_categories()
+
     def close(self):
 
 	catfile = codecs.open(join(self.sync_path, 'CATS'),

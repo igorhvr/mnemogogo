@@ -177,6 +177,16 @@ class Export(Job):
     def add_style_file(self, dstpath):
 	shutil.copy(os.path.join(self.gogo_dir, 'style.css'), dstpath)
 
+    def add_active_categories(self):
+	mcats = mnemosyne.core.get_categories()
+	cats = []
+	for mc in mcats:
+	    if mc.active:
+		cats.append(mc.name)
+
+	cats.sort()
+	map(self.category_id, cats)
+
     def category_id(self, cat):
 	try:
 	    i = self.categories.index(cat)
