@@ -1,3 +1,6 @@
+201006__ mnemogogo-1.2.0
+* Sort category names on export.
+
 20100531 mnemogogo-1.1.8
 * Handle spaces in image and sound filenames
   (thanks to dandelo for the bug report).
