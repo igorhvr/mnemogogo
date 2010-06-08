@@ -1,5 +1,6 @@
-201006__ mnemogogo-1.2.0
+20100608 mnemogogo-1.2.0
 * Sort category names on export.
+* Include support in library for deactivating categories.
 
 20100531 mnemogogo-1.1.8
 * Handle spaces in image and sound filenames
