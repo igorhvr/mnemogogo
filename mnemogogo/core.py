@@ -458,8 +458,11 @@ def cards_for_ndays(days = 0, extra = 1.00):
 			   itertools.islice(extra_cards(items), limit))
 
 num_suffix_re = re.compile(r'^(.*?)([0-9]*)$')
-def get_fresh_id(id, used_ids):
-    r = num_suffix_re.match(id)
+def get_fresh_id(cardid, used_ids):
+    if type(cardid) not in [str, unicode]:
+	return get_fresh_id('freshid', used_ids)
+
+    r = num_suffix_re.match(cardid)
     prefix = r.group(1)
     suffix_str = r.group(2)
     if suffix_str == '': suffix_str = "0"

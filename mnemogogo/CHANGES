@@ -1,3 +1,7 @@
+20100609 mnemogogo-1.2.1
+* Add checks for non-string ids to work around a reported crash.
+  (Thanks to Doug Nisbet for the report).
+
 20100608 mnemogogo-1.2.0
 * Sort category names on export.
 * Include support in library for deactivating categories.
