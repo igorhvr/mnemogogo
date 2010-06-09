@@ -459,9 +459,6 @@ def cards_for_ndays(days = 0, extra = 1.00):
 
 num_suffix_re = re.compile(r'^(.*?)([0-9]*)$')
 def get_fresh_id(cardid, used_ids):
-    if type(cardid) not in [str, unicode]:
-	return get_fresh_id('freshid', used_ids)
-
     r = num_suffix_re.match(cardid)
     prefix = r.group(1)
     suffix_str = r.group(2)
@@ -481,6 +478,10 @@ def eliminate_duplicate_ids():
 	checked[item.id] = False
 
     for item in items:
+	if type(item.id) not in [str, unicode]:
+	    log_info ("Converting id to string: %s" % item.id)
+	    item.id = unicode(item.id)
+
 	if checked[item.id]:
 	    newid = get_fresh_id(item.id, checked)
 	    log_info ("Fixing duplicate id: %s -> %s" % (item.id, newid))
