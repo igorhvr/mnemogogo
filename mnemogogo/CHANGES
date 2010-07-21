@@ -1,3 +1,10 @@
+20100721 mnemogogo-1.2.2
+* Allow unicode characters in database file paths.
+  (Fix a bug on export reported by Caleb Balloch)
+  NOTE: import from all databases before upgrading.
+* Fix a bug in the display of the locked image when exporting from database
+  files not stored in the usual Mnemosyne base directory.
+
 20100609 mnemogogo-1.2.1
 * Add checks for non-string ids to work around a reported crash.
   (Thanks to Doug Nisbet for the report).
