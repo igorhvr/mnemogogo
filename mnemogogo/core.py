@@ -529,7 +529,7 @@ def do_export(interface, num_days, sync_path, progress_bar=None,
 	    'logging'
 		: "%d" % mnemosyne.core.get_config('upload_logs'),
 	    'database'
-		: get_database()[-max_config_size:],
+		: get_database().encode('punycode')[-max_config_size:],
 	}
 
     params = {
@@ -597,7 +597,7 @@ def do_import(interface, sync_path, progress_bar=None):
 
     import_config = importer.read_config()
     if (import_config.has_key('database')):
-	curr_database = get_database()[-max_config_size:]
+	curr_database = get_database().encode('punycode')[-max_config_size:]
 	load_database = import_config['database']
 	if load_database != curr_database:
 	    raise Mnemogogo("These cards were exported from '"
