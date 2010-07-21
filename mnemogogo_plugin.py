@@ -193,8 +193,10 @@ class MnemogogoPlugin(Plugin):
 	if (not self.is_locked) or (dlg_name == 'PreviewItemDlg'):
 	    return text
 
+	base = mnemosyne.core.get_basedir()
+
 	text = "<b><font color=\"red\">%s</font></b>" % self.lock_msg_main
-	text += "<br><br><img src=\"plugins/mnemogogo/locked.png\">"
+	text += "<br><br><img src=\"%s/plugins/mnemogogo/locked.png\">" % base
 	text += "<br><br><i>%s</i>" % self.lock_msg_info
 	text += "<card style=\"answerbox: overlay\"/>"
 
