@@ -38,7 +38,7 @@ except Exception, e:
     mnemogogo_imported_error = str(e)
 
 class MnemogogoPlugin(Plugin):
-    version = "1.2.2"
+    version = "1.2.3"
     is_locked = False
     old_overlay = None
     config_key = "mnemogogo"
@@ -87,10 +87,16 @@ class MnemogogoPlugin(Plugin):
 	self.save_config()
 
     def show_error(self, msg):
-	QMessageBox.critical(None, 
-	    self.main_dlg.trUtf8("Mnemogogo"),
-	    self.main_dlg.trUtf8(msg),
-	    self.main_dlg.trUtf8("&OK"), "", "", 0, -1)
+	try:
+	    QMessageBox.critical(None, 
+		self.main_dlg.trUtf8("Mnemogogo"),
+		self.main_dlg.trUtf8(msg),
+		self.main_dlg.trUtf8("&OK"), "", "", 0, -1)
+	except TypeError:
+	    QMessageBox.critical(None, 
+		self.main_dlg.trUtf8("Mnemogogo"),
+		msg,
+		self.main_dlg.trUtf8("&OK"), "", "", 0, -1)
 
     def load(self):
 	basedir = get_basedir()

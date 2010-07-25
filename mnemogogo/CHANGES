@@ -1,3 +1,8 @@
+20100725 mnemogogo-1.2.3
+* Attempt to recover from a type error while showing an error message in the
+  plugin loader.
+  (Attempt to fix a bug reported by Darin)
+
 20100721 mnemogogo-1.2.2
 * Allow unicode characters in database file paths.
   (Fix a bug on export reported by Caleb Balloch)
