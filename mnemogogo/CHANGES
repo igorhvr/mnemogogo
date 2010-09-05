@@ -1,3 +1,7 @@
+20100905 mnemogogo-1.2.4
+* Change the debugging interface to work better with the Fire UI toolkit
+  used by Mnemojojo.
+
 20100725 mnemogogo-1.2.3
 * Attempt to recover from a type error while showing an error message in the
   plugin loader.

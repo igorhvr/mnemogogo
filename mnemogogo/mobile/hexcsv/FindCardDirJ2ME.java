@@ -27,29 +27,27 @@ import javax.microedition.io.file.FileSystemRegistry;
 
 public class FindCardDirJ2ME
 {
-    public static String[] standard = { "cards/" };
-    public static boolean debug = false;
+    public static final String[] standard = { "cards/" };
+    public static Debug debug = null;
 
     private static void logInfo(String msg)
     {
-        if (debug) {
-            Debug.logln(msg);
+        if (debug != null) {
+            debug.logInfo(msg);
         }
     }
 
     private static void logInfo(String msg1, String msg2)
     {
-        if (debug) {
-            Debug.log(msg1);
-            Debug.logln(msg2);
+        if (debug != null) {
+            debug.logInfo(msg1 + msg2);
         }
     }
 
     private static void logInfo(String msg1, StringBuffer msg2)
     {
-        if (debug) {
-            Debug.log(msg1);
-            Debug.logln(msg2.toString());
+        if (debug != null) {
+            debug.logInfo(msg1 + msg2.toString());
         }
     }
 
@@ -128,7 +126,8 @@ public class FindCardDirJ2ME
                 && canWrite(fconn));
     }
 
-    public static boolean isCardDir(String path, Vector subdirs) {
+    public static boolean isCardDir(String path, Vector subdirs)
+    {
         boolean r = false;
 
         try {
@@ -182,7 +181,6 @@ public class FindCardDirJ2ME
         return;
     }
 
-
     public static String[] list()
     {
         Vector paths = new Vector();
@@ -220,7 +218,8 @@ public class FindCardDirJ2ME
         return r;
     }
 
-    public static String[] checkStandard() {
+    public static String[] checkStandard()
+    {
         Vector paths = new Vector();
         StringBuffer pathbuf = new StringBuffer("file://");
 
