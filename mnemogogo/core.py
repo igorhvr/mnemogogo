@@ -107,7 +107,9 @@ class Job:
 class Export(Job):
     re_img_split = re.compile(r'(<img.*?>)')
     re_img = re.compile( r'(?P<all>(?P<before><img\s+[^>]?)'
+			+ '((height|width)\s*=\s*"[^"]*"\s*)*'
 			+ 'src\s*=\s*"(?P<path>[^"]*)"'
+			+ '((height|width)\s*=\s*"[^"]*")*'
 			+ '(?P<after>[^>]*/?>))',
 			re.IGNORECASE + re.MULTILINE + re.DOTALL)
 
