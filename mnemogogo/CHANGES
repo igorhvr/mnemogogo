@@ -3,6 +3,7 @@
   used by Mnemojojo.
 * Fix a bug in image tags with height or width attributes
   (Thanks to Dandelo for the report).
+* Add better error trapping and reporting on import.
 
 20100725 mnemogogo-1.2.3
 * Attempt to recover from a type error while showing an error message in the

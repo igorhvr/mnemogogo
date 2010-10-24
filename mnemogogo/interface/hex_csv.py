@@ -62,12 +62,9 @@ class BasicExport(mnemogogo.Export):
 	if not exists(self.snd_path):
 	    mkdir(self.snd_path)
 
-	if not exists(self.img_path): mkdir(self.img_path)
 	self.img_max_width = params['max_width']
 	self.img_max_height = params['max_height'] - self.title_height_pixels
 	self.img_max_size = params['max_size'] * 1024;
-
-	if not exists(self.snd_path): mkdir(self.snd_path)
 
 	# database time_of_start:
 	#   start_date is used only for comparison on import
@@ -164,12 +161,20 @@ class Import(mnemogogo.Import):
     def open(self):
 	try:
 	    statpath = join(self.sync_path, 'STATS.CSV')
-	    self.statfile = open(statpath, 'r')
+	    try:
+		self.statfile = open(statpath, 'r')
+	    except IOError, e:
+		self.error("Cannot open '%s'!\n\n(%s)" %
+			   (self.statpath, str(e)))
 	except IOError:
 	    self.error('Could not find: ' + statpath)
 
 	self.num_cards = int(self.statfile.readline())
-	self.idfile = open(join(self.sync_path, 'IDS'), 'r')
+	try:
+	    self.idfile = open(join(self.sync_path, 'IDS'), 'r')
+	except IOError, e:
+	    self.error("Cannot open '%sIDS'!\n\n(%s)" %
+		       (self.sync_path, str(e)))
 	self.num_stats = len(self.learning_data)
 	self.line = 0
 	self.serial_num = 0
@@ -228,7 +233,12 @@ class Import(mnemogogo.Import):
     def read_config(self):
 	config = {}
 
-	cfile = open(join(self.sync_path, 'CONFIG'), 'rb')
+	try:
+	    cfile = open(join(self.sync_path, 'CONFIG'), 'rb')
+	except IOError, e:
+	    self.error("Cannot open '%sCONFIG'!\n\n(%s)" %
+		       (self.sync_path, str(e)))
+
 	configline_re = re.compile(r'(?P<name>[^=]+)=(?P<value>.*)')
 
 	line = cfile.readline()
