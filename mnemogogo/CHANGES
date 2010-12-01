@@ -1,3 +1,7 @@
+20101127 mnemogogo-1.2.5
+* Fix a bug in sound exporting
+  (thanks to Dariusz Ciemięga for the report and patch)
+
 20101024 mnemogogo-1.2.4
 * Change the debugging interface to work better with the Fire UI toolkit
   used by Mnemojojo.

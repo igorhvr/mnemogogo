@@ -299,7 +299,9 @@ class Export(Job):
 	for r in self.re_snd.finditer(text):
 	    src = r.group('path')
 
-	    if not (src in self.snds):
+	    if src in self.snds:
+		ntext.append('<sound src="%s" />' % self.snds[src])
+	    else:
 		(src_root, src_ext) = os.path.splitext(os.path.basename(src))
 		if self.name_with_numbers:
 		    name = '%08X' % self.snd_cnt
