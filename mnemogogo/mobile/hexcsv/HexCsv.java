@@ -170,7 +170,7 @@ abstract class HexCsv
         in.close();
     }
 
-    private long nowInDays()
+    public long nowInDays()
     {
         Date now = new Date(); // UTC (millisecs since 01/01/1970, 00:00:00 GMT)
 

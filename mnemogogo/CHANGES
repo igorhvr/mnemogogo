@@ -1,3 +1,7 @@
+201012__ mnemogogo-1.2.6
+* Minor change in HexCsv library: make the HexCsv.nowInDays()
+  method public.
+
 20101127 mnemogogo-1.2.5
 * Fix a bug in sound exporting
   (thanks to Dariusz Ciemięga for the report and patch)
