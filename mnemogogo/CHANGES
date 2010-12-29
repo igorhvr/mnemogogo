@@ -1,6 +1,7 @@
 201012__ mnemogogo-1.2.6
-* Minor change in HexCsv library: make the HexCsv.nowInDays()
-  method public.
+* Changes in the HexCsv library:
+  - make the HexCsv.nowInDays() method public
+  - add a reopen() method for the Android client
 
 20101127 mnemogogo-1.2.5
 * Fix a bug in sound exporting

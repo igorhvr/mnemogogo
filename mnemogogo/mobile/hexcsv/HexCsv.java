@@ -89,21 +89,7 @@ abstract class HexCsv
         if (config.logging()) {
             truncatePathBuf();
             pathbuf.append("PRELOG");
-
-            try {
-                OutputStream outs = openAppend(pathbuf.toString());
-                if (specify_encoding) {
-                    try {
-                        logfile = new OutputStreamWriter(outs, ascii);
-                    } catch (UnsupportedEncodingException e) {
-                        logfile = new OutputStreamWriter(outs);
-                    }
-                } else {
-                    logfile = new OutputStreamWriter(outs);
-                }
-            } catch (Exception e) {
-                logfile = null;
-            }
+            openLogFile(pathbuf.toString());
         }
     }
 
@@ -112,7 +98,26 @@ abstract class HexCsv
         pathbuf.delete(path_len, pathbuf.length());
     }
 
-    public String getCategory(int n) {
+    private void openLogFile(String filepath)
+    {
+        try {
+            OutputStream outs = openAppend(filepath);
+            if (specify_encoding) {
+                try {
+                    logfile = new OutputStreamWriter(outs, ascii);
+                } catch (UnsupportedEncodingException e) {
+                    logfile = new OutputStreamWriter(outs);
+                }
+            } else {
+                logfile = new OutputStreamWriter(outs);
+            }
+        } catch (Exception e) {
+            logfile = null;
+        }
+    }
+
+    public String getCategory(int n)
+    {
         if (0 <= n && n < categories.length) {
             return categories[n];
         } else {
@@ -120,7 +125,8 @@ abstract class HexCsv
         }
     }
 
-    public boolean skipCategory(int n) {
+    public boolean skipCategory(int n)
+    {
         if (0 <= n && n < categories.length) {
             return skip_categories[n];
         } else {
@@ -128,21 +134,25 @@ abstract class HexCsv
         }
     }
 
-    public void setSkipCategory(int n, boolean skip) {
+    public void setSkipCategory(int n, boolean skip)
+    {
         if (0 <= n && n < categories.length) {
             skip_categories[n] = skip;
         }
     }
 
-    public int numCategories() {
+    public int numCategories()
+    {
         return categories.length;
     }
 
-    public Card getCard() {
+    public Card getCard()
+    {
         return q.getCard();
     }
 
-    public Card getCard(int serial) {
+    public Card getCard(int serial)
+    {
         if (0 <= serial && serial < cards.length) {
             return cards[serial];
         } else {
@@ -198,7 +208,8 @@ abstract class HexCsv
         return now_days - start_days;
     }
 
-    public int daysLeft() {
+    public int daysLeft()
+    {
         return days_left;
     }
 
@@ -427,7 +438,8 @@ abstract class HexCsv
                 && q.isScheduledSoon(serial, cards_to_load));
     }
 
-    public void setProgress(Progress new_progress) {
+    public void setProgress(Progress new_progress)
+    {
         progress = new_progress;
     }
 
@@ -458,27 +470,33 @@ abstract class HexCsv
         progress.stopOperation();
     }
 
-    public int numScheduled() {
+    public int numScheduled()
+    {
         return q.numScheduled();
     }
 
-    public void addToFutureSchedule(Card card) {
+    public void addToFutureSchedule(Card card)
+    {
         q.addToFutureSchedule(card);
     }
 
-    public void removeFromFutureSchedule(Card card) {
+    public void removeFromFutureSchedule(Card card)
+    {
         q.removeFromFutureSchedule(card);
     }
 
-    public int[] getFutureSchedule() {
+    public int[] getFutureSchedule()
+    {
         return q.getFutureSchedule();
     }
 
-    public String toString() {
+    public String toString()
+    {
         return q.toString();
     }
 
-    public void dumpCards() {
+    public void dumpCards()
+    {
         System.out.println("----Cards:");
         for (int i=0; i < cards.length; ++i) {
             System.out.print("  ");
@@ -486,12 +504,22 @@ abstract class HexCsv
         }
     }
 
-    public void close() {
+    public void close()
+    {
         if (logfile != null) {
             try {
                 logfile.close();
             } catch (IOException e) { }
             logfile = null;
+        }
+    }
+
+    public void reopen(String path)
+    {
+        if (logfile == null && config.logging()) {
+            pathbuf = new StringBuffer(path);
+            pathbuf.append("PRELOG");
+            openLogFile(pathbuf.toString());
         }
     }
 
