@@ -250,7 +250,11 @@ class Export(Job):
 	    os.mkdir(tmpdstdir)
 	    tmpdst = os.path.join(tmpdstdir, '_gogo_scaling.png')
 
-	    im.save(tmpdst, 'PNG')
+	    r = im.save(tmpdst, 'PNG')
+	    if not r:
+		log_warning('unable to export the image: %s' % src)
+		return (True, dst_file)
+
 	    (nwidth, nheight) = (width, height)
 	    while (os.path.getsize(tmpdst) > self.img_max_size):
 		(owidth, oheight) = (nwidth, nheight)
