@@ -2,6 +2,9 @@
 * Changes in the HexCsv library:
   - make the HexCsv.nowInDays() method public
   - add a reopen() method for the Android client
+* Recognize img tags where the width and height attributes are not enclosed
+  in double quotes.
+* Recover gracefully from corrupt images.
 
 20101127 mnemogogo-1.2.5
 * Fix a bug in sound exporting
