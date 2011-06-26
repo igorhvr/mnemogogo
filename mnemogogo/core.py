@@ -285,7 +285,10 @@ class Export(Job):
 	    idx = len(self.dir_indices)
 	    self.dir_indices[dir_path] = idx
 	
-	return str(idx)
+	if idx == 0:
+	    return ""
+	else:
+	    return "_" + str(idx)
 
     def handle_images(self, dst_subdir, text):
 	for r in self.re_img.finditer(text):
@@ -320,11 +323,13 @@ class Export(Job):
 	    if src in self.snds:
 		ntext.append('<sound src="%s" />' % self.snds[src])
 	    else:
-		(src_root, src_ext) = os.path.splitext(os.path.basename(src))
+		(src_dir, src_base) = os.path.split(src)
+		(src_root, src_ext) = os.path.splitext(src_base)
 		if self.name_with_numbers:
 		    name = '%08X' % self.snd_cnt
 		else:
 		    name = src_root.encode('punycode').upper().replace(' ', '_')
+		    name = name + self.directory_index(src_dir)
 		self.snd_cnt += 1
 
 		dst = name + src_ext
