@@ -5,6 +5,7 @@
 * Recognize img tags where the width and height attributes are not enclosed
   in double quotes.
 * Recover gracefully from corrupt images.
+* Fix a crash on missing files under windows.
 
 20101127 mnemogogo-1.2.5
 * Fix a bug in sound exporting
