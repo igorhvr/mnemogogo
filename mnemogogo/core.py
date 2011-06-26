@@ -129,6 +129,8 @@ class Export(Job):
 	self.snd_cnt = 0
 	self.name_with_numbers = True
 
+	self.dir_indices = {}
+
 	self.img_max_width = None
 	self.img_max_height = None
 	self.img_to_landscape = False
@@ -274,17 +276,29 @@ class Export(Job):
 
 	im.save(dst, dst_ext.upper())
 	return (True, dst_file)
+    
+    def directory_index(self, dir_path):
+
+	if self.dir_indices.has_key(dir_path):
+	    idx = self.dir_indices[dir_path]
+	else:
+	    idx = len(self.dir_indices)
+	    self.dir_indices[dir_path] = idx
+	
+	return str(idx)
 
     def handle_images(self, dst_subdir, text):
 	for r in self.re_img.finditer(text):
 	    src = r.group('path')
 
 	    if not (src in self.imgs):
-		(src_root, src_ext) = os.path.splitext(os.path.basename(src))
+		(src_dir, src_base) = os.path.split(src)
+		(src_root, src_ext) = os.path.splitext(src_base)
 		if self.name_with_numbers:
 		    name = '%08X' % self.img_cnt
 		else:
 		    name = src_root.encode('punycode').upper().replace(' ', '_')
+		    name = name + self.directory_index(src_dir)
 		self.img_cnt += 1
 
 		(moved, dst) = self.convert_img(src, dst_subdir, name,

@@ -6,6 +6,9 @@
   in double quotes.
 * Recover gracefully from corrupt images.
 * Fix a crash on missing files under windows.
+  (Thanks to Jan Egil Hagen for report.)
+* Fix name clash problems across multiple source directories.
+  (Thanks to Jan Egil Hagen for report and diagnosis.)
 
 20101127 mnemogogo-1.2.5
 * Fix a bug in sound exporting
