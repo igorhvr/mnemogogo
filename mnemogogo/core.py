@@ -215,13 +215,13 @@ class Export(Job):
 	dst_file = dst_name + '.' + dst_ext
 	dst = os.path.join(self.sync_path, dst_subdir, dst_file)
 
-	if (os.path.exists(dst) and
-		(os.path.getmtime(src) < os.path.getmtime(dst))):
-	    return (False, dst_file)
-
 	if not os.path.exists(src):
 	    log_warning("image not found: %s" % src)
 	    return (False, 'NOTFOUND.PNG')
+
+	if (os.path.exists(dst) and
+		(os.path.getmtime(src) < os.path.getmtime(dst))):
+	    return (False, dst_file)
 
 	im = QImage(src)
 	(width, height) = (im.width(), im.height())
