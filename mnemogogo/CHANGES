@@ -1,4 +1,4 @@
-201012__ mnemogogo-1.2.6
+20110707 mnemogogo-1.2.6
 * Changes in the HexCsv library:
   - make the HexCsv.nowInDays() method public
   - add a reopen() method for the Android client
