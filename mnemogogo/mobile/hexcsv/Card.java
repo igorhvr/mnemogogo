@@ -613,7 +613,7 @@ public class Card
                 r.append(" ");
                 r.append(Long.toString(actual_interval));
                 r.append(" | ");
-                r.append(Float.toString(new_interval));
+                r.append(Long.toString(new Float(new_interval).longValue()));
                 r.append(" ");
                 r.append(Integer.toString(noise));
                 r.append(" | ");
