@@ -26,8 +26,8 @@
 #   widget.removeLocking()
 #
 # When locking is available:
-#   To lock in the disabled state:	widget.disableAndLock()
-#   To unlock and restore the state:	widget.unlockAndRestore()
+#   To lock in the disabled state:      widget.disableAndLock()
+#   To unlock and restore the state:    widget.unlockAndRestore()
 #
 
 import types
@@ -35,7 +35,7 @@ import types
 def _setEnabledWithLocking(self, status=True):
     self._status = status
     if not self._locked:
-	self._setEnabled(status)
+        self._setEnabled(status)
 
 def _disableAndLock(self):
     self._locked = True
