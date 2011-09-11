@@ -1,3 +1,8 @@
+2011____ mnemogogo-1.2.7
+* Changes in the HexCsv library:
+  - Fix a bug in the logging of next_interval values: they should be printed
+    as integers and not floats.
+
 20110707 mnemogogo-1.2.6
 * Changes in the HexCsv library:
   - make the HexCsv.nowInDays() method public
