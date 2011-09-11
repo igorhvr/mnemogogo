@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# mnemogogo.py <timbob@bigpond.com>
+# mnemogogo.py <tim@tbrk.org>
 #
 # Mnemogogo: making mnemosyne mobile
 #
