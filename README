@@ -1,0 +1,70 @@
+This is a copy of http://www.tbrk.org/software/mnemogogo-devel.html
+
+This fork is unofficial.
+
+Mnemogogo development
+
+This page contains some brief notes on the development of the Mnemogogo plugin and each of the two mobile clients. Please email me if you would like more information.
+
+Quick links
+Mnemogogo	source code	instructions
+Mnemojojo	source code	instructions
+Mnemododo	source code	instructions
+Mnemogogo
+
+The Mnemogogo source repository can be checked-out using Mercurial:
+
+hg clone http://www.tbrk.org/cgi-bin/hgwebdir.cgi/mnemogogo mnemogogo
+Additionally, there is a (rough) Makefile for building the zipped distribution.
+
+The Mnemogogo code has two parts:
+
+A plugin for Mnemosyne 1.2.2 written in Python.
+A Java library for accessing the files exported by the plugin.
+Mnemogogo: plugin
+
+The plugin comprises the mnemogogo_plugin.py file to interface with Mnemosyne, and the library routines and other files in the mnemogogo subdirectory. The main library files are:
+
+core.py
+The basic infrastructure and generic routines for import/export plugins.
+gogo_frm.ui, gogo_dlg.py
+The pyqt 3.x user interface and the routines it triggers.
+lock_enabling.py, locked.png
+Tricks for 'locking' QT Widgets (viz. the Mnemosyne question and answer boxes).
+html_lib.py
+Replace HTML character references and entities with unicode characters.
+Mnemogogo has its own notion of an import/export plugin, though there is only really one: interface/hex_csv.py. These routines convert between data within Mnemosyne and the collection 
+of files that the mobile clients read and update.
+
+The util directory contains utility scripts for testing and debugging Mnemogogo. The dump_database.py script is especially useful for validating the plugin's operation. It dumps a 
+Mnemosyne database to stdout.
+
+Mnemogogo: library
+
+The library routines are kept in the mobile/hexcsv subdirectory. The library is used by both the J2ME and Android clients; where the code differs between the two platforms there is 
+usually a specific class file for each (with a name ending in either J2ME or Android), but some more minor modifications required for the Android platform (Java 1.6) are marked by 
+comments beginning with the string Android:. The Makefile described above contains scripts for building separate J2ME and Android source and jar files.
+
+Mnemojojo
+
+Three components are required to build Mnemojojo:
+
+The Mnemojojo source.
+A patched version of Pashalis Padeleris' Fire UI library.
+The J2ME version of the Mnemogogo library (mnemogogo-j2me-x.y.z.jar) distributed with the Mnemogogo plugin package.
+Follow these instructions to setup a build tree:
+
+Check out the Mnemojojo source repository with:
+hg clone http://www.tbrk.org/cgi-bin/hgwebdir.cgi/mnemojojo mnemojojo
+Check out the patched version of the Fire UI into the contrib subdirectory with:
+hg clone http://www.tbrk.org/cgi-bin/hgwebdir.cgi/patched-fire-ui mnemojojo/contrib/fire-j2me
+Open the Mnemojojo Makefile and adjust the MNEMGOGO variable to point at the the jar file distributed with the Mnemogogo plugin.
+Type make to build the source. Two files should be added to the bin/ subdirectory: mnemojojo.jad and mnemojojo.jar. These are ready to install on a mobile device.
+Alternatively, the Makefile also contains emulator and microemulator targets to run Mnemojojo on, respectively, the Sun JWTK Emulator and the Open-source Microemulator. In both cases 
+you will need to arrange for the files exported by Mnemogogo to be present on an emulated SD card.
+Mnemododo
+
+The Mnemododo source repository can be checked-out with:
+
+hg clone http://www.tbrk.org/cgi-bin/hgwebdir.cgi/mnemododo mnemododo
+It requires the Mnemogogo client library.
